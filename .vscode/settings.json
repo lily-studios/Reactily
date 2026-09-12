@@ -1,0 +1,10 @@
+{
+    "luau-lsp.studioPlugin.enabled": true,
+    
+    	"files.associations": {
+		"*.lua": "luau",
+		"*.luau": "luau"
+	},
+
+	"luau-lsp.platform.type": "roblox"
+}

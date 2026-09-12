@@ -1,0 +1,32 @@
+{
+  "name": "Reactily",
+  "version": "1.0.0",
+  "sourceRoot": "src",
+  "moduleCount": 20,
+  "totalLuauLines": 5051,
+  "typedCreatorCount": 28,
+  "lifecycleApi": "delete",
+  "strict": true,
+  "modules": {
+    "src/core/lifecycle.luau": 240,
+    "src/core/objectPool.luau": 134,
+    "src/core/scheduler.luau": 243,
+    "src/core/signal.luau": 313,
+    "src/diagnostics/diagnostics.luau": 97,
+    "src/init.luau": 608,
+    "src/interface/focus.luau": 131,
+    "src/interface/style.luau": 69,
+    "src/interface/theme.luau": 91,
+    "src/interface/virtualList.luau": 77,
+    "src/runtime/animation.luau": 138,
+    "src/runtime/binding.luau": 179,
+    "src/runtime/hostConfig.luau": 214,
+    "src/runtime/renderer.luau": 294,
+    "src/runtime/root.luau": 235,
+    "src/state/atom.luau": 294,
+    "src/state/hooks.luau": 539,
+    "src/state/store.luau": 230,
+    "src/virtual/element.luau": 589,
+    "src/virtual/reconciler.luau": 336
+  }
+}
