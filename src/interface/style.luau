@@ -1,7 +1,5 @@
 --!strict
 
--- composes reusable Reactily style tables without mutating inputs
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -15,7 +13,7 @@ export type style = {
 --————————————————————————————————————————————————————————————————————--
 
 function module.apply<T>(properties: T, styleValue: style): T
-	local output = table.clone(properties :: any)
+	local output: any = table.clone(properties :: any)
 
 	for property, value in styleValue do
 		output[property] = value
@@ -23,7 +21,6 @@ function module.apply<T>(properties: T, styleValue: style): T
 
 	return output :: T
 end
-
 --————————————————————————————————————————————————————————————————————--
 
 function module.merge(styles: {style}): style

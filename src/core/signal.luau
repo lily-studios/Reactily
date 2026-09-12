@@ -1,9 +1,5 @@
 --!strict
 
--- provides typed Reactily-owned signals and derived signal operators
-
---————————————————————————————————————————————————————————————————————--
-
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
@@ -32,7 +28,12 @@ type listener<T> = {
 --————————————————————————————————————————————————————————————————————--
 
 local function runListener<T>(callback: (value: T) -> (), value: T)
-	local success, failure = pcall(callback, value)
+	local success, failure = pcall(function(): boolean
+		callback(value)
+
+		return true
+	end)
+
 	if success then return end
 
 	warn(`Reactily signal listener failed: {failure}`)
@@ -41,16 +42,20 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 function module.distinct<T>(source: signal<T>): signal<T>
-	local output = module.new<T>()
+	local output: signal<T> = module.new()
+
 	local hasPrevious = false
 	local previous: T? = nil
+
 	local sourceConnection = source.connect(function(value: T)
 		if hasPrevious and previous == value then return end
 
 		hasPrevious = true
 		previous = value
+
 		output.fire(value)
 	end)
+
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
@@ -64,13 +69,18 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.filter<T>(source: signal<T>, predicate: (value: T) -> boolean): signal<T>
-	local output = module.new<T>()
+function module.filter<T>(
+	source: signal<T>,
+	predicate: (value: T) -> boolean
+): signal<T>
+	local output: signal<T> = module.new()
+
 	local sourceConnection = source.connect(function(value: T)
 		if not predicate(value) then return end
 
 		output.fire(value)
 	end)
+
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
@@ -84,11 +94,16 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.map<A, B>(source: signal<A>, mapper: (value: A) -> B): signal<B>
-	local output = module.new<B>()
+function module.map<A, B>(
+	source: signal<A>,
+	mapper: (value: A) -> B
+): signal<B>
+	local output: signal<B> = module.new()
+
 	local sourceConnection = source.connect(function(value: A)
 		output.fire(mapper(value))
 	end)
+
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
@@ -103,7 +118,7 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 function module.merge<T>(sources: {signal<T>}): signal<T>
-	local output = module.new<T>()
+	local output: signal<T> = module.new()
 	local sourceConnections: {connection} = {}
 
 	for _, source in sources do
@@ -138,6 +153,7 @@ function module.new<T>(): signal<T>
 			if listenerValue ~= target then continue end
 
 			table.remove(listeners, index)
+
 			return
 		end
 	end
@@ -153,6 +169,7 @@ function module.new<T>(): signal<T>
 
 				connectionValue.connected = false
 				target.isConnected = false
+
 				removeListener(target)
 
 				return true
@@ -188,6 +205,7 @@ function module.new<T>(): signal<T>
 			target.isConnected = false
 
 			local connectionValue = target.connection
+
 			if not connectionValue then continue end
 
 			connectionValue.connected = false
@@ -252,17 +270,23 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.skip<T>(source: signal<T>, amount: number): signal<T>
+function module.skip<T>(
+	source: signal<T>,
+	amount: number
+): signal<T>
 	assert(amount >= 0, "Reactily skip amount must be non-negative.")
 
 	local count = 0
-	local output = module.new<T>()
+	local output: signal<T> = module.new()
+
 	local sourceConnection = source.connect(function(value: T)
 		count += 1
+
 		if count <= amount then return end
 
 		output.fire(value)
 	end)
+
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
@@ -276,17 +300,21 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.take<T>(source: signal<T>, maximum: number): signal<T>
+function module.take<T>(
+	source: signal<T>,
+	maximum: number
+): signal<T>
 	assert(maximum >= 0, "Reactily take maximum must be non-negative.")
 
 	local count = 0
-	local output = module.new<T>()
+	local output: signal<T> = module.new()
 	local sourceConnection: connection?
 
 	sourceConnection = source.connect(function(value: T)
 		if count >= maximum then return end
 
 		count += 1
+
 		output.fire(value)
 
 		if count < maximum then return end

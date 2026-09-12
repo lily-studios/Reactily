@@ -1,7 +1,5 @@
 --!strict
 
--- owns Reactily runtime resources and deletion
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -40,7 +38,12 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 local function runCleanup(callback: () -> ())
-	local success, failure = pcall(callback)
+		local success, failure = pcall(function(): boolean
+			callback()
+
+			return true
+		end)
+
 	if success then return end
 
 	warn(`Reactily cleanup failed: {failure}`)

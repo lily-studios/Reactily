@@ -1,14 +1,11 @@
 --!strict
 
--- provides typed external stores, selectors, and batched state changes
-
---————————————————————————————————————————————————————————————————————--
-
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
 local core = script.Parent.Parent:WaitForChild("core")
+
 local signalModule = require(core:WaitForChild("signal"))
 
 --————————————————————————————————————————————————————————————————————--
@@ -45,9 +42,10 @@ type previousState<T> = {
 
 function module.new<T>(initialState: T): store<T>
 	local activeSelectors: {() -> boolean} = {}
+
 	local batchDepth = 0
 	local batchedPrevious: previousState<T>? = nil
-	local changed = signalModule.new<change<T>>()
+	local changed: signalModule.signal<change<T>> = signalModule.new()
 	local isDeleted = false
 	local state = initialState
 
@@ -56,6 +54,7 @@ function module.new<T>(initialState: T): store<T>
 			if currentDelete ~= deleteSelector then continue end
 
 			table.remove(activeSelectors, index)
+
 			return
 		end
 	end
@@ -85,10 +84,13 @@ function module.new<T>(initialState: T): store<T>
 
 	local function set(nextState: T): boolean
 		assert(not isDeleted, "Reactily store is deleted.")
+
 		if state == nextState then return false end
 
 		local previous = state
+
 		state = nextState
+
 		emit(previous)
 
 		return true
@@ -99,12 +101,17 @@ function module.new<T>(initialState: T): store<T>
 
 		batchDepth += 1
 
-		local success, failure = pcall(callback)
+		local success, failure = pcall(function(): boolean
+			callback()
+
+			return true
+		end)
 
 		batchDepth -= 1
 
 		if batchDepth == 0 and batchedPrevious then
 			local previous = batchedPrevious.value
+
 			batchedPrevious = nil
 
 			if previous ~= state then
@@ -126,6 +133,7 @@ function module.new<T>(initialState: T): store<T>
 		isDeleted = true
 
 		local selectorDeletions = table.clone(activeSelectors)
+
 		table.clear(activeSelectors)
 
 		for _, deleteSelector in selectorDeletions do
@@ -133,7 +141,9 @@ function module.new<T>(initialState: T): store<T>
 		end
 
 		table.clear(selectorDeletions)
+
 		changed.delete()
+
 		batchedPrevious = nil
 
 		return true
@@ -150,16 +160,20 @@ function module.new<T>(initialState: T): store<T>
 	local function select<R>(selectorFunction: (state: T) -> R): selector<R>
 		assert(not isDeleted, "Reactily store is deleted.")
 
-		local selectorChanged = signalModule.new<change<R>>()
+		local selectorChanged: signalModule.signal<change<R>> = signalModule.new()
+
 		local selectorIsDeleted = false
 		local selected = selectorFunction(state)
+
 		local storeConnection = changed.connect(function(storeChange: change<T>)
 			if selectorIsDeleted then return end
 
 			local nextValue = selectorFunction(storeChange.current)
+
 			if nextValue == selected then return end
 
 			local previous = selected
+
 			selected = nextValue
 
 			selectorChanged.fire({
@@ -167,12 +181,14 @@ function module.new<T>(initialState: T): store<T>
 				previous = previous,
 			})
 		end)
+
 		local deleteSelector: () -> boolean
 
 		deleteSelector = function(): boolean
 			if selectorIsDeleted then return false end
 
 			selectorIsDeleted = true
+
 			storeConnection.disconnect()
 			selectorChanged.delete()
 			removeSelector(deleteSelector)
@@ -184,14 +200,17 @@ function module.new<T>(initialState: T): store<T>
 
 		return {
 			delete = deleteSelector,
+
 			get = function(): R
 				assert(not selectorIsDeleted, "Reactily selector is deleted.")
 
 				return selected
 			end,
+
 			isDeleted = function(): boolean
 				return selectorIsDeleted
 			end,
+
 			subscribe = function(callback: (change: change<R>) -> ()): signalModule.connection
 				assert(not selectorIsDeleted, "Reactily selector is deleted.")
 

@@ -1,7 +1,5 @@
 --!strict
 
--- provides owned TweenService animations with explicit deletion
-
 local tweenService = game:GetService("TweenService")
 
 --————————————————————————————————————————————————————————————————————--
@@ -39,11 +37,25 @@ local function resolveTweenInfo(options: tweenOptions): TweenInfo
 	local repeatCount = 0
 	local reverses = false
 
-	if options.delayTime ~= nil then delayTime = options.delayTime end
-	if options.easingDirection ~= nil then easingDirection = options.easingDirection end
-	if options.easingStyle ~= nil then easingStyle = options.easingStyle end
-	if options.repeatCount ~= nil then repeatCount = options.repeatCount end
-	if options.reverses ~= nil then reverses = options.reverses end
+	if options.delayTime ~= nil then
+		delayTime = options.delayTime
+	end
+
+	if options.easingDirection ~= nil then
+		easingDirection = options.easingDirection
+	end
+
+	if options.easingStyle ~= nil then
+		easingStyle = options.easingStyle
+	end
+
+	if options.repeatCount ~= nil then
+		repeatCount = options.repeatCount
+	end
+
+	if options.reverses ~= nil then
+		reverses = options.reverses
+	end
 
 	return TweenInfo.new(
 		options.time,

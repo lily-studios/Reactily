@@ -1,14 +1,11 @@
 --!strict
 
--- provides typed reactive values without requiring component rerenders
-
---————————————————————————————————————————————————————————————————————--
-
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
 local core = script.Parent.Parent:WaitForChild("core")
+
 local signalModule = require(core:WaitForChild("signal"))
 
 --————————————————————————————————————————————————————————————————————--
@@ -30,6 +27,7 @@ export type binding<T> = {
 
 function module.attach<T>(source: binding<T>, instance: Instance, propertyName: string): () -> ()
 	local target = instance :: any
+
 	target[propertyName] = source.get()
 
 	local connection = source.subscribe(function(change: bindingChange<T>)
@@ -45,7 +43,11 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.clamp(source: binding<number>, minimum: number, maximum: number): binding<number>
+function module.clamp(
+	source: binding<number>,
+	minimum: number,
+	maximum: number
+): binding<number>
 	assert(minimum <= maximum, "Reactily binding minimum must not exceed maximum.")
 
 	return module.map(source, function(value: number): number
@@ -69,9 +71,11 @@ function module.combine<A, B, R>(
 	local firstConnection = first.subscribe(function()
 		update()
 	end)
+
 	local secondConnection = second.subscribe(function()
 		update()
 	end)
+
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
@@ -86,17 +90,25 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.format<T>(source: binding<T>, formatter: (value: T) -> string): binding<string>
+function module.format<T>(
+	source: binding<T>,
+	formatter: (value: T) -> string
+): binding<string>
 	return module.map(source, formatter)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.map<A, B>(source: binding<A>, mapper: (value: A) -> B): binding<B>
+function module.map<A, B>(
+	source: binding<A>,
+	mapper: (value: A) -> B
+): binding<B>
 	local output = module.new(mapper(source.get()))
+
 	local sourceConnection = source.subscribe(function(change: bindingChange<A>)
 		output.set(mapper(change.current))
 	end)
+
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
@@ -111,7 +123,8 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 function module.new<T>(initialValue: T): binding<T>
-	local changed = signalModule.new<bindingChange<T>>()
+	local changed: signalModule.signal<bindingChange<T>> = signalModule.new()
+
 	local isDeleted = false
 	local value = initialValue
 
@@ -119,6 +132,7 @@ function module.new<T>(initialValue: T): binding<T>
 		if isDeleted then return false end
 
 		isDeleted = true
+
 		changed.delete()
 
 		return true
@@ -136,9 +150,11 @@ function module.new<T>(initialValue: T): binding<T>
 
 	local function set(nextValue: T): boolean
 		assert(not isDeleted, "Reactily binding is deleted.")
+
 		if value == nextValue then return false end
 
 		local previous = value
+
 		value = nextValue
 
 		changed.fire({
@@ -149,7 +165,9 @@ function module.new<T>(initialValue: T): binding<T>
 		return true
 	end
 
-	local function subscribe(callback: (change: bindingChange<T>) -> ()): signalModule.connection
+	local function subscribe(
+		callback: (change: bindingChange<T>) -> ()
+	): signalModule.connection
 		assert(not isDeleted, "Reactily binding is deleted.")
 
 		return changed.connect(callback)
@@ -166,7 +184,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.round(source: binding<number>, precision: number): binding<number>
+function module.round(
+	source: binding<number>,
+	precision: number
+): binding<number>
 	local multiplier = 10 ^ precision
 
 	return module.map(source, function(value: number): number

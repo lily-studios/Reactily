@@ -1,7 +1,5 @@
 --!strict
 
--- schedules Reactily work only while queued work exists
-
 local runService = game:GetService("RunService")
 
 --————————————————————————————————————————————————————————————————————--
@@ -35,7 +33,12 @@ type scheduledTask = {
 --————————————————————————————————————————————————————————————————————--
 
 local function runScheduledCallback(callback: () -> ())
-	local success, failure = pcall(callback)
+		local success, failure = pcall(function(): boolean
+			callback()
+
+			return true
+		end)
+		
 	if success then return end
 
 	warn(`Reactily scheduled callback failed: {failure}`)

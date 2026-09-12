@@ -85,14 +85,18 @@ end
 local function getSlot(context: componentContext, kind: string): hookSlot
 	context.hookIndex += 1
 
-	local slot = context.hooks[context.hookIndex]
+	local existingSlot = context.hooks[context.hookIndex]
 
-	if slot then
-		assert(slot.kind == kind, `Reactily hook order changed from "{slot.kind}" to "{kind}".`)
-		return slot
+	if existingSlot then
+		assert(
+			existingSlot.kind == kind,
+			`Reactily hook order changed from "{existingSlot.kind}" to "{kind}".`
+		)
+
+		return existingSlot
 	end
 
-	slot = {
+	local newSlot: hookSlot = {
 		callback = nil,
 		cleanup = nil,
 		dependencies = nil,
@@ -101,15 +105,20 @@ local function getSlot(context: componentContext, kind: string): hookSlot
 		value = nil,
 	}
 
-	context.hooks[context.hookIndex] = slot
+	context.hooks[context.hookIndex] = newSlot
 
-	return slot
+	return newSlot
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 local function runCleanup(callback: cleanup)
-	local success, failure = pcall(callback)
+	local success, failure = pcall(function(): boolean
+		callback()
+
+		return true
+	end)
+
 	if success then return end
 
 	warn(`Reactily effect cleanup failed: {failure}`)
@@ -246,6 +255,10 @@ function module.useAttribute<T>(
 	end
 
 	local value, setValue = module.useState(initialValue)
+	local dependencies: dependencyList = {
+		instance,
+		attributeName,
+	}
 
 	module.useEffect(function()
 		local currentAttribute = instance:GetAttribute(attributeName)
@@ -264,7 +277,7 @@ function module.useAttribute<T>(
 		return function()
 			connection:Disconnect()
 		end
-	end, {instance, attributeName})
+	end, dependencies)
 
 	local function set(nextValue: T)
 		if instance:GetAttribute(attributeName) ~= nextValue then
@@ -368,11 +381,16 @@ function module.useDebouncedValue<T>(value: T, delaySeconds: number): T
 
 	local debounced, setDebounced = module.useState(value)
 	local generation = module.useRef(0)
+	local dependencies: dependencyList = {
+		value,
+		delaySeconds,
+	}
 
 	module.useEffect(function()
 		generation.current += 1
 
 		local currentGeneration = generation.current
+
 		local thread = task.delay(delaySeconds, function()
 			if generation.current ~= currentGeneration then return end
 
@@ -384,7 +402,7 @@ function module.useDebouncedValue<T>(value: T, delaySeconds: number): T
 
 			task.cancel(thread)
 		end
-	end, {value, delaySeconds})
+	end, dependencies)
 
 	return debounced
 end

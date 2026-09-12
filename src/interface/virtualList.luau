@@ -1,7 +1,5 @@
 --!strict
 
--- resolves visible ranges for large fixed-size interface lists
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}

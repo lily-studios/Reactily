@@ -1,7 +1,5 @@
 --!strict
 
--- collects explicit Reactily runtime counters without polling
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}

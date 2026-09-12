@@ -1,7 +1,5 @@
 --!strict
 
--- manages explicit keyboard and controller focus groups
-
 local guiService = game:GetService("GuiService")
 
 --————————————————————————————————————————————————————————————————————--

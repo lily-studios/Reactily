@@ -1,7 +1,5 @@
 --!strict
 
--- maps Reactily host prop names to Roblox properties and signals
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}

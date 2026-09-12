@@ -1,7 +1,5 @@
 --!strict
 
--- owns reusable objects with bounded retention
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -21,16 +19,25 @@ export type objectPool<T> = {
 --————————————————————————————————————————————————————————————————————--
 
 function module.instance(className: string, maximumSize: number): objectPool<Instance>
+	assert(className ~= "", "Reactily object pool class name must not be empty.")
+	assert(maximumSize >= 0, "Reactily object pool maximum size must be non-negative.")
+
+	local function createInstance(): Instance
+		return Instance.new(className)
+	end
+
+	local function resetInstance(instance: Instance)
+		instance.Parent = nil
+	end
+
+	local function deleteInstance(instance: Instance)
+		instance:Destroy()
+	end
+
 	return module.new(
-		function(): Instance
-			return Instance.new(className)
-		end,
-		function(instance: Instance)
-			instance.Parent = nil
-		end,
-		function(instance: Instance)
-			instance:Destroy()
-		end,
+		createInstance,
+		resetInstance,
+		deleteInstance,
 		maximumSize
 	)
 end
@@ -45,13 +52,20 @@ function module.new<T>(
 ): objectPool<T>
 	assert(maximumSize >= 0, "Reactily object pool maximumSize must be non-negative.")
 
-	local available: {T} = {}
+	local available: { T } = {}
 	local createdCount = 0
 	local isDeleted = false
 
 	local function deleteSafely(object: T)
-		local success, failure = pcall(deleteObject, object)
-		if success then return end
+		local success, failure = pcall(function(): boolean
+			deleteObject(object)
+
+			return true
+		end)
+
+		if success then
+			return
+		end
 
 		warn(`Reactily object pool deletion failed: {failure}`)
 	end
@@ -80,7 +94,9 @@ function module.new<T>(
 	end
 
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 		clear()

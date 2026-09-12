@@ -1,7 +1,5 @@
 --!strict
 
--- reconciles Reactily virtual elements against owned Roblox host Instances
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -123,7 +121,7 @@ function internals.reconcile(
 	if not currentNode and not nextElement then return nil end
 
 	if not currentNode then
-		assert(nextElement)
+	assert(nextElement, "[Reactily] Reconcile requires a next element when no current node exists.")
 		return internals.mount(parent, nextElement, options)
 	end
 
@@ -143,8 +141,8 @@ function internals.reconcile(
 
 	if nextElement.kind == "host" then
 		local host = currentNode.host
-		assert(host, "Reactily host runtime node is missing its host handle.")
-		assert(previousElement.kind == "host", "Reactily host identity changed unexpectedly.")
+		assert(host, "[Reactily] Host runtime node is missing its host handle.")
+		assert(previousElement.kind == "host", "[Reactily] Host identity changed unexpectedly.")
 
 		renderer.updateHost(host, previousElement.props, nextElement.props)
 		currentNode.children = internals.reconcileChildren(

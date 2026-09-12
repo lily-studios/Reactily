@@ -1,7 +1,5 @@
 --!strict
 
--- owns typed Reactily theme tokens and subscriptions
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -25,7 +23,8 @@ export type theme<T> = {
 --————————————————————————————————————————————————————————————————————--
 
 function module.new<T>(initialValue: T): theme<T>
-	local changed = signalModule.new<T>()
+	local changed: signalModule.signal<T> = signalModule.new()
+
 	local isDeleted = false
 	local value = initialValue
 
@@ -33,6 +32,7 @@ function module.new<T>(initialValue: T): theme<T>
 		if isDeleted then return false end
 
 		isDeleted = true
+
 		changed.delete()
 
 		return true
@@ -50,9 +50,11 @@ function module.new<T>(initialValue: T): theme<T>
 
 	local function set(nextValue: T): boolean
 		assert(not isDeleted, "Reactily theme is deleted.")
+
 		if value == nextValue then return false end
 
 		value = nextValue
+
 		changed.fire(nextValue)
 
 		return true

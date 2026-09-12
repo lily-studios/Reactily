@@ -1,7 +1,5 @@
 --!strict
 
--- provides typed standalone, computed, historical, and Attribute-backed state
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -229,7 +227,8 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 function module.new<T>(initialValue: T): atom<T>
-	local changed = signalModule.new<atomChange<T>>()
+	local changed: signalModule.signal<atomChange<T>> = signalModule.new()
+
 	local isDeleted = false
 	local value = initialValue
 
@@ -237,6 +236,7 @@ function module.new<T>(initialValue: T): atom<T>
 		if isDeleted then return false end
 
 		isDeleted = true
+
 		changed.delete()
 
 		return true
@@ -254,9 +254,11 @@ function module.new<T>(initialValue: T): atom<T>
 
 	local function set(nextValue: T): boolean
 		assert(not isDeleted, "Reactily atom is deleted.")
+
 		if value == nextValue then return false end
 
 		local previous = value
+
 		value = nextValue
 
 		changed.fire({

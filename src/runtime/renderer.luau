@@ -1,7 +1,5 @@
 --!strict
 
--- applies Reactily host props to Roblox Instances with change-only writes
-
 local collectionService = game:GetService("CollectionService")
 
 --————————————————————————————————————————————————————————————————————--
