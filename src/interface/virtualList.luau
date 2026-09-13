@@ -1,5 +1,7 @@
 --!strict
 
+-- provides fixed-size virtual list range calculation and slicing
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -15,6 +17,13 @@ export type range = {
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Resolves the visible item range for a fixed-size virtual list.
+--- @param itemCount number Total number of items in the list.
+--- @param itemSize number Size of each item along the scrolling axis.
+--- @param scrollOffset number Current scroll position along the list.
+--- @param viewportSize number Visible size of the scrolling viewport.
+--- @param overscan number? Additional items rendered before and after the visible range. Defaults to two.
+--- @return range Calculated virtual range and total list size.
 function module.resolve(
 	itemCount: number,
 	itemSize: number,
@@ -58,6 +67,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Returns the items contained within a resolved virtual range.
+--- @param items {T} Complete ordered item collection.
+--- @param rangeValue range Range returned by resolve().
+--- @return {T} New array containing only items inside the range.
 function module.slice<T>(items: {T}, rangeValue: range): {T}
 	if rangeValue.first == 0 then return {} end
 

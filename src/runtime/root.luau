@@ -1,5 +1,7 @@
 --!strict
 
+-- provides Reactily root rendering, batching, suspension, and lifecycle control
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -47,6 +49,9 @@ type rootContext = {
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a Reactily rendering root under the supplied parent.
+--- @param parent Instance Roblox Instance that receives rendered hosts.
+--- @return root A new rendering root.
 function module.new(parent: Instance): root
 	assert(typeof(parent) == "Instance", "Reactily root parent must be an Instance.")
 
@@ -67,38 +72,28 @@ function module.new(parent: Instance): root
 	local requestRender: () -> ()
 
 	requestRender = function()
-		if context.isDeleted then
-			return
-		end
+		if context.isDeleted then return end
 
 		context.needsRender = true
 
-		if context.isSuspended then
-			return
-		end
-		if context.batchDepth > 0 then
-			return
-		end
-		if context.renderQueued then
-			return
-		end
+		if context.isSuspended then return end
+		if context.batchDepth > 0 then return end
+		if context.renderQueued then return end
 
 		context.renderQueued = true
+
 		context.scheduler.enqueueKeyed(renderTaskKey, function()
 			renderNow()
 		end)
 	end
 
 	renderNow = function()
-		if context.isDeleted then
-			return
-		end
-		if context.isSuspended then
-			return
-		end
+		if context.isDeleted then return end
+		if context.isSuspended then return end
 
 		if context.isRendering then
 			requestRender()
+
 			return
 		end
 
@@ -107,9 +102,14 @@ function module.new(parent: Instance): root
 		context.isRendering = true
 
 		local success, failure = pcall(function()
-			context.currentNode = reconciler.reconcile(context.parent, context.currentNode, context.currentElement, {
-				requestRender = requestRender,
-			})
+			context.currentNode = reconciler.reconcile(
+				context.parent,
+				context.currentNode,
+				context.currentElement,
+				{
+					requestRender = requestRender,
+				}
+			)
 		end)
 
 		context.isRendering = false
@@ -123,6 +123,8 @@ function module.new(parent: Instance): root
 		end
 	end
 
+	--- Groups root updates and performs pending rendering after the outermost batch completes.
+	--- @param callback () -> () Callback containing the updates to batch.
 	local function batch(callback: () -> ())
 		assert(not context.isDeleted, "Reactily root is deleted.")
 
@@ -139,20 +141,19 @@ function module.new(parent: Instance): root
 		if context.batchDepth == 0 and context.needsRender and not context.isSuspended then
 			context.scheduler.cancelKey(renderTaskKey)
 			context.renderQueued = false
+
 			renderNow()
 		end
 
-		if success then
-			return
-		end
+		if success then return end
 
 		error(failure)
 	end
 
+	--- Deletes the root, scheduler, and currently mounted runtime tree.
+	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if context.isDeleted then
-			return false
-		end
+		if context.isDeleted then return false end
 
 		context.isDeleted = true
 		context.needsRender = false
@@ -167,10 +168,9 @@ function module.new(parent: Instance): root
 		return true
 	end
 
+	--- Immediately flushes work currently queued by the root scheduler.
 	local function flush()
-		if context.isDeleted then
-			return
-		end
+		if context.isDeleted then return end
 
 		context.scheduler.flush()
 	end
@@ -191,35 +191,32 @@ function module.new(parent: Instance): root
 		return context.isSuspended
 	end
 
+	--- Renders an element into the root or unmounts the current tree when nil is supplied.
+	--- Unchanged element references are skipped when no render is pending.
+	--- @param elementValue elementModule.element? Element to render, or nil to unmount.
 	local function render(elementValue: elementModule.element?)
 		assert(not context.isDeleted, "Reactily root is deleted.")
 
-		if context.currentElement == elementValue and not context.needsRender then
-			return
-		end
+		if context.currentElement == elementValue and not context.needsRender then return end
 
 		context.currentElement = elementValue
 		context.needsRender = true
 
-		if context.isSuspended then
-			return
-		end
-		if context.batchDepth > 0 then
-			return
-		end
+		if context.isSuspended then return end
+		if context.batchDepth > 0 then return end
 
 		context.scheduler.cancelKey(renderTaskKey)
 		context.renderQueued = false
+
 		renderNow()
 	end
 
+	--- Resumes rendering after the root has been suspended.
+	--- Pending render work is applied immediately when needed.
+	--- @return boolean Whether the root transitioned from suspended to active.
 	local function resume(): boolean
-		if context.isDeleted then
-			return false
-		end
-		if not context.isSuspended then
-			return false
-		end
+		if context.isDeleted then return false end
+		if not context.isSuspended then return false end
 
 		context.isSuspended = false
 
@@ -230,15 +227,14 @@ function module.new(parent: Instance): root
 		return true
 	end
 
+	--- Suspends rendering while preserving the current mounted tree and pending element state.
+	--- @return boolean Whether the root transitioned into the suspended state.
 	local function suspend(): boolean
-		if context.isDeleted then
-			return false
-		end
-		if context.isSuspended then
-			return false
-		end
+		if context.isDeleted then return false end
+		if context.isSuspended then return false end
 
 		context.isSuspended = true
+
 		context.scheduler.cancelKey(renderTaskKey)
 		context.renderQueued = false
 

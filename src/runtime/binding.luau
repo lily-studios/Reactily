@@ -1,5 +1,9 @@
 --!strict
 
+-- provides reactive bindings and derived binding helpers
+
+--————————————————————————————————————————————————————————————————————--
+
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
@@ -25,7 +29,16 @@ export type binding<T> = {
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.attach<T>(source: binding<T>, instance: Instance, propertyName: string): () -> ()
+--- Attaches a binding to an Instance property and keeps it synchronized.
+--- @param source binding<T> Binding supplying property values.
+--- @param instance Instance Instance containing the target property.
+--- @param propertyName string Property name to update.
+--- @return () -> () Cleanup function that disconnects the binding subscription.
+function module.attach<T>(
+	source: binding<T>,
+	instance: Instance,
+	propertyName: string
+): () -> ()
 	local target = instance :: any
 
 	target[propertyName] = source.get()
@@ -43,6 +56,11 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a derived numeric binding clamped between a minimum and maximum.
+--- @param source binding<number> Source numeric binding.
+--- @param minimum number Minimum allowed value.
+--- @param maximum number Maximum allowed value.
+--- @return binding<number> Derived clamped binding.
 function module.clamp(
 	source: binding<number>,
 	minimum: number,
@@ -57,6 +75,11 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Combines two bindings into one derived binding.
+--- @param first binding<A> First source binding.
+--- @param second binding<B> Second source binding.
+--- @param mapper (firstValue: A, secondValue: B) -> R Function that derives the output value.
+--- @return binding<R> Derived binding updated when either source changes.
 function module.combine<A, B, R>(
 	first: binding<A>,
 	second: binding<B>,
@@ -90,6 +113,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a derived string binding using a formatter function.
+--- @param source binding<T> Source binding.
+--- @param formatter (value: T) -> string Function that converts each value to text.
+--- @return binding<string> Derived formatted binding.
 function module.format<T>(
 	source: binding<T>,
 	formatter: (value: T) -> string
@@ -99,6 +126,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a derived binding that transforms values from a source binding.
+--- @param source binding<A> Source binding.
+--- @param mapper (value: A) -> B Function that converts source values.
+--- @return binding<B> Derived mapped binding.
 function module.map<A, B>(
 	source: binding<A>,
 	mapper: (value: A) -> B
@@ -122,12 +153,17 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a reactive binding with an initial value.
+--- @param initialValue T Initial binding value.
+--- @return binding<T> A new binding.
 function module.new<T>(initialValue: T): binding<T>
 	local changed: signalModule.signal<bindingChange<T>> = signalModule.new()
 
 	local isDeleted = false
 	local value = initialValue
 
+	--- Deletes the binding and disconnects all subscribers.
+	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
 		if isDeleted then return false end
 
@@ -148,6 +184,10 @@ function module.new<T>(initialValue: T): binding<T>
 		return isDeleted
 	end
 
+	--- Replaces the current binding value.
+	--- Subscribers are notified only when the value changes.
+	--- @param nextValue T New binding value.
+	--- @return boolean Whether the value changed.
 	local function set(nextValue: T): boolean
 		assert(not isDeleted, "Reactily binding is deleted.")
 
@@ -165,6 +205,9 @@ function module.new<T>(initialValue: T): binding<T>
 		return true
 	end
 
+	--- Subscribes to future binding changes.
+	--- @param callback (change: bindingChange<T>) -> () Callback receiving previous and current values.
+	--- @return signalModule.connection Connection used to stop future notifications.
 	local function subscribe(
 		callback: (change: bindingChange<T>) -> ()
 	): signalModule.connection
@@ -184,6 +227,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a derived numeric binding rounded to the requested precision.
+--- @param source binding<number> Source numeric binding.
+--- @param precision number Number of decimal places to preserve.
+--- @return binding<number> Derived rounded binding.
 function module.round(
 	source: binding<number>,
 	precision: number

@@ -1,6 +1,6 @@
 --!strict
 
--- implements typed Reactily component hooks and effect deletion
+-- implements typed Reactily component hooks and effect lifecycle management
 
 --————————————————————————————————————————————————————————————————————--
 
@@ -9,6 +9,7 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 type cleanup = () -> ()
+
 type dependencyList = {any}
 
 type hookSlot = {
@@ -56,7 +57,10 @@ local currentContext: componentContext? = nil
 
 --————————————————————————————————————————————————————————————————————--
 
-local function dependenciesChanged(previous: dependencyList?, current: dependencyList?): boolean
+local function dependenciesChanged(
+	previous: dependencyList?,
+	current: dependencyList?
+): boolean
 	if previous == nil then return true end
 	if current == nil then return true end
 	if #previous ~= #current then return true end
@@ -74,6 +78,7 @@ end
 
 local function getContext(): componentContext
 	local context = currentContext
+
 	assert(context, "Reactily hook called outside a component render.")
 	assert(not context.isDeleted, "Reactily component context is deleted.")
 
@@ -126,7 +131,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function resolveStateValue<T>(previous: T, nextValue: T | ((previous: T) -> T)): T
+local function resolveStateValue<T>(
+	previous: T,
+	nextValue: T | ((previous: T) -> T)
+): T
 	if type(nextValue) == "function" then
 		return (nextValue :: (previous: T) -> T)(previous)
 	end
@@ -136,6 +144,8 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Begins hook collection for a component render.
+--- @param context componentContext Component context becoming active.
 function module.beginRender(context: componentContext)
 	assert(not context.isDeleted, "Reactily component context is deleted.")
 	assert(currentContext == nil, "Reactily component renders cannot overlap.")
@@ -146,6 +156,9 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Deletes a component context and runs all remaining effect cleanups.
+--- @param context componentContext Component context to delete.
+--- @return boolean Whether deletion occurred.
 function module.deleteContext(context: componentContext): boolean
 	if context.isDeleted then return false end
 
@@ -154,6 +167,7 @@ function module.deleteContext(context: componentContext): boolean
 	for _, slot in context.hooks do
 		if slot.cleanup then
 			runCleanup(slot.cleanup)
+
 			slot.cleanup = nil
 		end
 
@@ -170,8 +184,18 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.endRender(context: componentContext, didComplete: boolean)
-	assert(currentContext == context, "Reactily render context does not match the active component.")
+--- Completes the active component render and validates hook ordering.
+--- Failed renders discard pending effects and restore the previous completed hook layout.
+--- @param context componentContext Component context completing its render.
+--- @param didComplete boolean Whether the component render completed successfully.
+function module.endRender(
+	context: componentContext,
+	didComplete: boolean
+)
+	assert(
+		currentContext == context,
+		"Reactily render context does not match the active component."
+	)
 
 	currentContext = nil
 
@@ -180,6 +204,7 @@ function module.endRender(context: componentContext, didComplete: boolean)
 
 		if not context.isRendered then
 			table.clear(context.hooks)
+
 			return
 		end
 
@@ -191,7 +216,10 @@ function module.endRender(context: componentContext, didComplete: boolean)
 	end
 
 	if context.isRendered then
-		assert(context.hookIndex == context.renderedHookCount, "Reactily hook count changed between renders.")
+		assert(
+			context.hookIndex == context.renderedHookCount,
+			"Reactily hook count changed between renders."
+		)
 	end
 
 	context.isRendered = true
@@ -200,16 +228,21 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Runs effects queued by the most recently completed component render.
+--- Previous cleanup runs before a changed effect executes again.
+--- @param context componentContext Component context whose effects should be flushed.
 function module.flushEffects(context: componentContext)
 	if context.isDeleted then return end
 	if #context.pendingEffects == 0 then return end
 
 	local pendingEffects = context.pendingEffects
+
 	context.pendingEffects = {}
 
 	for _, effect in pendingEffects do
 		if effect.slot.cleanup then
 			runCleanup(effect.slot.cleanup)
+
 			effect.slot.cleanup = nil
 		end
 
@@ -217,6 +250,7 @@ function module.flushEffects(context: componentContext)
 
 		if success then
 			effect.slot.cleanup = cleanupOrFailure
+
 			continue
 		end
 
@@ -228,6 +262,9 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a component hook context.
+--- @param requestRender () -> () Callback used by stateful hooks to request another render.
+--- @return componentContext A new component context.
 function module.newContext(requestRender: () -> ()): componentContext
 	return {
 		hookIndex = 0,
@@ -242,6 +279,13 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates component state synchronized with a Roblox Attribute.
+--- The existing Attribute value takes priority over the supplied default.
+--- @param instance Instance Instance containing the Attribute.
+--- @param attributeName string Attribute name to synchronize.
+--- @param defaultValue T Value used when the Attribute does not exist.
+--- @return T Current Attribute-backed value.
+--- @return (value: T) -> () Setter that updates both the Attribute and hook state.
 function module.useAttribute<T>(
 	instance: Instance,
 	attributeName: string,
@@ -255,6 +299,7 @@ function module.useAttribute<T>(
 	end
 
 	local value, setValue = module.useState(initialValue)
+
 	local dependencies: dependencyList = {
 		instance,
 		attributeName,
@@ -269,6 +314,7 @@ function module.useAttribute<T>(
 
 		local connection = instance:GetAttributeChangedSignal(attributeName):Connect(function()
 			local nextValue = instance:GetAttribute(attributeName)
+
 			if nextValue == nil then return end
 
 			setValue(nextValue :: T)
@@ -292,7 +338,15 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.useBoolean(initialValue: boolean?): (boolean, () -> (), () -> (), () -> ())
+--- Creates boolean component state with dedicated enable, disable, and toggle controls.
+--- @param initialValue boolean? Initial value. Defaults to false.
+--- @return boolean Current boolean value.
+--- @return () -> () Function that sets the value to true.
+--- @return () -> () Function that sets the value to false.
+--- @return () -> () Function that toggles the current value.
+function module.useBoolean(
+	initialValue: boolean?
+): (boolean, () -> (), () -> (), () -> ())
 	local defaultValue = false
 
 	if initialValue ~= nil then
@@ -320,7 +374,15 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.useCallback<T>(callback: T, dependencies: dependencyList?): T
+--- Memoizes a callback until its dependencies change.
+--- Omitting dependencies causes the callback to refresh every render.
+--- @param callback T Callback value to memoize.
+--- @param dependencies dependencyList? Values controlling when the callback is replaced.
+--- @return T Memoized callback.
+function module.useCallback<T>(
+	callback: T,
+	dependencies: dependencyList?
+): T
 	return module.useMemo(function(): T
 		return callback
 	end, dependencies)
@@ -328,7 +390,13 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.useCounter(initialValue: number?): (number, counterControls)
+--- Creates numeric component state with counter controls.
+--- @param initialValue number? Initial counter value. Defaults to zero.
+--- @return number Current counter value.
+--- @return counterControls Controls for incrementing, decrementing, setting, and resetting the counter.
+function module.useCounter(
+	initialValue: number?
+): (number, counterControls)
 	local defaultValue = 0
 
 	if initialValue ~= nil then
@@ -376,11 +444,20 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.useDebouncedValue<T>(value: T, delaySeconds: number): T
+--- Returns a delayed version of a changing value.
+--- Pending delayed updates are cancelled when the value, delay, or component lifecycle changes.
+--- @param value T Current source value.
+--- @param delaySeconds number Delay before the returned value updates.
+--- @return T Current debounced value.
+function module.useDebouncedValue<T>(
+	value: T,
+	delaySeconds: number
+): T
 	assert(delaySeconds >= 0, "Reactily debounce delay must be non-negative.")
 
 	local debounced, setDebounced = module.useState(value)
 	local generation = module.useRef(0)
+
 	local dependencies: dependencyList = {
 		value,
 		delaySeconds,
@@ -409,14 +486,21 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.useEffect(callback: () -> cleanup?, dependencies: dependencyList?)
+--- Queues an effect to run after the component render completes.
+--- Returning a cleanup function disposes the previous effect before rerunning and when the context is deleted.
+--- Omitting dependencies causes the effect to run after every completed render.
+--- @param callback () -> cleanup? Effect callback with optional cleanup.
+--- @param dependencies dependencyList? Values controlling when the effect reruns.
+function module.useEffect(
+	callback: () -> cleanup?,
+	dependencies: dependencyList?
+)
 	local context = getContext()
 	local slot = getSlot(context, "effect")
 
 	if slot.isInitialized and not dependenciesChanged(slot.dependencies, dependencies) then return end
 
 	slot.isInitialized = true
-
 	slot.dependencies = nil
 
 	if dependencies then
@@ -431,10 +515,17 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.useMemo<T>(factory: () -> T, dependencies: dependencyList?): T
+--- Memoizes a calculated value until its dependencies change.
+--- Omitting dependencies causes the value to be recalculated every render.
+--- @param factory () -> T Function that produces the memoized value.
+--- @param dependencies dependencyList? Values controlling when the value is recalculated.
+--- @return T Current memoized value.
+function module.useMemo<T>(
+	factory: () -> T,
+	dependencies: dependencyList?
+): T
 	local context = getContext()
 	local slot = getSlot(context, "memo")
-
 	local shouldResolve = not slot.isInitialized
 
 	if slot.isInitialized then
@@ -456,6 +547,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Returns the value from the previous completed render.
+--- The first render returns nil.
+--- @param value T Current value.
+--- @return T? Previous rendered value.
 function module.usePrevious<T>(value: T): T?
 	local context = getContext()
 	local slot = getSlot(context, "previous")
@@ -469,6 +564,12 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates reducer-managed component state.
+--- Dispatch requests a render only when the reducer returns a changed state.
+--- @param reducer (stateValue: S, action: A) -> S Function that derives the next state from an action.
+--- @param initialState S Initial reducer state.
+--- @return S Current reducer state.
+--- @return reducerDispatch<A> Stable dispatch function.
 function module.useReducer<S, A>(
 	reducer: (stateValue: S, action: A) -> S,
 	initialState: S
@@ -479,14 +580,17 @@ function module.useReducer<S, A>(
 	if not slot.isInitialized then
 		slot.isInitialized = true
 		slot.value = initialState
+
 		slot.callback = function(action: A)
 			if context.isDeleted then return end
 
 			local previous = slot.value :: S
 			local nextValue = reducer(previous, action)
+
 			if previous == nextValue then return end
 
 			slot.value = nextValue
+
 			context.requestRender()
 		end
 	end
@@ -496,6 +600,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a stable mutable reference that persists across renders.
+--- Changing current does not request another render.
+--- @param initialValue T Initial reference value.
+--- @return ref<T> Stable mutable reference.
 function module.useRef<T>(initialValue: T): ref<T>
 	local context = getContext()
 	local slot = getSlot(context, "ref")
@@ -512,13 +620,21 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.useState<T>(initialValue: T): (T, stateSetter<T>)
+--- Creates component state and a stable setter.
+--- Setting the same value does not request another render.
+--- @param initialValue T Initial state value.
+--- @return T Current state value.
+--- @return stateSetter<T> Setter accepting a value or updater function.
+function module.useState<T>(
+	initialValue: T
+): (T, stateSetter<T>)
 	local context = getContext()
 	local slot = getSlot(context, "state")
 
 	if not slot.isInitialized then
 		slot.isInitialized = true
 		slot.value = initialValue
+
 		slot.callback = function(nextValue: T | ((previous: T) -> T))
 			if context.isDeleted then return end
 
@@ -528,6 +644,7 @@ function module.useState<T>(initialValue: T): (T, stateSetter<T>)
 			if previous == resolved then return end
 
 			slot.value = resolved
+
 			context.requestRender()
 		end
 	end
@@ -537,12 +654,20 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.useToggle(initialValue: boolean?): (boolean, () -> (), (value: boolean) -> ())
+--- Creates boolean component state with toggle and direct-set controls.
+--- @param initialValue boolean? Initial value. Defaults to false.
+--- @return boolean Current boolean value.
+--- @return () -> () Function that toggles the current value.
+--- @return (value: boolean) -> () Function that directly sets the value.
+function module.useToggle(
+	initialValue: boolean?
+): (boolean, () -> (), (value: boolean) -> ())
 	local value, enable, disable, toggle = module.useBoolean(initialValue)
 
 	local function set(nextValue: boolean)
 		if nextValue then
 			enable()
+
 			return
 		end
 

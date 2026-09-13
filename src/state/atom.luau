@@ -1,5 +1,7 @@
 --!strict
 
+-- provides reactive atoms, computed state, attribute-backed state, and history state
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -7,6 +9,7 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 local core = script.Parent.Parent:WaitForChild("core")
+
 local signalModule = require(core:WaitForChild("signal"))
 
 --————————————————————————————————————————————————————————————————————--
@@ -48,11 +51,21 @@ type historyEntry<T> = {
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.computed<A, B>(source: atom<A>, selector: (value: A) -> B): computed<B>
+--- Creates read-only derived state from another atom.
+--- The derived atom updates only when its selected value changes.
+--- @param source atom<A> Source atom to observe.
+--- @param selector (value: A) -> B Function that derives the output value.
+--- @return computed<B> Derived computed atom.
+function module.computed<A, B>(
+	source: atom<A>,
+	selector: (value: A) -> B
+): computed<B>
 	local output = module.new(selector(source.get()))
+
 	local sourceConnection = source.subscribe(function(change: atomChange<A>)
 		output.set(selector(change.current))
 	end)
+
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
@@ -71,6 +84,13 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates an atom synchronized with a Roblox Attribute.
+--- Existing Attribute state takes priority over the supplied default value.
+--- Changes from either side are synchronized without feedback loops.
+--- @param instance Instance Instance containing the Attribute.
+--- @param attributeName string Attribute name to synchronize.
+--- @param defaultValue T Initial value used when the Attribute does not exist.
+--- @return atom<T> Attribute-backed atom.
 function module.fromAttribute<T>(
 	instance: Instance,
 	attributeName: string,
@@ -84,26 +104,35 @@ function module.fromAttribute<T>(
 	end
 
 	local output = module.new(initialValue)
+
 	local isApplyingAttribute = false
 	local isApplyingState = false
+
 	local attributeConnection = instance:GetAttributeChangedSignal(attributeName):Connect(function()
 		if isApplyingState then return end
 
 		local nextValue = instance:GetAttribute(attributeName)
+
 		if nextValue == nil then return end
 
 		isApplyingAttribute = true
+
 		output.set(nextValue :: T)
+
 		isApplyingAttribute = false
 	end)
+
 	local stateConnection = output.subscribe(function(change: atomChange<T>)
 		if isApplyingAttribute then return end
 		if instance:GetAttribute(attributeName) == change.current then return end
 
 		isApplyingState = true
+
 		instance:SetAttribute(attributeName, change.current)
+
 		isApplyingState = false
 	end)
+
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
@@ -118,13 +147,22 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.history<T>(initialValue: T, limit: number): historyAtom<T>
+--- Creates an atom with bounded undo and redo history.
+--- @param initialValue T Initial atom value.
+--- @param limit number Maximum number of past values retained for undo.
+--- @return historyAtom<T> History-enabled atom.
+function module.history<T>(
+	initialValue: T,
+	limit: number
+): historyAtom<T>
 	assert(limit > 0, "Reactily history limit must be greater than zero.")
 
 	local base = module.new(initialValue)
+
 	local future: {historyEntry<T>} = {}
 	local isRecording = true
 	local past: {historyEntry<T>} = {}
+
 	local baseSet = base.set
 
 	local function canRedo(): boolean
@@ -135,6 +173,7 @@ function module.history<T>(initialValue: T, limit: number): historyAtom<T>
 		return #past > 0
 	end
 
+	--- Clears undo and redo history without changing the current value.
 	local function clearHistory()
 		table.clear(future)
 		table.clear(past)
@@ -158,6 +197,10 @@ function module.history<T>(initialValue: T, limit: number): historyAtom<T>
 		table.remove(past, 1)
 	end
 
+	--- Replaces the current value and records the previous value for undo.
+	--- Setting an unchanged value does not create a history entry.
+	--- @param value T New atom value.
+	--- @return boolean Whether the value changed.
 	local function set(value: T): boolean
 		local previous = base.get()
 		local didChange = baseSet(value)
@@ -171,38 +214,54 @@ function module.history<T>(initialValue: T, limit: number): historyAtom<T>
 		return true
 	end
 
+	--- Moves one step forward through previously undone history.
+	--- @return boolean Whether a future history entry was restored.
 	local function redo(): boolean
 		local entry = future[#future]
+
 		if not entry then return false end
 
 		future[#future] = nil
+
 		past[#past + 1] = {
 			value = base.get(),
 		}
 
 		isRecording = false
+
 		baseSet(entry.value)
+
 		isRecording = true
 
 		return true
 	end
 
+	--- Restores the most recent previous value.
+	--- @return boolean Whether a previous history entry was restored.
 	local function undo(): boolean
 		local entry = past[#past]
+
 		if not entry then return false end
 
 		past[#past] = nil
+
 		future[#future + 1] = {
 			value = base.get(),
 		}
 
 		isRecording = false
+
 		baseSet(entry.value)
+
 		isRecording = true
 
 		return true
 	end
 
+	--- Updates the current value using its previous value.
+	--- Successful changes are recorded in history.
+	--- @param updater (previous: T) -> T Function that returns the next value.
+	--- @return boolean Whether the value changed.
 	local function update(updater: (previous: T) -> T): boolean
 		return set(updater(base.get()))
 	end
@@ -226,12 +285,17 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates reactive standalone state with change subscriptions.
+--- @param initialValue T Initial atom value.
+--- @return atom<T> A new atom.
 function module.new<T>(initialValue: T): atom<T>
 	local changed: signalModule.signal<atomChange<T>> = signalModule.new()
 
 	local isDeleted = false
 	local value = initialValue
 
+	--- Deletes the atom and disconnects all subscribers.
+	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
 		if isDeleted then return false end
 
@@ -252,6 +316,10 @@ function module.new<T>(initialValue: T): atom<T>
 		return isDeleted
 	end
 
+	--- Replaces the current atom value.
+	--- Subscribers are notified only when the value changes.
+	--- @param nextValue T New atom value.
+	--- @return boolean Whether the value changed.
 	local function set(nextValue: T): boolean
 		assert(not isDeleted, "Reactily atom is deleted.")
 
@@ -269,12 +337,20 @@ function module.new<T>(initialValue: T): atom<T>
 		return true
 	end
 
-	local function subscribe(callback: (change: atomChange<T>) -> ()): signalModule.connection
+	--- Subscribes to future atom changes.
+	--- @param callback (change: atomChange<T>) -> () Callback receiving previous and current values.
+	--- @return signalModule.connection Connection used to stop future notifications.
+	local function subscribe(
+		callback: (change: atomChange<T>) -> ()
+	): signalModule.connection
 		assert(not isDeleted, "Reactily atom is deleted.")
 
 		return changed.connect(callback)
 	end
 
+	--- Updates the atom using its current value.
+	--- @param updater (previous: T) -> T Function that returns the next value.
+	--- @return boolean Whether the resulting value changed.
 	local function update(updater: (previous: T) -> T): boolean
 		assert(not isDeleted, "Reactily atom is deleted.")
 

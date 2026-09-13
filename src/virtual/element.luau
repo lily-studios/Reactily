@@ -25,6 +25,7 @@ export type attributeValue =
 	| Vector3
 
 export type attributeMap = {[string]: attributeValue}
+
 export type refCallback<T> = (instance: T?) -> ()
 
 export type hostMetadataProps<T> = {
@@ -33,6 +34,7 @@ export type hostMetadataProps<T> = {
 	name: string?,
 	ref: refCallback<T>?,
 	tags: {string}?,
+
 	onAncestryChanged: ((child: Instance, parent: Instance?) -> ())?,
 	onChanged: ((property: string) -> ())?,
 }
@@ -60,6 +62,7 @@ export type commonGuiProps<T> = hostMetadataProps<T> & {
 	sizeConstraint: Enum.SizeConstraint?,
 	visible: boolean?,
 	zIndex: number?,
+
 	onInputBegan: ((input: InputObject) -> ())?,
 	onInputChanged: ((input: InputObject) -> ())?,
 	onInputEnded: ((input: InputObject) -> ())?,
@@ -205,6 +208,7 @@ export type textBoxProps = commonGuiProps<TextBox> & textProps & {
 	selectionStart: number?,
 	showNativeInput: boolean?,
 	textEditable: boolean?,
+
 	onFocused: (() -> ())?,
 	onFocusLost: ((enterPressed: boolean, input: InputObject?) -> ())?,
 }
@@ -380,7 +384,11 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function host(className: string, props: genericProps?, children: {element}?): element
+local function host(
+	className: string,
+	props: genericProps?,
+	children: {element}?
+): element
 	return {
 		children = copyChildren(children),
 		className = className,
@@ -392,18 +400,38 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createBillboardGui(props: billboardGuiProps?, children: {element}?): element
+--- Creates a typed BillboardGui element.
+--- @param props billboardGuiProps? BillboardGui properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A BillboardGui host element.
+function module.createBillboardGui(
+	props: billboardGuiProps?,
+	children: {element}?
+): element
 	return host("BillboardGui", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createCanvasGroup(props: canvasGroupProps?, children: {element}?): element
+--- Creates a typed CanvasGroup element.
+--- @param props canvasGroupProps? CanvasGroup properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A CanvasGroup host element.
+function module.createCanvasGroup(
+	props: canvasGroupProps?,
+	children: {element}?
+): element
 	return host("CanvasGroup", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a function component element.
+--- @param componentValue component<P> Component function to render.
+--- @param props P Props passed to the component.
+--- @param children {element}? Child elements associated with the component.
+--- @param key string? Stable reconciliation key.
+--- @return element A component element.
 function module.createComponent<P>(
 	componentValue: component<P>,
 	props: P,
@@ -423,7 +451,17 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createElement(className: string, props: genericProps?, children: {element}?): element
+--- Creates a generic Roblox host element.
+--- Prefer class-specific creators when available for stronger prop autocomplete.
+--- @param className string Roblox class name passed to Instance.new().
+--- @param props genericProps? Generic host properties.
+--- @param children {element}? Child Reactily elements.
+--- @return element A generic host element.
+function module.createElement(
+	className: string,
+	props: genericProps?,
+	children: {element}?
+): element
 	assert(className ~= "", "Reactily className cannot be empty.")
 
 	return host(className, props, children)
@@ -431,7 +469,14 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createFragment(children: {element}, key: string?): element
+--- Creates a fragment containing multiple elements without adding a Roblox Instance.
+--- @param children {element} Child Reactily elements.
+--- @param key string? Stable reconciliation key.
+--- @return element A fragment element.
+function module.createFragment(
+	children: {element},
+	key: string?
+): element
 	return {
 		children = table.clone(children),
 		key = key,
@@ -442,25 +487,55 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createFrame(props: frameProps?, children: {element}?): element
+--- Creates a typed Frame element.
+--- @param props frameProps? Frame properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A Frame host element.
+function module.createFrame(
+	props: frameProps?,
+	children: {element}?
+): element
 	return host("Frame", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createImageButton(props: imageButtonProps?, children: {element}?): element
+--- Creates a typed ImageButton element.
+--- @param props imageButtonProps? ImageButton properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element An ImageButton host element.
+function module.createImageButton(
+	props: imageButtonProps?,
+	children: {element}?
+): element
 	return host("ImageButton", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createImageLabel(props: imageLabelProps?, children: {element}?): element
+--- Creates a typed ImageLabel element.
+--- @param props imageLabelProps? ImageLabel properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element An ImageLabel host element.
+function module.createImageLabel(
+	props: imageLabelProps?,
+	children: {element}?
+): element
 	return host("ImageLabel", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createPortal(target: Instance, children: {element}, key: string?): element
+--- Creates a portal that renders children under another Roblox Instance.
+--- @param target Instance Parent that receives the portal's rendered hosts.
+--- @param children {element} Child Reactily elements rendered into the target.
+--- @param key string? Stable reconciliation key.
+--- @return element A portal element.
+function module.createPortal(
+	target: Instance,
+	children: {element},
+	key: string?
+): element
 	return {
 		children = table.clone(children),
 		key = key,
@@ -472,115 +547,216 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createScreenGui(props: screenGuiProps?, children: {element}?): element
+--- Creates a typed ScreenGui element.
+--- @param props screenGuiProps? ScreenGui properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A ScreenGui host element.
+function module.createScreenGui(
+	props: screenGuiProps?,
+	children: {element}?
+): element
 	return host("ScreenGui", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createScrollingFrame(props: scrollingFrameProps?, children: {element}?): element
+--- Creates a typed ScrollingFrame element.
+--- @param props scrollingFrameProps? ScrollingFrame properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A ScrollingFrame host element.
+function module.createScrollingFrame(
+	props: scrollingFrameProps?,
+	children: {element}?
+): element
 	return host("ScrollingFrame", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createSurfaceGui(props: surfaceGuiProps?, children: {element}?): element
+--- Creates a typed SurfaceGui element.
+--- @param props surfaceGuiProps? SurfaceGui properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A SurfaceGui host element.
+function module.createSurfaceGui(
+	props: surfaceGuiProps?,
+	children: {element}?
+): element
 	return host("SurfaceGui", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createTextBox(props: textBoxProps?, children: {element}?): element
+--- Creates a typed TextBox element.
+--- @param props textBoxProps? TextBox properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A TextBox host element.
+function module.createTextBox(
+	props: textBoxProps?,
+	children: {element}?
+): element
 	return host("TextBox", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createTextButton(props: textButtonProps?, children: {element}?): element
+--- Creates a typed TextButton element.
+--- @param props textButtonProps? TextButton properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A TextButton host element.
+function module.createTextButton(
+	props: textButtonProps?,
+	children: {element}?
+): element
 	return host("TextButton", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createTextLabel(props: textLabelProps?, children: {element}?): element
+--- Creates a typed TextLabel element.
+--- @param props textLabelProps? TextLabel properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A TextLabel host element.
+function module.createTextLabel(
+	props: textLabelProps?,
+	children: {element}?
+): element
 	return host("TextLabel", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createUIAspectRatioConstraint(props: uiAspectRatioConstraintProps?): element
+--- Creates a typed UIAspectRatioConstraint element.
+--- @param props uiAspectRatioConstraintProps? Constraint properties, metadata, and ref.
+--- @return element A UIAspectRatioConstraint host element.
+function module.createUIAspectRatioConstraint(
+	props: uiAspectRatioConstraintProps?
+): element
 	return host("UIAspectRatioConstraint", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a typed UICorner element.
+--- @param props uiCornerProps? UICorner properties, metadata, and ref.
+--- @return element A UICorner host element.
 function module.createUICorner(props: uiCornerProps?): element
 	return host("UICorner", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a typed UIGradient element.
+--- @param props uiGradientProps? UIGradient properties, metadata, and ref.
+--- @return element A UIGradient host element.
 function module.createUIGradient(props: uiGradientProps?): element
 	return host("UIGradient", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createUIGridLayout(props: uiGridLayoutProps?): element
+--- Creates a typed UIGridLayout element.
+--- @param props uiGridLayoutProps? UIGridLayout properties, metadata, and ref.
+--- @return element A UIGridLayout host element.
+function module.createUIGridLayout(
+	props: uiGridLayoutProps?
+): element
 	return host("UIGridLayout", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createUIListLayout(props: uiListLayoutProps?): element
+--- Creates a typed UIListLayout element.
+--- @param props uiListLayoutProps? UIListLayout properties, metadata, and ref.
+--- @return element A UIListLayout host element.
+function module.createUIListLayout(
+	props: uiListLayoutProps?
+): element
 	return host("UIListLayout", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a typed UIPadding element.
+--- @param props uiPaddingProps? UIPadding properties, metadata, and ref.
+--- @return element A UIPadding host element.
 function module.createUIPadding(props: uiPaddingProps?): element
 	return host("UIPadding", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createUIPageLayout(props: uiPageLayoutProps?): element
+--- Creates a typed UIPageLayout element.
+--- @param props uiPageLayoutProps? UIPageLayout properties, metadata, and ref.
+--- @return element A UIPageLayout host element.
+function module.createUIPageLayout(
+	props: uiPageLayoutProps?
+): element
 	return host("UIPageLayout", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a typed UIScale element.
+--- @param props uiScaleProps? UIScale properties, metadata, and ref.
+--- @return element A UIScale host element.
 function module.createUIScale(props: uiScaleProps?): element
 	return host("UIScale", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createUISizeConstraint(props: uiSizeConstraintProps?): element
+--- Creates a typed UISizeConstraint element.
+--- @param props uiSizeConstraintProps? Constraint properties, metadata, and ref.
+--- @return element A UISizeConstraint host element.
+function module.createUISizeConstraint(
+	props: uiSizeConstraintProps?
+): element
 	return host("UISizeConstraint", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a typed UIStroke element.
+--- @param props uiStrokeProps? UIStroke properties, metadata, and ref.
+--- @return element A UIStroke host element.
 function module.createUIStroke(props: uiStrokeProps?): element
 	return host("UIStroke", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createUITextSizeConstraint(props: uiTextSizeConstraintProps?): element
+--- Creates a typed UITextSizeConstraint element.
+--- @param props uiTextSizeConstraintProps? Constraint properties, metadata, and ref.
+--- @return element A UITextSizeConstraint host element.
+function module.createUITextSizeConstraint(
+	props: uiTextSizeConstraintProps?
+): element
 	return host("UITextSizeConstraint", props :: any, nil)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createVideoFrame(props: videoFrameProps?, children: {element}?): element
+--- Creates a typed VideoFrame element.
+--- @param props videoFrameProps? VideoFrame properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A VideoFrame host element.
+function module.createVideoFrame(
+	props: videoFrameProps?,
+	children: {element}?
+): element
 	return host("VideoFrame", props :: any, children)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-function module.createViewportFrame(props: viewportFrameProps?, children: {element}?): element
+--- Creates a typed ViewportFrame element.
+--- @param props viewportFrameProps? ViewportFrame properties, metadata, events, and ref.
+--- @param children {element}? Child Reactily elements.
+--- @return element A ViewportFrame host element.
+function module.createViewportFrame(
+	props: viewportFrameProps?,
+	children: {element}?
+): element
 	return host("ViewportFrame", props :: any, children)
 end
 

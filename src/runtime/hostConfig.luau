@@ -1,5 +1,7 @@
 --!strict
 
+-- maps Reactily prop names to Roblox property and event names
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -185,24 +187,36 @@ local propertyNames: {[string]: string} = {
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Resolves a Reactily event prop name to its Roblox event name.
+--- @param propName string Reactily event prop name.
+--- @return string? Roblox event name, or nil when the prop is not a supported event.
 function module.getEventName(propName: string): string?
 	return eventNames[propName]
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Resolves a Reactily property prop name to its Roblox property name.
+--- @param propName string Reactily property prop name.
+--- @return string? Roblox property name, or nil when the prop is not a supported property.
 function module.getPropertyName(propName: string): string?
 	return propertyNames[propName]
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Returns whether a prop name represents a supported Roblox event.
+--- @param propName string Reactily prop name to check.
+--- @return boolean Whether the prop is a supported event.
 function module.isEvent(propName: string): boolean
 	return eventNames[propName] ~= nil
 end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Returns whether a prop name represents a supported Roblox property.
+--- @param propName string Reactily prop name to check.
+--- @return boolean Whether the prop is a supported property.
 function module.isProperty(propName: string): boolean
 	return propertyNames[propName] ~= nil
 end

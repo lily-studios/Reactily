@@ -1,5 +1,9 @@
 --!strict
 
+-- provides typed Reactily signals and derived signal operators
+
+--————————————————————————————————————————————————————————————————————--
+
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
@@ -41,6 +45,9 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a signal that emits only when the value differs from the previous emission.
+--- @param source signal<T> Source signal to observe.
+--- @return signal<T> Derived signal that suppresses consecutive duplicate values.
 function module.distinct<T>(source: signal<T>): signal<T>
 	local output: signal<T> = module.new()
 
@@ -69,6 +76,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a signal that emits only values accepted by the predicate.
+--- @param source signal<T> Source signal to observe.
+--- @param predicate (value: T) -> boolean Determines whether each emitted value should pass through.
+--- @return signal<T> Filtered derived signal.
 function module.filter<T>(
 	source: signal<T>,
 	predicate: (value: T) -> boolean
@@ -94,6 +105,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a signal that transforms each emitted source value.
+--- @param source signal<A> Source signal to observe.
+--- @param mapper (value: A) -> B Converts each source value into the output value.
+--- @return signal<B> Mapped derived signal.
 function module.map<A, B>(
 	source: signal<A>,
 	mapper: (value: A) -> B
@@ -117,6 +132,9 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates one signal that forwards values from multiple source signals.
+--- @param sources {signal<T>} Source signals to merge.
+--- @return signal<T> Derived signal that emits values from every source.
 function module.merge<T>(sources: {signal<T>}): signal<T>
 	local output: signal<T> = module.new()
 	local sourceConnections: {connection} = {}
@@ -144,6 +162,8 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a typed signal.
+--- @return signal<T> A new active signal.
 function module.new<T>(): signal<T>
 	local isDeleted = false
 	local listeners: {listener<T>} = {}
@@ -181,6 +201,9 @@ function module.new<T>(): signal<T>
 		return connectionValue
 	end
 
+	--- Connects a listener to future signal emissions.
+	--- @param callback (value: T) -> () Listener invoked whenever the signal fires.
+	--- @return connection Connection used to stop future delivery.
 	local function connect(callback: (value: T) -> ()): connection
 		assert(not isDeleted, "Reactily signal is deleted.")
 
@@ -196,6 +219,8 @@ function module.new<T>(): signal<T>
 		return createConnection(target)
 	end
 
+	--- Deletes the signal and disconnects all listeners.
+	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
 		if isDeleted then return false end
 
@@ -216,6 +241,8 @@ function module.new<T>(): signal<T>
 		return true
 	end
 
+	--- Emits a value to every currently connected listener.
+	--- @param value T Value delivered to listeners.
 	local function fire(value: T)
 		if isDeleted then return end
 		if #listeners == 0 then return end
@@ -243,6 +270,9 @@ function module.new<T>(): signal<T>
 		return isDeleted
 	end
 
+	--- Connects a listener that automatically disconnects before its first callback runs.
+	--- @param callback (value: T) -> () Listener invoked once.
+	--- @return connection Connection that can cancel the listener before it fires.
 	local function once(callback: (value: T) -> ()): connection
 		assert(not isDeleted, "Reactily signal is deleted.")
 
@@ -270,6 +300,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a signal that ignores the first number of source emissions.
+--- @param source signal<T> Source signal to observe.
+--- @param amount number Number of initial emissions to skip.
+--- @return signal<T> Derived signal that emits after the skipped values.
 function module.skip<T>(
 	source: signal<T>,
 	amount: number
@@ -300,6 +334,11 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+--- Creates a signal that emits up to the requested number of source values.
+--- The source connection disconnects automatically after the maximum is reached.
+--- @param source signal<T> Source signal to observe.
+--- @param maximum number Maximum number of values to emit.
+--- @return signal<T> Derived signal limited to the requested number of emissions.
 function module.take<T>(
 	source: signal<T>,
 	maximum: number
