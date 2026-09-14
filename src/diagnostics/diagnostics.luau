@@ -1,6 +1,12 @@
---!strict
+--[[
+	Reactily · Lily Studios
 
--- provides lightweight named diagnostic counters
+	Copyright (c) Lily Studios and contributors.
+	Licensed under the MIT License.
+	See LICENSE in the repository root for full terms.
+]]
+
+--!strict
 
 --————————————————————————————————————————————————————————————————————--
 
@@ -20,35 +26,27 @@ export type diagnostics = {
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates a diagnostics counter collection.
---- @return diagnostics A new diagnostics object.
+--- Creates a Reactily diagnostics counter collection.
+--- @return diagnostics New diagnostics object for explicit runtime counters.
 function module.new(): diagnostics
 	local counters: { [string]: number } = {}
 	local isDeleted = false
 
-	--- Deletes the diagnostics object and clears all counters.
-	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
 		if isDeleted then
 			return false
 		end
 
 		isDeleted = true
-
 		table.clear(counters)
 
 		return true
 	end
 
-	--- Returns the current value of a named counter.
-	--- Missing counters return zero.
-	--- @param name string Counter name.
-	--- @return number Current counter value.
 	local function get(name: string): number
 		assert(not isDeleted, "Reactily diagnostics is deleted.")
 
 		local value = counters[name]
-
 		if value == nil then
 			return 0
 		end
@@ -56,10 +54,6 @@ function module.new(): diagnostics
 		return value
 	end
 
-	--- Increments a named counter.
-	--- @param name string Counter name.
-	--- @param amount number? Amount to add. Defaults to one.
-	--- @return number Updated counter value.
 	local function increment(name: string, amount: number?): number
 		assert(not isDeleted, "Reactily diagnostics is deleted.")
 
@@ -70,7 +64,6 @@ function module.new(): diagnostics
 		end
 
 		local nextValue = get(name) + incrementAmount
-
 		counters[name] = nextValue
 
 		return nextValue
@@ -80,12 +73,8 @@ function module.new(): diagnostics
 		return isDeleted
 	end
 
-	--- Removes a named counter.
-	--- @param name string Counter name.
-	--- @return boolean Whether the counter existed and was removed.
 	local function reset(name: string): boolean
 		assert(not isDeleted, "Reactily diagnostics is deleted.")
-
 		if counters[name] == nil then
 			return false
 		end
@@ -95,15 +84,11 @@ function module.new(): diagnostics
 		return true
 	end
 
-	--- Clears all diagnostic counters.
 	local function resetAll()
 		assert(not isDeleted, "Reactily diagnostics is deleted.")
-
 		table.clear(counters)
 	end
 
-	--- Returns a copy of the current counter values.
-	--- @return {[string]: number} Snapshot of all diagnostic counters.
 	local function snapshot(): { [string]: number }
 		assert(not isDeleted, "Reactily diagnostics is deleted.")
 

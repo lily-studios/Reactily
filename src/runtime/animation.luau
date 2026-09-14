@@ -1,6 +1,14 @@
+--[[
+	Reactily · Lily Studios
+
+	Copyright (c) Lily Studios and contributors.
+	Licensed under the MIT License.
+	See LICENSE in the repository root for full terms.
+]]
+
 --!strict
 
--- provides TweenService-backed Reactily animation helpers
+--————————————————————————————————————————————————————————————————————--
 
 local tweenService = game:GetService("TweenService")
 
@@ -64,11 +72,11 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates and immediately plays a TweenService-backed animation.
---- @param instance Instance Instance whose properties will be animated.
---- @param goals {[string]: any} Target property values passed to TweenService.
---- @param options tweenOptions Tween duration and optional playback settings.
---- @return animation The active Reactily animation.
+--- Creates and immediately plays an owned TweenService animation.
+--- @param instance Instance Roblox Instance to animate.
+--- @param goals {[string]: any} Property goals passed to TweenService.
+--- @param options tweenOptions Tween configuration.
+--- @return animation Owned Reactily animation.
 function module.play(instance: Instance, goals: { [string]: any }, options: tweenOptions): animation
 	local animationValue = module.tween(instance, goals, options)
 
@@ -79,18 +87,17 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates a TweenService-backed animation without playing it automatically.
---- @param instance Instance Instance whose properties will be animated.
---- @param goals {[string]: any} Target property values passed to TweenService.
---- @param options tweenOptions Tween duration and optional playback settings.
---- @return animation A new Reactily animation.
+--- Creates an owned TweenService animation without automatically playing it.
+--- @param instance Instance Roblox Instance to animate.
+--- @param goals {[string]: any} Property goals passed to TweenService.
+--- @param options tweenOptions Tween configuration.
+--- @return animation Owned Reactily animation.
 function module.tween(instance: Instance, goals: { [string]: any }, options: tweenOptions): animation
 	local completionConnections: { RBXScriptConnection } = {}
+
 	local isDeleted = false
 	local tween = tweenService:Create(instance, resolveTweenInfo(options), goals)
 
-	--- Cancels the current tween playback.
-	--- @return boolean Whether the animation was available to cancel.
 	local function cancel(): boolean
 		if isDeleted then
 			return false
@@ -101,8 +108,6 @@ function module.tween(instance: Instance, goals: { [string]: any }, options: twe
 		return true
 	end
 
-	--- Deletes the animation, disconnects completion listeners, and destroys the Tween.
-	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
 		if isDeleted then
 			return false
@@ -130,9 +135,6 @@ function module.tween(instance: Instance, goals: { [string]: any }, options: twe
 		return isDeleted
 	end
 
-	--- Connects a callback to the underlying Tween completion event.
-	--- @param callback (playbackState: Enum.PlaybackState) -> () Callback receiving the final playback state.
-	--- @return RBXScriptConnection The Roblox completion connection.
 	local function onCompleted(callback: (playbackState: Enum.PlaybackState) -> ()): RBXScriptConnection
 		assert(not isDeleted, "Reactily animation is deleted.")
 
@@ -143,7 +145,6 @@ function module.tween(instance: Instance, goals: { [string]: any }, options: twe
 		return connection
 	end
 
-	--- Starts or resumes Tween playback.
 	local function play()
 		assert(not isDeleted, "Reactily animation is deleted.")
 

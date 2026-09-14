@@ -1,6 +1,12 @@
---!strict
+--[[
+	Reactily · Lily Studios
 
--- provides immutable style composition helpers
+	Copyright (c) Lily Studios and contributors.
+	Licensed under the MIT License.
+	See LICENSE in the repository root for full terms.
+]]
+
+--!strict
 
 --————————————————————————————————————————————————————————————————————--
 
@@ -14,11 +20,10 @@ export type style = {
 
 --————————————————————————————————————————————————————————————————————--
 
---- Applies a style to a cloned properties table.
---- Style values override matching properties.
---- @param properties T Properties table to copy.
---- @param styleValue style Style values to apply.
---- @return T A new properties table with the style applied.
+--- Applies a style to a property table without mutating the original table.
+--- @param properties T Property table to copy.
+--- @param styleValue style Style values to apply to the copied table.
+--- @return T Copied property table with the style applied.
 function module.apply<T>(properties: T, styleValue: style): T
 	local output: any = table.clone(properties :: any)
 
@@ -26,15 +31,14 @@ function module.apply<T>(properties: T, styleValue: style): T
 		output[property] = value
 	end
 
-	return output :: T
+	return output
 end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Merges multiple styles into a new style.
---- Later styles override matching properties from earlier styles.
---- @param styles {style} Styles to merge in order.
---- @return style A new merged style.
+--- Merges multiple style tables without mutating the input styles.
+--- @param styles {style} Ordered style tables to merge.
+--- @return style New style containing the merged properties.
 function module.merge(styles: { style }): style
 	local output: style = {}
 
@@ -49,10 +53,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Returns the supplied style when the condition is true.
+--- Returns a style only when the supplied condition is true.
 --- @param condition boolean Whether the style should be included.
---- @param styleValue style Style to return when enabled.
---- @return style The supplied style or an empty style.
+--- @param styleValue style Style to conditionally return.
+--- @return style Supplied style when enabled, otherwise an empty style.
 function module.when(condition: boolean, styleValue: style): style
 	if not condition then
 		return {}
@@ -63,10 +67,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Returns a copy of a style without the specified property.
+--- Creates a style without one specified property.
 --- @param styleValue style Style to copy.
---- @param property string Property to remove.
---- @return style A new style without the property.
+--- @param property string Property to omit from the copied style.
+--- @return style Copied style without the specified property.
 function module.without(styleValue: style, property: string): style
 	local output = table.clone(styleValue)
 
@@ -77,11 +81,11 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Returns a copy of a style with the specified property replaced or added.
+--- Creates a style with one property assigned to a new value.
 --- @param styleValue style Style to copy.
---- @param property string Property to set.
---- @param value any Value assigned to the property.
---- @return style A new style containing the property.
+--- @param property string Property to assign.
+--- @param value any Value to assign to the property.
+--- @return style Copied style containing the new property value.
 function module.withProperty(styleValue: style, property: string, value: any): style
 	local output = table.clone(styleValue)
 

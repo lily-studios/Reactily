@@ -1,6 +1,14 @@
+--[[
+	Reactily · Lily Studios
+
+	Copyright (c) Lily Studios and contributors.
+	Licensed under the MIT License.
+	See LICENSE in the repository root for full terms.
+]]
+
 --!strict
 
--- provides idle-safe one-shot scheduling through RunService.Heartbeat
+--————————————————————————————————————————————————————————————————————--
 
 local runService = game:GetService("RunService")
 
@@ -10,15 +18,13 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type taskId = number
-
 export type scheduler = {
-	cancel: (taskId: taskId) -> boolean,
+	cancel: (taskId: number) -> boolean,
 	cancelKey: (key: string) -> boolean,
 	clear: () -> (),
 	delete: () -> boolean,
-	enqueue: (callback: () -> ()) -> taskId,
-	enqueueKeyed: (key: string, callback: () -> ()) -> taskId,
+	enqueue: (callback: () -> ()) -> number,
+	enqueueKeyed: (key: string, callback: () -> ()) -> number,
 	flush: () -> (),
 	getPendingCount: () -> number,
 	isDeleted: () -> boolean,
@@ -27,227 +33,161 @@ export type scheduler = {
 
 type scheduledTask = {
 	callback: () -> (),
-	isCancelled: boolean,
 	key: string?,
-	taskId: taskId,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function runScheduledCallback(callback: () -> ())
-	local success, failure = pcall(function(): boolean
-		callback()
-
-		return true
-	end)
-
-	if success then
-		return
-	end
-
-	warn(`Reactily scheduled callback failed: {failure}`)
-end
-
---————————————————————————————————————————————————————————————————————--
-
---- Creates an idle-safe scheduler that connects Heartbeat only while work is pending.
---- @return scheduler A new scheduler.
+--- Creates an idle-safe scheduler for one-shot queued work.
+--- @return scheduler New scheduler that connects Heartbeat only while work is pending.
 function module.new(): scheduler
 	local heartbeatConnection: RBXScriptConnection? = nil
-
 	local isDeleted = false
 	local isFlushing = false
-	local keyedTasks: { [string]: scheduledTask } = {}
+	local keyedTasks: { [string]: number } = {}
 	local nextTaskId = 0
-	local queuedTasks: { scheduledTask } = {}
+	local pendingCount = 0
+	local queue: { number } = {}
+	local tasks: { [number]: scheduledTask } = {}
 
+	local ensureHeartbeat: () -> ()
 	local flush: () -> ()
 
-	local function stopHeartbeat()
+	local function disconnectHeartbeat()
 		local connection = heartbeatConnection
-
 		if not connection then
 			return
 		end
 
 		connection:Disconnect()
-
 		heartbeatConnection = nil
 	end
 
-	local function startHeartbeat()
+	local function clearPending()
+		disconnectHeartbeat()
+		table.clear(keyedTasks)
+		table.clear(queue)
+		table.clear(tasks)
+		pendingCount = 0
+	end
+
+	local function enqueueTask(callback: () -> (), key: string?): number
+		nextTaskId += 1
+
+		local taskId = nextTaskId
+		tasks[taskId] = {
+			callback = callback,
+			key = key,
+		}
+		queue[#queue + 1] = taskId
+		pendingCount += 1
+
+		if key then
+			keyedTasks[key] = taskId
+		end
+
+		ensureHeartbeat()
+
+		return taskId
+	end
+
+	ensureHeartbeat = function()
 		if isDeleted then
+			return
+		end
+		if pendingCount == 0 then
 			return
 		end
 		if heartbeatConnection then
 			return
 		end
-		if #queuedTasks == 0 then
-			return
-		end
 
 		heartbeatConnection = runService.Heartbeat:Connect(function()
-			stopHeartbeat()
-
+			disconnectHeartbeat()
 			flush()
 		end)
 	end
 
-	local function removeKey(taskValue: scheduledTask)
-		local key = taskValue.key
+	local function cancel(taskId: number): boolean
+		assert(not isDeleted, "Reactily scheduler is deleted.")
 
-		if not key then
-			return
-		end
-		if keyedTasks[key] ~= taskValue then
-			return
-		end
-
-		keyedTasks[key] = nil
-	end
-
-	local function removeQueuedTask(target: scheduledTask)
-		for index, taskValue in queuedTasks do
-			if taskValue ~= target then
-				continue
-			end
-
-			table.remove(queuedTasks, index)
-
-			return
-		end
-	end
-
-	local function stopIfIdle()
-		if #queuedTasks > 0 then
-			return
-		end
-
-		stopHeartbeat()
-	end
-
-	--- Cancels a pending task by its task ID.
-	--- @param taskIdValue taskId Task ID returned by enqueue() or enqueueKeyed().
-	--- @return boolean Whether a pending task was cancelled.
-	local function cancel(taskIdValue: taskId): boolean
-		for index, taskValue in queuedTasks do
-			if taskValue.taskId ~= taskIdValue then
-				continue
-			end
-
-			taskValue.isCancelled = true
-
-			removeKey(taskValue)
-			table.remove(queuedTasks, index)
-			stopIfIdle()
-
-			return true
-		end
-
-		return false
-	end
-
-	--- Cancels a pending keyed task.
-	--- @param key string Key assigned through enqueueKeyed().
-	--- @return boolean Whether a pending task existed for the key.
-	local function cancelKey(key: string): boolean
-		local taskValue = keyedTasks[key]
-
+		local taskValue = tasks[taskId]
 		if not taskValue then
 			return false
 		end
 
-		taskValue.isCancelled = true
-		keyedTasks[key] = nil
+		tasks[taskId] = nil
+		pendingCount -= 1
 
-		removeQueuedTask(taskValue)
-		stopIfIdle()
+		local key = taskValue.key
+		if key and keyedTasks[key] == taskId then
+			keyedTasks[key] = nil
+		end
+
+		if pendingCount == 0 then
+			table.clear(queue)
+			disconnectHeartbeat()
+		end
 
 		return true
 	end
 
-	--- Cancels and removes all pending work without deleting the scheduler.
-	local function clear()
-		stopHeartbeat()
+	local function cancelKey(key: string): boolean
+		assert(not isDeleted, "Reactily scheduler is deleted.")
 
-		for _, taskValue in queuedTasks do
-			taskValue.isCancelled = true
+		local taskId = keyedTasks[key]
+		if not taskId then
+			return false
 		end
 
-		table.clear(keyedTasks)
-		table.clear(queuedTasks)
+		return cancel(taskId)
 	end
 
-	--- Deletes the scheduler and clears all pending work.
-	--- @return boolean Whether deletion occurred.
+	local function clear()
+		assert(not isDeleted, "Reactily scheduler is deleted.")
+		clearPending()
+	end
+
 	local function delete(): boolean
 		if isDeleted then
 			return false
 		end
-
 		isDeleted = true
 
-		clear()
+		clearPending()
 
 		return true
 	end
 
-	--- Queues a callback for the next scheduler flush.
-	--- @param callback () -> () Callback to execute.
-	--- @return taskId ID that can be passed to cancel().
-	local function enqueue(callback: () -> ()): taskId
+	local function enqueue(callback: () -> ()): number
 		assert(not isDeleted, "Reactily scheduler is deleted.")
+		assert(type(callback) == "function", "Reactily scheduler callback must be a function.")
 
-		nextTaskId += 1
-
-		local taskValue: scheduledTask = {
-			callback = callback,
-			isCancelled = false,
-			key = nil,
-			taskId = nextTaskId,
-		}
-
-		queuedTasks[#queuedTasks + 1] = taskValue
-
-		startHeartbeat()
-
-		return taskValue.taskId
+		return enqueueTask(callback, nil)
 	end
 
-	--- Queues keyed work or replaces the callback of an existing pending task with the same key.
-	--- @param key string Stable identifier for the pending task.
-	--- @param callback () -> () Callback to execute.
-	--- @return taskId ID of the keyed task.
-	local function enqueueKeyed(key: string, callback: () -> ()): taskId
+	local function enqueueKeyed(key: string, callback: () -> ()): number
 		assert(not isDeleted, "Reactily scheduler is deleted.")
+		assert(key ~= "", "Reactily scheduler key must not be empty.")
+		assert(type(callback) == "function", "Reactily scheduler callback must be a function.")
 
-		local existing = keyedTasks[key]
+		local existingTaskId = keyedTasks[key]
 
-		if existing and not existing.isCancelled then
-			existing.callback = callback
+		if existingTaskId then
+			local existingTask = tasks[existingTaskId]
 
-			return existing.taskId
+			if existingTask then
+				existingTask.callback = callback
+
+				return existingTaskId
+			end
+
+			keyedTasks[key] = nil
 		end
 
-		nextTaskId += 1
-
-		local taskValue: scheduledTask = {
-			callback = callback,
-			isCancelled = false,
-			key = key,
-			taskId = nextTaskId,
-		}
-
-		keyedTasks[key] = taskValue
-		queuedTasks[#queuedTasks + 1] = taskValue
-
-		startHeartbeat()
-
-		return taskValue.taskId
+		return enqueueTask(callback, key)
 	end
 
-	--- Executes all currently pending work immediately.
-	--- Work queued during the flush is deferred to the next flush.
 	flush = function()
 		if isDeleted then
 			return
@@ -255,54 +195,72 @@ function module.new(): scheduler
 		if isFlushing then
 			return
 		end
-		if #queuedTasks == 0 then
+
+		disconnectHeartbeat()
+
+		if pendingCount == 0 then
+			table.clear(queue)
 			return
 		end
 
 		isFlushing = true
 
-		stopHeartbeat()
+		local pendingQueue = table.clone(queue)
+		table.clear(queue)
 
-		local activeTasks = queuedTasks
-
-		queuedTasks = {}
-
-		for _, taskValue in activeTasks do
-			removeKey(taskValue)
-
-			if taskValue.isCancelled then
+		for _, taskId in pendingQueue do
+			local taskValue = tasks[taskId]
+			if not taskValue then
 				continue
 			end
 
-			runScheduledCallback(taskValue.callback)
+			tasks[taskId] = nil
+			pendingCount -= 1
+
+			local key = taskValue.key
+			if key and keyedTasks[key] == taskId then
+				keyedTasks[key] = nil
+			end
+
+			local success, failure = pcall(function(): boolean
+				taskValue.callback()
+
+				return true
+			end)
+
+			if success then
+				continue
+			end
+			warn(`Reactily scheduled task failed: {failure}`)
 		end
 
-		table.clear(activeTasks)
-
+		table.clear(pendingQueue)
 		isFlushing = false
 
-		startHeartbeat()
+		if pendingCount > 0 then
+			ensureHeartbeat()
+		end
 	end
 
 	local function getPendingCount(): number
-		return #queuedTasks
+		assert(not isDeleted, "Reactily scheduler is deleted.")
+
+		return pendingCount
 	end
 
 	local function getIsDeleted(): boolean
 		return isDeleted
 	end
 
-	--- Returns whether a keyed task is currently pending.
-	--- @param key string Key assigned through enqueueKeyed().
-	--- @return boolean Whether the keyed task is pending.
 	local function isPending(key: string): boolean
-		local taskValue = keyedTasks[key]
+		assert(not isDeleted, "Reactily scheduler is deleted.")
 
-		if not taskValue then
+		local taskId = keyedTasks[key]
+		if not taskId then
 			return false
 		end
 
-		return not taskValue.isCancelled
+		return tasks[taskId] ~= nil
 	end
 
 	return {

@@ -1,6 +1,14 @@
+--[[
+	Reactily · Lily Studios
+
+	Copyright (c) Lily Studios and contributors.
+	Licensed under the MIT License.
+	See LICENSE in the repository root for full terms.
+]]
+
 --!strict
 
--- provides grouped GUI focus management for selectable interface objects
+--————————————————————————————————————————————————————————————————————--
 
 local guiService = game:GetService("GuiService")
 
@@ -16,14 +24,18 @@ export type focusGroup = {
 	delete: () -> boolean,
 	focusFirst: () -> boolean,
 	focusLast: () -> boolean,
+	focusNext: () -> boolean,
+	focusPrevious: () -> boolean,
+	getCurrent: () -> GuiObject?,
 	getItems: () -> { GuiObject },
 	isDeleted: () -> boolean,
 	remove: (object: GuiObject) -> boolean,
+	setWrapAround: (enabled: boolean) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function canFocusObject(object: GuiObject): boolean
+local function canFocus(object: GuiObject): boolean
 	if not object.Parent then
 		return false
 	end
@@ -39,111 +51,131 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Clears the currently selected Roblox GUI object.
+--- Clears the current Roblox GUI selection.
 function module.clearSelection()
-	if guiService.SelectedObject == nil then
-		return
-	end
-
 	guiService.SelectedObject = nil
 end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates an ordered focus group for selectable GUI objects.
---- @return focusGroup A new focus group.
+--- Creates a focus group with forward/backward navigation.
+--- @return focusGroup New focus group.
 function module.new(): focusGroup
 	local isDeleted = false
 	local items: { GuiObject } = {}
+	local wrapAround = true
 
-	--- Adds a GUI object to the focus group.
-	--- Duplicate objects are not added.
-	--- @param object GuiObject Object to add.
-	--- @return boolean Whether the object was added.
 	local function add(object: GuiObject): boolean
 		assert(not isDeleted, "Reactily focus group is deleted.")
-
 		if table.find(items, object) then
 			return false
 		end
 
 		items[#items + 1] = object
-
 		return true
 	end
 
-	--- Removes all tracked objects from the focus group.
 	local function clear()
 		assert(not isDeleted, "Reactily focus group is deleted.")
-
-		if #items == 0 then
-			return
-		end
-
 		table.clear(items)
 	end
 
-	--- Deletes the focus group and clears all tracked objects.
-	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
 		if isDeleted then
 			return false
 		end
 
 		isDeleted = true
-
 		table.clear(items)
-
 		return true
 	end
 
-	--- Focuses the first valid selectable object in the group.
-	--- @return boolean Whether an object was focused.
 	local function focusFirst(): boolean
 		assert(not isDeleted, "Reactily focus group is deleted.")
 
 		for _, object in items do
-			if not canFocusObject(object) then
+			if not canFocus(object) then
 				continue
 			end
 
-			if guiService.SelectedObject ~= object then
-				guiService.SelectedObject = object
-			end
-
+			guiService.SelectedObject = object
 			return true
 		end
 
 		return false
 	end
 
-	--- Focuses the last valid selectable object in the group.
-	--- @return boolean Whether an object was focused.
 	local function focusLast(): boolean
 		assert(not isDeleted, "Reactily focus group is deleted.")
 
 		for index = #items, 1, -1 do
 			local object = items[index]
-
-			if not canFocusObject(object) then
+			if not canFocus(object) then
 				continue
 			end
 
-			if guiService.SelectedObject ~= object then
-				guiService.SelectedObject = object
-			end
-
+			guiService.SelectedObject = object
 			return true
 		end
 
 		return false
 	end
 
-	--- Returns a copy of the GUI objects currently tracked by the group.
-	--- @return {GuiObject} Tracked objects in focus order.
+	local function getCurrent(): GuiObject?
+		local selected = guiService.SelectedObject
+		if not selected then
+			return nil
+		end
+		if not table.find(items, selected) then
+			return nil
+		end
+
+		return selected
+	end
+
+	local function move(direction: number): boolean
+		assert(not isDeleted, "Reactily focus group is deleted.")
+		if #items == 0 then
+			return false
+		end
+
+		local selected = getCurrent()
+		local startIndex = 0
+
+		if selected then
+			startIndex = table.find(items, selected) or 0
+		end
+
+		if not selected and direction < 0 then
+			startIndex = #items + 1
+		end
+
+		for offset = 1, #items do
+			local rawIndex = startIndex + direction * offset
+			local index = rawIndex
+
+			if wrapAround then
+				index = ((rawIndex - 1) % #items) + 1
+			end
+
+			if index < 1 or index > #items then
+				break
+			end
+
+			local object = items[index]
+			if not canFocus(object) then
+				continue
+			end
+
+			guiService.SelectedObject = object
+			return true
+		end
+
+		return false
+	end
+
 	local function getItems(): { GuiObject }
 		assert(not isDeleted, "Reactily focus group is deleted.")
-
 		return table.clone(items)
 	end
 
@@ -151,20 +183,30 @@ function module.new(): focusGroup
 		return isDeleted
 	end
 
-	--- Removes a GUI object from the focus group.
-	--- @param object GuiObject Object to remove.
-	--- @return boolean Whether the object was found and removed.
 	local function remove(object: GuiObject): boolean
 		assert(not isDeleted, "Reactily focus group is deleted.")
 
 		local index = table.find(items, object)
-
 		if not index then
 			return false
 		end
 
 		table.remove(items, index)
 
+		if guiService.SelectedObject == object then
+			guiService.SelectedObject = nil
+		end
+
+		return true
+	end
+
+	local function setWrapAround(enabled: boolean): boolean
+		assert(not isDeleted, "Reactily focus group is deleted.")
+		if wrapAround == enabled then
+			return false
+		end
+
+		wrapAround = enabled
 		return true
 	end
 
@@ -174,9 +216,17 @@ function module.new(): focusGroup
 		delete = delete,
 		focusFirst = focusFirst,
 		focusLast = focusLast,
+		focusNext = function(): boolean
+			return move(1)
+		end,
+		focusPrevious = function(): boolean
+			return move(-1)
+		end,
+		getCurrent = getCurrent,
 		getItems = getItems,
 		isDeleted = getIsDeleted,
 		remove = remove,
+		setWrapAround = setWrapAround,
 	}
 end
 

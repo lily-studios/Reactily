@@ -1,0 +1,23 @@
+{
+	"name": "ReactilyTests",
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"Reactily": {
+				"$path": "src"
+			}
+		},
+		"ServerScriptService": {
+			"ReactilyTests": {
+				"$path": "tests"
+			}
+		},
+		"StarterPlayer": {
+			"StarterPlayerScripts": {
+				"ReactilyShowcase": {
+					"$path": "showcase.client.luau"
+				}
+			}
+		}
+	}
+}

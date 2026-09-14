@@ -1,6 +1,12 @@
 {
-  "name": "Reactily",
-  "tree": {
-    "$path": "src"
-  }
+	"name": "Reactily",
+	"tree": {
+		"$className": "DataModel",
+
+		"ReplicatedStorage": {
+			"Reactily": {
+				"$path": "src"
+			}
+		}
+	}
 }

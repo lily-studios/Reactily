@@ -1,6 +1,12 @@
---!strict
+--[[
+	Reactily · Lily Studios
 
--- provides typed Reactily signals and derived signal operators
+	Copyright (c) Lily Studios and contributors.
+	Licensed under the MIT License.
+	See LICENSE in the repository root for full terms.
+]]
+
+--!strict
 
 --————————————————————————————————————————————————————————————————————--
 
@@ -41,18 +47,16 @@ local function runListener<T>(callback: (value: T) -> (), value: T)
 	if success then
 		return
 	end
-
 	warn(`Reactily signal listener failed: {failure}`)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates a signal that emits only when the value differs from the previous emission.
---- @param source signal<T> Source signal to observe.
---- @return signal<T> Derived signal that suppresses consecutive duplicate values.
+--- Creates a signal that emits only when the incoming value changes.
+--- @param source signal<T> Source signal.
+--- @return signal<T> Derived distinct signal.
 function module.distinct<T>(source: signal<T>): signal<T>
 	local output: signal<T> = module.new()
-
 	local hasPrevious = false
 	local previous: T? = nil
 
@@ -63,7 +67,6 @@ function module.distinct<T>(source: signal<T>): signal<T>
 
 		hasPrevious = true
 		previous = value
-
 		output.fire(value)
 	end)
 
@@ -80,10 +83,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates a signal that emits only values accepted by the predicate.
---- @param source signal<T> Source signal to observe.
---- @param predicate (value: T) -> boolean Determines whether each emitted value should pass through.
---- @return signal<T> Filtered derived signal.
+--- Creates a signal that emits only values accepted by a predicate.
+--- @param source signal<T> Source signal.
+--- @param predicate (value: T) -> boolean Predicate deciding whether a value should emit.
+--- @return signal<T> Filtered signal.
 function module.filter<T>(source: signal<T>, predicate: (value: T) -> boolean): signal<T>
 	local output: signal<T> = module.new()
 
@@ -91,7 +94,6 @@ function module.filter<T>(source: signal<T>, predicate: (value: T) -> boolean): 
 		if not predicate(value) then
 			return
 		end
-
 		output.fire(value)
 	end)
 
@@ -108,10 +110,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates a signal that transforms each emitted source value.
---- @param source signal<A> Source signal to observe.
---- @param mapper (value: A) -> B Converts each source value into the output value.
---- @return signal<B> Mapped derived signal.
+--- Creates a signal whose values are transformed by a mapper.
+--- @param source signal<A> Source signal.
+--- @param mapper (value: A) -> B Value transformation callback.
+--- @return signal<B> Mapped signal.
 function module.map<A, B>(source: signal<A>, mapper: (value: A) -> B): signal<B>
 	local output: signal<B> = module.new()
 
@@ -132,9 +134,9 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates one signal that forwards values from multiple source signals.
---- @param sources {signal<T>} Source signals to merge.
---- @return signal<T> Derived signal that emits values from every source.
+--- Combines multiple signals into one signal that forwards every emitted value.
+--- @param sources {signal<T>} Source signals.
+--- @return signal<T> Merged signal.
 function module.merge<T>(sources: { signal<T> }): signal<T>
 	local output: signal<T> = module.new()
 	local sourceConnections: { connection } = {}
@@ -162,8 +164,8 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates a typed signal.
---- @return signal<T> A new active signal.
+--- Creates a typed Reactily signal.
+--- @return signal<T> New signal.
 function module.new<T>(): signal<T>
 	local isDeleted = false
 	local listeners: { listener<T> } = {}
@@ -175,7 +177,6 @@ function module.new<T>(): signal<T>
 			end
 
 			table.remove(listeners, index)
-
 			return
 		end
 	end
@@ -185,7 +186,6 @@ function module.new<T>(): signal<T>
 
 		connectionValue = {
 			connected = true,
-
 			disconnect = function(): boolean
 				if not connectionValue.connected then
 					return false
@@ -193,7 +193,6 @@ function module.new<T>(): signal<T>
 
 				connectionValue.connected = false
 				target.isConnected = false
-
 				removeListener(target)
 
 				return true
@@ -205,9 +204,6 @@ function module.new<T>(): signal<T>
 		return connectionValue
 	end
 
-	--- Connects a listener to future signal emissions.
-	--- @param callback (value: T) -> () Listener invoked whenever the signal fires.
-	--- @return connection Connection used to stop future delivery.
 	local function connect(callback: (value: T) -> ()): connection
 		assert(not isDeleted, "Reactily signal is deleted.")
 
@@ -223,20 +219,16 @@ function module.new<T>(): signal<T>
 		return createConnection(target)
 	end
 
-	--- Deletes the signal and disconnects all listeners.
-	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
 		if isDeleted then
 			return false
 		end
-
 		isDeleted = true
 
 		for _, target in listeners do
 			target.isConnected = false
 
 			local connectionValue = target.connection
-
 			if not connectionValue then
 				continue
 			end
@@ -249,8 +241,6 @@ function module.new<T>(): signal<T>
 		return true
 	end
 
-	--- Emits a value to every currently connected listener.
-	--- @param value T Value delivered to listeners.
 	local function fire(value: T)
 		if isDeleted then
 			return
@@ -266,8 +256,12 @@ function module.new<T>(): signal<T>
 				continue
 			end
 
-			if target.isOnce and target.connection then
-				target.connection.disconnect()
+			if target.isOnce then
+				local connectionValue = target.connection
+
+				if connectionValue then
+					connectionValue.disconnect()
+				end
 			end
 
 			runListener(target.callback, value)
@@ -284,9 +278,6 @@ function module.new<T>(): signal<T>
 		return isDeleted
 	end
 
-	--- Connects a listener that automatically disconnects before its first callback runs.
-	--- @param callback (value: T) -> () Listener invoked once.
-	--- @return connection Connection that can cancel the listener before it fires.
 	local function once(callback: (value: T) -> ()): connection
 		assert(not isDeleted, "Reactily signal is deleted.")
 
@@ -314,10 +305,10 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates a signal that ignores the first number of source emissions.
---- @param source signal<T> Source signal to observe.
+--- Creates a signal that ignores a number of initial emissions.
+--- @param source signal<T> Source signal.
 --- @param amount number Number of initial emissions to skip.
---- @return signal<T> Derived signal that emits after the skipped values.
+--- @return signal<T> Derived signal.
 function module.skip<T>(source: signal<T>, amount: number): signal<T>
 	assert(amount >= 0, "Reactily skip amount must be non-negative.")
 
@@ -330,7 +321,6 @@ function module.skip<T>(source: signal<T>, amount: number): signal<T>
 		if count <= amount then
 			return
 		end
-
 		output.fire(value)
 	end)
 
@@ -347,17 +337,20 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
---- Creates a signal that emits up to the requested number of source values.
---- The source connection disconnects automatically after the maximum is reached.
---- @param source signal<T> Source signal to observe.
+--- Creates a signal that forwards at most a fixed number of emissions.
+--- @param source signal<T> Source signal.
 --- @param maximum number Maximum number of values to emit.
---- @return signal<T> Derived signal limited to the requested number of emissions.
+--- @return signal<T> Limited signal.
 function module.take<T>(source: signal<T>, maximum: number): signal<T>
 	assert(maximum >= 0, "Reactily take maximum must be non-negative.")
 
-	local count = 0
 	local output: signal<T> = module.new()
-	local sourceConnection: connection?
+	if maximum == 0 then
+		return output
+	end
+
+	local count = 0
+	local sourceConnection: connection? = nil
 
 	sourceConnection = source.connect(function(value: T)
 		if count >= maximum then
@@ -365,24 +358,27 @@ function module.take<T>(source: signal<T>, maximum: number): signal<T>
 		end
 
 		count += 1
-
 		output.fire(value)
 
 		if count < maximum then
 			return
 		end
-		if not sourceConnection then
+
+		local activeConnection = sourceConnection
+		if not activeConnection then
 			return
 		end
 
-		sourceConnection.disconnect()
+		activeConnection.disconnect()
 	end)
 
 	local outputDelete = output.delete
 
 	output.delete = function(): boolean
-		if sourceConnection then
-			sourceConnection.disconnect()
+		local activeConnection = sourceConnection
+
+		if activeConnection then
+			activeConnection.disconnect()
 		end
 
 		return outputDelete()
