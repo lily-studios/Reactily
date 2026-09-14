@@ -59,14 +59,7 @@ local function resolveTweenInfo(options: tweenOptions): TweenInfo
 		reverses = options.reverses
 	end
 
-	return TweenInfo.new(
-		options.time,
-		easingStyle,
-		easingDirection,
-		repeatCount,
-		reverses,
-		delayTime
-	)
+	return TweenInfo.new(options.time, easingStyle, easingDirection, repeatCount, reverses, delayTime)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -76,11 +69,7 @@ end
 --- @param goals {[string]: any} Target property values passed to TweenService.
 --- @param options tweenOptions Tween duration and optional playback settings.
 --- @return animation The active Reactily animation.
-function module.play(
-	instance: Instance,
-	goals: {[string]: any},
-	options: tweenOptions
-): animation
+function module.play(instance: Instance, goals: { [string]: any }, options: tweenOptions): animation
 	local animationValue = module.tween(instance, goals, options)
 
 	animationValue.play()
@@ -95,19 +84,17 @@ end
 --- @param goals {[string]: any} Target property values passed to TweenService.
 --- @param options tweenOptions Tween duration and optional playback settings.
 --- @return animation A new Reactily animation.
-function module.tween(
-	instance: Instance,
-	goals: {[string]: any},
-	options: tweenOptions
-): animation
-	local completionConnections: {RBXScriptConnection} = {}
+function module.tween(instance: Instance, goals: { [string]: any }, options: tweenOptions): animation
+	local completionConnections: { RBXScriptConnection } = {}
 	local isDeleted = false
 	local tween = tweenService:Create(instance, resolveTweenInfo(options), goals)
 
 	--- Cancels the current tween playback.
 	--- @return boolean Whether the animation was available to cancel.
 	local function cancel(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		tween:Cancel()
 
@@ -117,12 +104,16 @@ function module.tween(
 	--- Deletes the animation, disconnects completion listeners, and destroys the Tween.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 
 		for _, connection in completionConnections do
-			if not connection.Connected then continue end
+			if not connection.Connected then
+				continue
+			end
 
 			connection:Disconnect()
 		end
@@ -142,9 +133,7 @@ function module.tween(
 	--- Connects a callback to the underlying Tween completion event.
 	--- @param callback (playbackState: Enum.PlaybackState) -> () Callback receiving the final playback state.
 	--- @return RBXScriptConnection The Roblox completion connection.
-	local function onCompleted(
-		callback: (playbackState: Enum.PlaybackState) -> ()
-	): RBXScriptConnection
+	local function onCompleted(callback: (playbackState: Enum.PlaybackState) -> ()): RBXScriptConnection
 		assert(not isDeleted, "Reactily animation is deleted.")
 
 		local connection = tween.Completed:Connect(callback)

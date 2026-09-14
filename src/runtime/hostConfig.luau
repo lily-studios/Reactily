@@ -8,7 +8,7 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-local eventNames: {[string]: string} = {
+local eventNames: { [string]: string } = {
 	onActivated = "Activated",
 	onAncestryChanged = "AncestryChanged",
 	onChanged = "Changed",
@@ -29,7 +29,7 @@ local eventNames: {[string]: string} = {
 	onSelectionLost = "SelectionLost",
 }
 
-local propertyNames: {[string]: string} = {
+local propertyNames: { [string]: string } = {
 	active = "Active",
 	adornee = "Adornee",
 	alwaysOnTop = "AlwaysOnTop",

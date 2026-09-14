@@ -35,7 +35,7 @@ end
 --- Later styles override matching properties from earlier styles.
 --- @param styles {style} Styles to merge in order.
 --- @return style A new merged style.
-function module.merge(styles: {style}): style
+function module.merge(styles: { style }): style
 	local output: style = {}
 
 	for _, styleValue in styles do
@@ -54,7 +54,9 @@ end
 --- @param styleValue style Style to return when enabled.
 --- @return style The supplied style or an empty style.
 function module.when(condition: boolean, styleValue: style): style
-	if not condition then return {} end
+	if not condition then
+		return {}
+	end
 
 	return styleValue
 end
@@ -80,11 +82,7 @@ end
 --- @param property string Property to set.
 --- @param value any Value assigned to the property.
 --- @return style A new style containing the property.
-function module.withProperty(
-	styleValue: style,
-	property: string,
-	value: any
-): style
+function module.withProperty(styleValue: style, property: string, value: any): style
 	local output = table.clone(styleValue)
 
 	output[property] = value

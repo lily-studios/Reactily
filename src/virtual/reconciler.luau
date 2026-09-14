@@ -24,7 +24,7 @@ export type reconcileOptions = {
 }
 
 export type runtimeNode = {
-	children: {runtimeNode},
+	children: { runtimeNode },
 	element: elementModule.element,
 	hookContext: hooks.componentContext?,
 	host: renderer.hostHandle?,
@@ -68,11 +68,7 @@ end
 --- @param elementValue elementModule.element Element to mount.
 --- @param options reconcileOptions Reconciliation callbacks and options.
 --- @return runtimeNode Newly mounted runtime node.
-function internals.mount(
-	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
+function internals.mount(parent: Instance, elementValue: elementModule.element, options: reconcileOptions): runtimeNode
 	local node: runtimeNode = {
 		children = {},
 		element = elementValue,
@@ -87,11 +83,7 @@ function internals.mount(
 		node.host = host
 
 		for _, child in elementValue.children do
-			node.children[#node.children + 1] = internals.mount(
-				host.instance,
-				child,
-				options
-			)
+			node.children[#node.children + 1] = internals.mount(host.instance, child, options)
 		end
 
 		return node
@@ -115,22 +107,14 @@ function internals.mount(
 
 	if elementValue.kind == "portal" then
 		for _, child in elementValue.children do
-			node.children[#node.children + 1] = internals.mount(
-				elementValue.target,
-				child,
-				options
-			)
+			node.children[#node.children + 1] = internals.mount(elementValue.target, child, options)
 		end
 
 		return node
 	end
 
 	for _, child in elementValue.children do
-		node.children[#node.children + 1] = internals.mount(
-			parent,
-			child,
-			options
-		)
+		node.children[#node.children + 1] = internals.mount(parent, child, options)
 	end
 
 	return node
@@ -151,13 +135,12 @@ function internals.reconcile(
 	nextElement: elementModule.element?,
 	options: reconcileOptions
 ): runtimeNode?
-	if not currentNode and not nextElement then return nil end
+	if not currentNode and not nextElement then
+		return nil
+	end
 
 	if not currentNode then
-		assert(
-			nextElement,
-			"[Reactily] Reconcile requires a next element when no current node exists."
-		)
+		assert(nextElement, "[Reactily] Reconcile requires a next element when no current node exists.")
 
 		return internals.mount(parent, nextElement, options)
 	end
@@ -183,23 +166,12 @@ function internals.reconcile(
 		local host = currentNode.host
 
 		assert(host, "[Reactily] Host runtime node is missing its host handle.")
-		assert(
-			previousElement.kind == "host",
-			"[Reactily] Host identity changed unexpectedly."
-		)
+		assert(previousElement.kind == "host", "[Reactily] Host identity changed unexpectedly.")
 
-		renderer.updateHost(
-			host,
-			previousElement.props,
-			nextElement.props
-		)
+		renderer.updateHost(host, previousElement.props, nextElement.props)
 
-		currentNode.children = internals.reconcileChildren(
-			host.instance,
-			currentNode.children,
-			nextElement.children,
-			options
-		)
+		currentNode.children =
+			internals.reconcileChildren(host.instance, currentNode.children, nextElement.children, options)
 
 		return currentNode
 	end
@@ -207,23 +179,12 @@ function internals.reconcile(
 	if nextElement.kind == "component" then
 		local hookContext = currentNode.hookContext
 
-		assert(
-			hookContext,
-			"Reactily component runtime node is missing hook context."
-		)
+		assert(hookContext, "Reactily component runtime node is missing hook context.")
 
-		local rendered = internals.renderComponent(
-			nextElement,
-			hookContext
-		)
+		local rendered = internals.renderComponent(nextElement, hookContext)
 
 		local currentChild = currentNode.children[1]
-		local nextChild = internals.reconcile(
-			parent,
-			currentChild,
-			rendered,
-			options
-		)
+		local nextChild = internals.reconcile(parent, currentChild, rendered, options)
 
 		table.clear(currentNode.children)
 
@@ -237,22 +198,13 @@ function internals.reconcile(
 	end
 
 	if nextElement.kind == "portal" then
-		currentNode.children = internals.reconcileChildren(
-			nextElement.target,
-			currentNode.children,
-			nextElement.children,
-			options
-		)
+		currentNode.children =
+			internals.reconcileChildren(nextElement.target, currentNode.children, nextElement.children, options)
 
 		return currentNode
 	end
 
-	currentNode.children = internals.reconcileChildren(
-		parent,
-		currentNode.children,
-		nextElement.children,
-		options
-	)
+	currentNode.children = internals.reconcileChildren(parent, currentNode.children, nextElement.children, options)
 
 	return currentNode
 end
@@ -268,15 +220,15 @@ end
 --- @return {runtimeNode} Reconciled child runtime nodes in next-element order.
 function internals.reconcileChildren(
 	parent: Instance,
-	currentChildren: {runtimeNode},
-	nextChildren: {elementModule.element},
+	currentChildren: { runtimeNode },
+	nextChildren: { elementModule.element },
 	options: reconcileOptions
-): {runtimeNode}
-	local currentByKey: {[string]: runtimeNode} = {}
-	local currentWithoutKey: {runtimeNode} = {}
-	local nextKeys: {[string]: boolean} = {}
-	local output: {runtimeNode} = table.create(#nextChildren)
-	local usedNodes: {[runtimeNode]: boolean} = {}
+): { runtimeNode }
+	local currentByKey: { [string]: runtimeNode } = {}
+	local currentWithoutKey: { runtimeNode } = {}
+	local nextKeys: { [string]: boolean } = {}
+	local output: { runtimeNode } = table.create(#nextChildren)
+	local usedNodes: { [runtimeNode]: boolean } = {}
 
 	for _, currentNode in currentChildren do
 		local key = getElementKey(currentNode.element)
@@ -287,10 +239,7 @@ function internals.reconcileChildren(
 			continue
 		end
 
-		assert(
-			not currentByKey[key],
-			`Reactily current children contain duplicate key "{key}".`
-		)
+		assert(not currentByKey[key], `Reactily current children contain duplicate key "{key}".`)
 
 		currentByKey[key] = currentNode
 	end
@@ -302,10 +251,7 @@ function internals.reconcileChildren(
 		local currentNode: runtimeNode? = nil
 
 		if key then
-			assert(
-				not nextKeys[key],
-				`Reactily next children contain duplicate key "{key}".`
-			)
+			assert(not nextKeys[key], `Reactily next children contain duplicate key "{key}".`)
 
 			nextKeys[key] = true
 			currentNode = currentByKey[key]
@@ -320,20 +266,19 @@ function internals.reconcileChildren(
 			usedNodes[currentNode] = true
 		end
 
-		local nextNode = internals.reconcile(
-			parent,
-			currentNode,
-			nextElement,
-			options
-		)
+		local nextNode = internals.reconcile(parent, currentNode, nextElement, options)
 
-		if not nextNode then continue end
+		if not nextNode then
+			continue
+		end
 
 		output[#output + 1] = nextNode
 	end
 
 	for _, currentNode in currentChildren do
-		if usedNodes[currentNode] then continue end
+		if usedNodes[currentNode] then
+			continue
+		end
 
 		internals.deleteNode(currentNode)
 	end
@@ -358,10 +303,7 @@ function internals.renderComponent(
 	elementValue: elementModule.element,
 	context: hooks.componentContext
 ): elementModule.element?
-	assert(
-		elementValue.kind == "component",
-		"Reactily component renderer requires a component element."
-	)
+	assert(elementValue.kind == "component", "Reactily component renderer requires a component element.")
 
 	local props = table.clone(elementValue.props)
 
@@ -387,12 +329,13 @@ end
 --- @param current elementModule.element Currently mounted element.
 --- @param nextValue elementModule.element Element requested for the next render.
 --- @return boolean Whether the existing runtime node can be reused.
-function internals.sameIdentity(
-	current: elementModule.element,
-	nextValue: elementModule.element
-): boolean
-	if current.kind ~= nextValue.kind then return false end
-	if current.key ~= nextValue.key then return false end
+function internals.sameIdentity(current: elementModule.element, nextValue: elementModule.element): boolean
+	if current.kind ~= nextValue.kind then
+		return false
+	end
+	if current.key ~= nextValue.key then
+		return false
+	end
 
 	if current.kind == "host" and nextValue.kind == "host" then
 		return current.className == nextValue.className
@@ -415,7 +358,9 @@ end
 --- @param node runtimeNode? Root runtime node to delete.
 --- @return boolean Whether a runtime node existed and was deleted.
 function module.delete(node: runtimeNode?): boolean
-	if not node then return false end
+	if not node then
+		return false
+	end
 
 	internals.deleteNode(node)
 
@@ -437,12 +382,7 @@ function module.reconcile(
 	nextElement: elementModule.element?,
 	options: reconcileOptions
 ): runtimeNode?
-	return internals.reconcile(
-		parent,
-		currentNode,
-		nextElement,
-		options
-	)
+	return internals.reconcile(parent, currentNode, nextElement, options)
 end
 
 --————————————————————————————————————————————————————————————————————--

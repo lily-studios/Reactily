@@ -41,7 +41,9 @@ local function runScheduledCallback(callback: () -> ())
 		return true
 	end)
 
-	if success then return end
+	if success then
+		return
+	end
 
 	warn(`Reactily scheduled callback failed: {failure}`)
 end
@@ -55,16 +57,18 @@ function module.new(): scheduler
 
 	local isDeleted = false
 	local isFlushing = false
-	local keyedTasks: {[string]: scheduledTask} = {}
+	local keyedTasks: { [string]: scheduledTask } = {}
 	local nextTaskId = 0
-	local queuedTasks: {scheduledTask} = {}
+	local queuedTasks: { scheduledTask } = {}
 
 	local flush: () -> ()
 
 	local function stopHeartbeat()
 		local connection = heartbeatConnection
 
-		if not connection then return end
+		if not connection then
+			return
+		end
 
 		connection:Disconnect()
 
@@ -72,9 +76,15 @@ function module.new(): scheduler
 	end
 
 	local function startHeartbeat()
-		if isDeleted then return end
-		if heartbeatConnection then return end
-		if #queuedTasks == 0 then return end
+		if isDeleted then
+			return
+		end
+		if heartbeatConnection then
+			return
+		end
+		if #queuedTasks == 0 then
+			return
+		end
 
 		heartbeatConnection = runService.Heartbeat:Connect(function()
 			stopHeartbeat()
@@ -86,15 +96,21 @@ function module.new(): scheduler
 	local function removeKey(taskValue: scheduledTask)
 		local key = taskValue.key
 
-		if not key then return end
-		if keyedTasks[key] ~= taskValue then return end
+		if not key then
+			return
+		end
+		if keyedTasks[key] ~= taskValue then
+			return
+		end
 
 		keyedTasks[key] = nil
 	end
 
 	local function removeQueuedTask(target: scheduledTask)
 		for index, taskValue in queuedTasks do
-			if taskValue ~= target then continue end
+			if taskValue ~= target then
+				continue
+			end
 
 			table.remove(queuedTasks, index)
 
@@ -103,7 +119,9 @@ function module.new(): scheduler
 	end
 
 	local function stopIfIdle()
-		if #queuedTasks > 0 then return end
+		if #queuedTasks > 0 then
+			return
+		end
 
 		stopHeartbeat()
 	end
@@ -113,7 +131,9 @@ function module.new(): scheduler
 	--- @return boolean Whether a pending task was cancelled.
 	local function cancel(taskIdValue: taskId): boolean
 		for index, taskValue in queuedTasks do
-			if taskValue.taskId ~= taskIdValue then continue end
+			if taskValue.taskId ~= taskIdValue then
+				continue
+			end
 
 			taskValue.isCancelled = true
 
@@ -133,7 +153,9 @@ function module.new(): scheduler
 	local function cancelKey(key: string): boolean
 		local taskValue = keyedTasks[key]
 
-		if not taskValue then return false end
+		if not taskValue then
+			return false
+		end
 
 		taskValue.isCancelled = true
 		keyedTasks[key] = nil
@@ -159,7 +181,9 @@ function module.new(): scheduler
 	--- Deletes the scheduler and clears all pending work.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 
@@ -225,9 +249,15 @@ function module.new(): scheduler
 	--- Executes all currently pending work immediately.
 	--- Work queued during the flush is deferred to the next flush.
 	flush = function()
-		if isDeleted then return end
-		if isFlushing then return end
-		if #queuedTasks == 0 then return end
+		if isDeleted then
+			return
+		end
+		if isFlushing then
+			return
+		end
+		if #queuedTasks == 0 then
+			return
+		end
 
 		isFlushing = true
 
@@ -240,7 +270,9 @@ function module.new(): scheduler
 		for _, taskValue in activeTasks do
 			removeKey(taskValue)
 
-			if taskValue.isCancelled then continue end
+			if taskValue.isCancelled then
+				continue
+			end
 
 			runScheduledCallback(taskValue.callback)
 		end
@@ -266,7 +298,9 @@ function module.new(): scheduler
 	local function isPending(key: string): boolean
 		local taskValue = keyedTasks[key]
 
-		if not taskValue then return false end
+		if not taskValue then
+			return false
+		end
 
 		return not taskValue.isCancelled
 	end

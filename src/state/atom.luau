@@ -1,7 +1,5 @@
 --!strict
 
--- provides reactive atoms, computed state, attribute-backed state, and history state
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -56,10 +54,7 @@ type historyEntry<T> = {
 --- @param source atom<A> Source atom to observe.
 --- @param selector (value: A) -> B Function that derives the output value.
 --- @return computed<B> Derived computed atom.
-function module.computed<A, B>(
-	source: atom<A>,
-	selector: (value: A) -> B
-): computed<B>
+function module.computed<A, B>(source: atom<A>, selector: (value: A) -> B): computed<B>
 	local output = module.new(selector(source.get()))
 
 	local sourceConnection = source.subscribe(function(change: atomChange<A>)
@@ -91,11 +86,7 @@ end
 --- @param attributeName string Attribute name to synchronize.
 --- @param defaultValue T Initial value used when the Attribute does not exist.
 --- @return atom<T> Attribute-backed atom.
-function module.fromAttribute<T>(
-	instance: Instance,
-	attributeName: string,
-	defaultValue: T
-): atom<T>
+function module.fromAttribute<T>(instance: Instance, attributeName: string, defaultValue: T): atom<T>
 	local currentAttribute = instance:GetAttribute(attributeName)
 	local initialValue = defaultValue
 
@@ -109,11 +100,15 @@ function module.fromAttribute<T>(
 	local isApplyingState = false
 
 	local attributeConnection = instance:GetAttributeChangedSignal(attributeName):Connect(function()
-		if isApplyingState then return end
+		if isApplyingState then
+			return
+		end
 
 		local nextValue = instance:GetAttribute(attributeName)
 
-		if nextValue == nil then return end
+		if nextValue == nil then
+			return
+		end
 
 		isApplyingAttribute = true
 
@@ -123,8 +118,12 @@ function module.fromAttribute<T>(
 	end)
 
 	local stateConnection = output.subscribe(function(change: atomChange<T>)
-		if isApplyingAttribute then return end
-		if instance:GetAttribute(attributeName) == change.current then return end
+		if isApplyingAttribute then
+			return
+		end
+		if instance:GetAttribute(attributeName) == change.current then
+			return
+		end
 
 		isApplyingState = true
 
@@ -151,17 +150,14 @@ end
 --- @param initialValue T Initial atom value.
 --- @param limit number Maximum number of past values retained for undo.
 --- @return historyAtom<T> History-enabled atom.
-function module.history<T>(
-	initialValue: T,
-	limit: number
-): historyAtom<T>
+function module.history<T>(initialValue: T, limit: number): historyAtom<T>
 	assert(limit > 0, "Reactily history limit must be greater than zero.")
 
 	local base = module.new(initialValue)
 
-	local future: {historyEntry<T>} = {}
+	local future: { historyEntry<T> } = {}
 	local isRecording = true
-	local past: {historyEntry<T>} = {}
+	local past: { historyEntry<T> } = {}
 
 	local baseSet = base.set
 
@@ -192,7 +188,9 @@ function module.history<T>(
 			value = previous,
 		}
 
-		if #past <= limit then return end
+		if #past <= limit then
+			return
+		end
 
 		table.remove(past, 1)
 	end
@@ -205,8 +203,12 @@ function module.history<T>(
 		local previous = base.get()
 		local didChange = baseSet(value)
 
-		if not didChange then return false end
-		if not isRecording then return true end
+		if not didChange then
+			return false
+		end
+		if not isRecording then
+			return true
+		end
 
 		record(previous)
 		table.clear(future)
@@ -219,7 +221,9 @@ function module.history<T>(
 	local function redo(): boolean
 		local entry = future[#future]
 
-		if not entry then return false end
+		if not entry then
+			return false
+		end
 
 		future[#future] = nil
 
@@ -241,7 +245,9 @@ function module.history<T>(
 	local function undo(): boolean
 		local entry = past[#past]
 
-		if not entry then return false end
+		if not entry then
+			return false
+		end
 
 		past[#past] = nil
 
@@ -297,7 +303,9 @@ function module.new<T>(initialValue: T): atom<T>
 	--- Deletes the atom and disconnects all subscribers.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 
@@ -323,7 +331,9 @@ function module.new<T>(initialValue: T): atom<T>
 	local function set(nextValue: T): boolean
 		assert(not isDeleted, "Reactily atom is deleted.")
 
-		if value == nextValue then return false end
+		if value == nextValue then
+			return false
+		end
 
 		local previous = value
 
@@ -340,9 +350,7 @@ function module.new<T>(initialValue: T): atom<T>
 	--- Subscribes to future atom changes.
 	--- @param callback (change: atomChange<T>) -> () Callback receiving previous and current values.
 	--- @return signalModule.connection Connection used to stop future notifications.
-	local function subscribe(
-		callback: (change: atomChange<T>) -> ()
-	): signalModule.connection
+	local function subscribe(callback: (change: atomChange<T>) -> ()): signalModule.connection
 		assert(not isDeleted, "Reactily atom is deleted.")
 
 		return changed.connect(callback)

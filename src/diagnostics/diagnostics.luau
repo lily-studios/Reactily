@@ -15,7 +15,7 @@ export type diagnostics = {
 	isDeleted: () -> boolean,
 	reset: (name: string) -> boolean,
 	resetAll: () -> (),
-	snapshot: () -> {[string]: number},
+	snapshot: () -> { [string]: number },
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -23,13 +23,15 @@ export type diagnostics = {
 --- Creates a diagnostics counter collection.
 --- @return diagnostics A new diagnostics object.
 function module.new(): diagnostics
-	local counters: {[string]: number} = {}
+	local counters: { [string]: number } = {}
 	local isDeleted = false
 
 	--- Deletes the diagnostics object and clears all counters.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 
@@ -47,7 +49,9 @@ function module.new(): diagnostics
 
 		local value = counters[name]
 
-		if value == nil then return 0 end
+		if value == nil then
+			return 0
+		end
 
 		return value
 	end
@@ -82,7 +86,9 @@ function module.new(): diagnostics
 	local function reset(name: string): boolean
 		assert(not isDeleted, "Reactily diagnostics is deleted.")
 
-		if counters[name] == nil then return false end
+		if counters[name] == nil then
+			return false
+		end
 
 		counters[name] = nil
 
@@ -98,7 +104,7 @@ function module.new(): diagnostics
 
 	--- Returns a copy of the current counter values.
 	--- @return {[string]: number} Snapshot of all diagnostic counters.
-	local function snapshot(): {[string]: number}
+	local function snapshot(): { [string]: number }
 		assert(not isDeleted, "Reactily diagnostics is deleted.")
 
 		return table.clone(counters)

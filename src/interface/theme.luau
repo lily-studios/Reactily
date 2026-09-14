@@ -37,7 +37,9 @@ function module.new<T>(initialValue: T): theme<T>
 	--- Deletes the theme and disconnects all subscribers.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 
@@ -63,7 +65,9 @@ function module.new<T>(initialValue: T): theme<T>
 	local function set(nextValue: T): boolean
 		assert(not isDeleted, "Reactily theme is deleted.")
 
-		if value == nextValue then return false end
+		if value == nextValue then
+			return false
+		end
 
 		value = nextValue
 
@@ -75,9 +79,7 @@ function module.new<T>(initialValue: T): theme<T>
 	--- Subscribes to future theme changes.
 	--- @param callback (value: T) -> () Callback invoked with the new theme value.
 	--- @return signalModule.connection Connection used to stop future notifications.
-	local function subscribe(
-		callback: (value: T) -> ()
-	): signalModule.connection
+	local function subscribe(callback: (value: T) -> ()): signalModule.connection
 		assert(not isDeleted, "Reactily theme is deleted.")
 
 		return changed.connect(callback)
@@ -108,10 +110,7 @@ end
 --- @param themeValue theme<T> Theme containing the source tokens.
 --- @param selector (tokens: T) -> R Function that selects or derives a value.
 --- @return R The resolved value.
-function module.resolve<T, R>(
-	themeValue: theme<T>,
-	selector: (tokens: T) -> R
-): R
+function module.resolve<T, R>(themeValue: theme<T>, selector: (tokens: T) -> R): R
 	return selector(themeValue.get())
 end
 

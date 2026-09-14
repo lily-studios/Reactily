@@ -9,9 +9,9 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type owner = {
-	cleanups: {() -> ()},
-	connections: {RBXScriptConnection},
-	instances: {Instance},
+	cleanups: { () -> () },
+	connections: { RBXScriptConnection },
+	instances: { Instance },
 	isDeleted: boolean,
 }
 
@@ -19,7 +19,9 @@ export type owner = {
 
 local function removeConnection(ownerValue: owner, target: RBXScriptConnection)
 	for index, connection in ownerValue.connections do
-		if connection ~= target then continue end
+		if connection ~= target then
+			continue
+		end
 
 		table.remove(ownerValue.connections, index)
 
@@ -31,7 +33,9 @@ end
 
 local function removeInstance(ownerValue: owner, target: Instance)
 	for index, instance in ownerValue.instances do
-		if instance ~= target then continue end
+		if instance ~= target then
+			continue
+		end
 
 		table.remove(ownerValue.instances, index)
 
@@ -48,7 +52,9 @@ local function runCleanup(callback: () -> ())
 		return true
 	end)
 
-	if success then return end
+	if success then
+		return
+	end
 
 	warn(`Reactily cleanup failed: {failure}`)
 end
@@ -73,10 +79,7 @@ end
 --- @param ownerValue owner The lifecycle owner.
 --- @param instance Instance Instance whose destruction controls the owner lifetime.
 --- @return RBXScriptConnection The tracked Destroying connection.
-function module.bindInstanceDeletion(
-	ownerValue: owner,
-	instance: Instance
-): RBXScriptConnection
+function module.bindInstanceDeletion(ownerValue: owner, instance: Instance): RBXScriptConnection
 	return module.connect(ownerValue, instance.Destroying, function()
 		module.delete(ownerValue)
 	end)
@@ -89,11 +92,7 @@ end
 --- @param signal RBXScriptSignal Roblox signal to connect.
 --- @param callback (...any) -> () Callback invoked by the signal.
 --- @return RBXScriptConnection The tracked connection.
-function module.connect(
-	ownerValue: owner,
-	signal: RBXScriptSignal,
-	callback: (...any) -> ()
-): RBXScriptConnection
+function module.connect(ownerValue: owner, signal: RBXScriptSignal, callback: (...any) -> ()): RBXScriptConnection
 	assert(not ownerValue.isDeleted, "Reactily owner is deleted.")
 
 	local connection = signal:Connect(callback)
@@ -114,7 +113,7 @@ end
 --- @return RBXScriptConnection The newly tracked connection.
 function module.connectNamed(
 	ownerValue: owner,
-	connections: {[string]: RBXScriptConnection},
+	connections: { [string]: RBXScriptConnection },
 	name: string,
 	signal: RBXScriptSignal,
 	callback: (...any) -> ()
@@ -155,7 +154,9 @@ end
 --- @param ownerValue owner The lifecycle owner.
 --- @return boolean Whether deletion occurred.
 function module.delete(ownerValue: owner): boolean
-	if ownerValue.isDeleted then return false end
+	if ownerValue.isDeleted then
+		return false
+	end
 
 	ownerValue.isDeleted = true
 
@@ -198,13 +199,12 @@ end
 --- @param ownerValue owner The lifecycle owner.
 --- @param connection RBXScriptConnection Connection to remove.
 --- @return boolean Whether the connection was still connected.
-function module.disconnect(
-	ownerValue: owner,
-	connection: RBXScriptConnection
-): boolean
+function module.disconnect(ownerValue: owner, connection: RBXScriptConnection): boolean
 	removeConnection(ownerValue, connection)
 
-	if not connection.Connected then return false end
+	if not connection.Connected then
+		return false
+	end
 
 	connection:Disconnect()
 
@@ -217,7 +217,9 @@ end
 --- @param ownerValue owner The lifecycle owner.
 function module.disconnectAll(ownerValue: owner)
 	for _, connection in ownerValue.connections do
-		if not connection.Connected then continue end
+		if not connection.Connected then
+			continue
+		end
 
 		connection:Disconnect()
 	end
@@ -269,11 +271,7 @@ end
 --- @param current T? Previous value. Instances are removed and destroyed.
 --- @param nextValue T Replacement value to track.
 --- @return T The tracked replacement value.
-function module.replaceInstance<T>(
-	ownerValue: owner,
-	current: T?,
-	nextValue: T
-): T
+function module.replaceInstance<T>(ownerValue: owner, current: T?, nextValue: T): T
 	if current and typeof(current) == "Instance" then
 		module.deleteInstance(ownerValue, current :: any)
 	end

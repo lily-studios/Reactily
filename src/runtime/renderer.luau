@@ -25,21 +25,18 @@ type initialProperty = {
 
 export type hostHandle = {
 	attributes: elementModule.attributeMap,
-	eventConnections: {[string]: RBXScriptConnection},
-	initialProperties: {[string]: initialProperty},
+	eventConnections: { [string]: RBXScriptConnection },
+	initialProperties: { [string]: initialProperty },
 	instance: Instance,
 	owner: lifecycle.owner,
 	props: elementModule.genericProps,
 	refCallback: ((Instance?) -> ())?,
-	tags: {[string]: boolean},
+	tags: { [string]: boolean },
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyAttributes(
-	handle: hostHandle,
-	attributes: elementModule.attributeMap?
-)
+local function applyAttributes(handle: hostHandle, attributes: elementModule.attributeMap?)
 	local nextAttributes: elementModule.attributeMap = {}
 
 	if attributes then
@@ -47,14 +44,20 @@ local function applyAttributes(
 	end
 
 	for name in handle.attributes do
-		if nextAttributes[name] ~= nil then continue end
-		if handle.instance:GetAttribute(name) == nil then continue end
+		if nextAttributes[name] ~= nil then
+			continue
+		end
+		if handle.instance:GetAttribute(name) == nil then
+			continue
+		end
 
 		handle.instance:SetAttribute(name, nil)
 	end
 
 	for name, value in nextAttributes do
-		if handle.instance:GetAttribute(name) == value then continue end
+		if handle.instance:GetAttribute(name) == value then
+			continue
+		end
 
 		handle.instance:SetAttribute(name, value)
 	end
@@ -64,11 +67,7 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyEvent(
-	handle: hostHandle,
-	propName: string,
-	callback: any
-)
+local function applyEvent(handle: hostHandle, propName: string, callback: any)
 	local eventName = hostConfig.getEventName(propName)
 
 	assert(eventName, `Reactily event prop "{propName}" is not registered.`)
@@ -81,42 +80,30 @@ local function applyEvent(
 		handle.eventConnections[propName] = nil
 	end
 
-	if callback == nil then return end
+	if callback == nil then
+		return
+	end
 
 	local success, signalOrFailure = pcall(function(): any
 		return (handle.instance :: any)[eventName]
 	end)
 
-	assert(
-		success,
-		`Reactily event "{eventName}" is invalid for {handle.instance.ClassName}: {signalOrFailure}`
-	)
+	assert(success, `Reactily event "{eventName}" is invalid for {handle.instance.ClassName}: {signalOrFailure}`)
 
 	assert(
 		typeof(signalOrFailure) == "RBXScriptSignal",
 		`Reactily event "{eventName}" is not a signal on {handle.instance.ClassName}.`
 	)
 
-	handle.eventConnections[propName] = lifecycle.connect(
-		handle.owner,
-		signalOrFailure,
-		callback
-	)
+	handle.eventConnections[propName] = lifecycle.connect(handle.owner, signalOrFailure, callback)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyProperty(
-	handle: hostHandle,
-	propName: string,
-	value: any
-)
+local function applyProperty(handle: hostHandle, propName: string, value: any)
 	local propertyName = hostConfig.getPropertyName(propName)
 
-	assert(
-		propertyName,
-		`Reactily prop "{propName}" is not supported by the host renderer.`
-	)
+	assert(propertyName, `Reactily prop "{propName}" is not supported by the host renderer.`)
 
 	local target = handle.instance :: any
 
@@ -124,12 +111,11 @@ local function applyProperty(
 		return target[propertyName]
 	end)
 
-	assert(
-		readSuccess,
-		`Reactily prop "{propName}" is invalid for {handle.instance.ClassName}: {currentOrFailure}`
-	)
+	assert(readSuccess, `Reactily prop "{propName}" is invalid for {handle.instance.ClassName}: {currentOrFailure}`)
 
-	if currentOrFailure == value then return end
+	if currentOrFailure == value then
+		return
+	end
 
 	if not handle.initialProperties[propName] then
 		handle.initialProperties[propName] = {
@@ -141,19 +127,15 @@ local function applyProperty(
 		target[propertyName] = value
 	end)
 
-	assert(
-		writeSuccess,
-		`Reactily could not set "{propName}" on {handle.instance.ClassName}: {writeFailure}`
-	)
+	assert(writeSuccess, `Reactily could not set "{propName}" on {handle.instance.ClassName}: {writeFailure}`)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyRef(
-	handle: hostHandle,
-	callback: ((Instance?) -> ())?
-)
-	if handle.refCallback == callback then return end
+local function applyRef(handle: hostHandle, callback: ((Instance?) -> ())?)
+	if handle.refCallback == callback then
+		return
+	end
 
 	if handle.refCallback then
 		handle.refCallback(nil)
@@ -168,8 +150,8 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyTags(handle: hostHandle, tags: {string}?)
-	local nextTags: {[string]: boolean} = {}
+local function applyTags(handle: hostHandle, tags: { string }?)
+	local nextTags: { [string]: boolean } = {}
 
 	if tags then
 		for _, tag in tags do
@@ -178,14 +160,20 @@ local function applyTags(handle: hostHandle, tags: {string}?)
 	end
 
 	for tag in handle.tags do
-		if nextTags[tag] then continue end
-		if not collectionService:HasTag(handle.instance, tag) then continue end
+		if nextTags[tag] then
+			continue
+		end
+		if not collectionService:HasTag(handle.instance, tag) then
+			continue
+		end
 
 		collectionService:RemoveTag(handle.instance, tag)
 	end
 
 	for tag in nextTags do
-		if collectionService:HasTag(handle.instance, tag) then continue end
+		if collectionService:HasTag(handle.instance, tag) then
+			continue
+		end
 
 		collectionService:AddTag(handle.instance, tag)
 	end
@@ -196,11 +184,21 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 local function isInternalProp(propName: string): boolean
-	if propName == "attributes" then return true end
-	if propName == "children" then return true end
-	if propName == "key" then return true end
-	if propName == "ref" then return true end
-	if propName == "tags" then return true end
+	if propName == "attributes" then
+		return true
+	end
+	if propName == "children" then
+		return true
+	end
+	if propName == "key" then
+		return true
+	end
+	if propName == "ref" then
+		return true
+	end
+	if propName == "tags" then
+		return true
+	end
 
 	return false
 end
@@ -210,11 +208,15 @@ end
 local function resetProperty(handle: hostHandle, propName: string)
 	local initial = handle.initialProperties[propName]
 
-	if not initial then return end
+	if not initial then
+		return
+	end
 
 	local propertyName = hostConfig.getPropertyName(propName)
 
-	if not propertyName then return end
+	if not propertyName then
+		return
+	end
 
 	local target = handle.instance :: any
 
@@ -234,9 +236,7 @@ local function resetProperty(handle: hostHandle, propName: string)
 		end)
 
 		if not writeSuccess then
-			warn(
-				`Reactily could not reset "{propName}" on {handle.instance.ClassName}: {writeFailure}`
-			)
+			warn(`Reactily could not reset "{propName}" on {handle.instance.ClassName}: {writeFailure}`)
 		end
 	end
 
@@ -250,20 +250,11 @@ end
 --- @param parent Instance Parent that receives the created Roblox Instance.
 --- @param elementValue elementModule.element Host element describing the Instance class and initial props.
 --- @return hostHandle Handle used to update or delete the mounted host.
-function module.createHost(
-	parent: Instance,
-	elementValue: elementModule.element
-): hostHandle
-	assert(
-		elementValue.kind == "host",
-		"Reactily renderer can only create host elements."
-	)
+function module.createHost(parent: Instance, elementValue: elementModule.element): hostHandle
+	assert(elementValue.kind == "host", "Reactily renderer can only create host elements.")
 
 	local ownerValue = lifecycle.new()
-	local instance = lifecycle.trackInstance(
-		ownerValue,
-		Instance.new(elementValue.className)
-	)
+	local instance = lifecycle.trackInstance(ownerValue, Instance.new(elementValue.className))
 
 	local handle: hostHandle = {
 		attributes = {},
@@ -290,7 +281,9 @@ end
 --- @param handle hostHandle Host handle to delete.
 --- @return boolean Whether deletion occurred.
 function module.deleteHost(handle: hostHandle): boolean
-	if handle.owner.isDeleted then return false end
+	if handle.owner.isDeleted then
+		return false
+	end
 
 	if handle.refCallback then
 		handle.refCallback(nil)
@@ -333,11 +326,10 @@ end
 --- Events are disconnected while regular properties are restored to their initial values.
 --- @param handle hostHandle Host receiving the prop removal.
 --- @param propName string Reactily prop name being removed.
-local function removeProp(
-	handle: hostHandle,
-	propName: string
-)
-	if isInternalProp(propName) then return end
+local function removeProp(handle: hostHandle, propName: string)
+	if isInternalProp(propName) then
+		return
+	end
 
 	if hostConfig.isEvent(propName) then
 		applyEvent(handle, propName, nil)
@@ -355,12 +347,10 @@ end
 --- @param handle hostHandle Host receiving the prop update.
 --- @param propName string Reactily prop name being updated.
 --- @param value any New prop value.
-local function updateProp(
-	handle: hostHandle,
-	propName: string,
-	value: any
-)
-	if isInternalProp(propName) then return end
+local function updateProp(handle: hostHandle, propName: string, value: any)
+	if isInternalProp(propName) then
+		return
+	end
 
 	if hostConfig.isEvent(propName) then
 		applyEvent(handle, propName, value)
@@ -383,18 +373,24 @@ function module.updateHost(
 	previousProps: elementModule.genericProps,
 	nextProps: elementModule.genericProps
 )
-	if handle.owner.isDeleted then return end
+	if handle.owner.isDeleted then
+		return
+	end
 
 	updateMetadata(handle, previousProps, nextProps)
 
 	for propName in previousProps do
-		if nextProps[propName] ~= nil then continue end
+		if nextProps[propName] ~= nil then
+			continue
+		end
 
 		removeProp(handle, propName)
 	end
 
 	for propName, value in nextProps do
-		if previousProps[propName] == value then continue end
+		if previousProps[propName] == value then
+			continue
+		end
 
 		updateProp(handle, propName, value)
 	end

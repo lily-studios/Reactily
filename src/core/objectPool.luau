@@ -23,10 +23,7 @@ export type objectPool<T> = {
 --- @param className string Roblox class name used by Instance.new().
 --- @param maximumSize number Maximum number of inactive Instances retained by the pool.
 --- @return objectPool<Instance> A new Instance object pool.
-function module.instance(
-	className: string,
-	maximumSize: number
-): objectPool<Instance>
+function module.instance(className: string, maximumSize: number): objectPool<Instance>
 	assert(className ~= "", "Reactily object pool class name must not be empty.")
 	assert(maximumSize >= 0, "Reactily object pool maximum size must be non-negative.")
 
@@ -42,12 +39,7 @@ function module.instance(
 		instance:Destroy()
 	end
 
-	return module.new(
-		createInstance,
-		resetInstance,
-		deleteInstance,
-		maximumSize
-	)
+	return module.new(createInstance, resetInstance, deleteInstance, maximumSize)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -66,7 +58,7 @@ function module.new<T>(
 ): objectPool<T>
 	assert(maximumSize >= 0, "Reactily object pool maximum size must be non-negative.")
 
-	local available: {T} = {}
+	local available: { T } = {}
 
 	local createdCount = 0
 	local isDeleted = false
@@ -78,7 +70,9 @@ function module.new<T>(
 			return true
 		end)
 
-		if success then return end
+		if success then
+			return
+		end
 
 		warn(`Reactily object pool deletion failed: {failure}`)
 	end
@@ -114,7 +108,9 @@ function module.new<T>(
 	--- Objects that are still acquired remain caller-owned until released.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 

@@ -38,7 +38,9 @@ local function runListener<T>(callback: (value: T) -> (), value: T)
 		return true
 	end)
 
-	if success then return end
+	if success then
+		return
+	end
 
 	warn(`Reactily signal listener failed: {failure}`)
 end
@@ -55,7 +57,9 @@ function module.distinct<T>(source: signal<T>): signal<T>
 	local previous: T? = nil
 
 	local sourceConnection = source.connect(function(value: T)
-		if hasPrevious and previous == value then return end
+		if hasPrevious and previous == value then
+			return
+		end
 
 		hasPrevious = true
 		previous = value
@@ -80,14 +84,13 @@ end
 --- @param source signal<T> Source signal to observe.
 --- @param predicate (value: T) -> boolean Determines whether each emitted value should pass through.
 --- @return signal<T> Filtered derived signal.
-function module.filter<T>(
-	source: signal<T>,
-	predicate: (value: T) -> boolean
-): signal<T>
+function module.filter<T>(source: signal<T>, predicate: (value: T) -> boolean): signal<T>
 	local output: signal<T> = module.new()
 
 	local sourceConnection = source.connect(function(value: T)
-		if not predicate(value) then return end
+		if not predicate(value) then
+			return
+		end
 
 		output.fire(value)
 	end)
@@ -109,10 +112,7 @@ end
 --- @param source signal<A> Source signal to observe.
 --- @param mapper (value: A) -> B Converts each source value into the output value.
 --- @return signal<B> Mapped derived signal.
-function module.map<A, B>(
-	source: signal<A>,
-	mapper: (value: A) -> B
-): signal<B>
+function module.map<A, B>(source: signal<A>, mapper: (value: A) -> B): signal<B>
 	local output: signal<B> = module.new()
 
 	local sourceConnection = source.connect(function(value: A)
@@ -135,9 +135,9 @@ end
 --- Creates one signal that forwards values from multiple source signals.
 --- @param sources {signal<T>} Source signals to merge.
 --- @return signal<T> Derived signal that emits values from every source.
-function module.merge<T>(sources: {signal<T>}): signal<T>
+function module.merge<T>(sources: { signal<T> }): signal<T>
 	local output: signal<T> = module.new()
-	local sourceConnections: {connection} = {}
+	local sourceConnections: { connection } = {}
 
 	for _, source in sources do
 		sourceConnections[#sourceConnections + 1] = source.connect(function(value: T)
@@ -166,11 +166,13 @@ end
 --- @return signal<T> A new active signal.
 function module.new<T>(): signal<T>
 	local isDeleted = false
-	local listeners: {listener<T>} = {}
+	local listeners: { listener<T> } = {}
 
 	local function removeListener(target: listener<T>)
 		for index, listenerValue in listeners do
-			if listenerValue ~= target then continue end
+			if listenerValue ~= target then
+				continue
+			end
 
 			table.remove(listeners, index)
 
@@ -185,7 +187,9 @@ function module.new<T>(): signal<T>
 			connected = true,
 
 			disconnect = function(): boolean
-				if not connectionValue.connected then return false end
+				if not connectionValue.connected then
+					return false
+				end
 
 				connectionValue.connected = false
 				target.isConnected = false
@@ -222,7 +226,9 @@ function module.new<T>(): signal<T>
 	--- Deletes the signal and disconnects all listeners.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 
@@ -231,7 +237,9 @@ function module.new<T>(): signal<T>
 
 			local connectionValue = target.connection
 
-			if not connectionValue then continue end
+			if not connectionValue then
+				continue
+			end
 
 			connectionValue.connected = false
 		end
@@ -244,13 +252,19 @@ function module.new<T>(): signal<T>
 	--- Emits a value to every currently connected listener.
 	--- @param value T Value delivered to listeners.
 	local function fire(value: T)
-		if isDeleted then return end
-		if #listeners == 0 then return end
+		if isDeleted then
+			return
+		end
+		if #listeners == 0 then
+			return
+		end
 
 		local snapshot = table.clone(listeners)
 
 		for _, target in snapshot do
-			if not target.isConnected then continue end
+			if not target.isConnected then
+				continue
+			end
 
 			if target.isOnce and target.connection then
 				target.connection.disconnect()
@@ -304,10 +318,7 @@ end
 --- @param source signal<T> Source signal to observe.
 --- @param amount number Number of initial emissions to skip.
 --- @return signal<T> Derived signal that emits after the skipped values.
-function module.skip<T>(
-	source: signal<T>,
-	amount: number
-): signal<T>
+function module.skip<T>(source: signal<T>, amount: number): signal<T>
 	assert(amount >= 0, "Reactily skip amount must be non-negative.")
 
 	local count = 0
@@ -316,7 +327,9 @@ function module.skip<T>(
 	local sourceConnection = source.connect(function(value: T)
 		count += 1
 
-		if count <= amount then return end
+		if count <= amount then
+			return
+		end
 
 		output.fire(value)
 	end)
@@ -339,10 +352,7 @@ end
 --- @param source signal<T> Source signal to observe.
 --- @param maximum number Maximum number of values to emit.
 --- @return signal<T> Derived signal limited to the requested number of emissions.
-function module.take<T>(
-	source: signal<T>,
-	maximum: number
-): signal<T>
+function module.take<T>(source: signal<T>, maximum: number): signal<T>
 	assert(maximum >= 0, "Reactily take maximum must be non-negative.")
 
 	local count = 0
@@ -350,14 +360,20 @@ function module.take<T>(
 	local sourceConnection: connection?
 
 	sourceConnection = source.connect(function(value: T)
-		if count >= maximum then return end
+		if count >= maximum then
+			return
+		end
 
 		count += 1
 
 		output.fire(value)
 
-		if count < maximum then return end
-		if not sourceConnection then return end
+		if count < maximum then
+			return
+		end
+		if not sourceConnection then
+			return
+		end
 
 		sourceConnection.disconnect()
 	end)

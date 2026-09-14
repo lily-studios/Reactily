@@ -109,11 +109,7 @@ end
 --- @param minimum number Minimum allowed value.
 --- @param maximum number Maximum allowed value.
 --- @return binding<number> Derived clamped binding.
-function module.clampBinding(
-	source: binding<number>,
-	minimum: number,
-	maximum: number
-): binding<number>
+function module.clampBinding(source: binding<number>, minimum: number, maximum: number): binding<number>
 	return bindingModule.clamp(source, minimum, maximum)
 end
 
@@ -146,11 +142,7 @@ end
 --- @param attributeName string Attribute name to synchronize.
 --- @param defaultValue T Value used when the Attribute does not exist.
 --- @return atom<T> Attribute-backed atom.
-function module.createAttributeAtom<T>(
-	instance: Instance,
-	attributeName: string,
-	defaultValue: T
-): atom<T>
+function module.createAttributeAtom<T>(instance: Instance, attributeName: string, defaultValue: T): atom<T>
 	return atomModule.fromAttribute(instance, attributeName, defaultValue)
 end
 
@@ -169,10 +161,7 @@ end
 --- @param props billboardGuiProps? BillboardGui props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A BillboardGui host element.
-function module.createBillboardGui(
-	props: billboardGuiProps?,
-	children: {element}?
-): element
+function module.createBillboardGui(props: billboardGuiProps?, children: { element }?): element
 	return elementModule.createBillboardGui(props, children)
 end
 
@@ -191,10 +180,7 @@ end
 --- @param props canvasGroupProps? CanvasGroup props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A CanvasGroup host element.
-function module.createCanvasGroup(
-	props: canvasGroupProps?,
-	children: {element}?
-): element
+function module.createCanvasGroup(props: canvasGroupProps?, children: { element }?): element
 	return elementModule.createCanvasGroup(props, children)
 end
 
@@ -206,18 +192,8 @@ end
 --- @param children {element}? Child elements associated with the component.
 --- @param key string? Stable reconciliation key.
 --- @return element A component element.
-function module.createComponent<P>(
-	componentValue: component<P>,
-	props: P,
-	children: {element}?,
-	key: string?
-): element
-	return elementModule.createComponent(
-		componentValue,
-		props,
-		children,
-		key
-	)
+function module.createComponent<P>(componentValue: component<P>, props: P, children: { element }?, key: string?): element
+	return elementModule.createComponent(componentValue, props, children, key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -226,10 +202,7 @@ end
 --- @param source atom<A> Source atom to observe.
 --- @param selectorFunction (value: A) -> B Function that derives the output value.
 --- @return computed<B> Derived computed atom.
-function module.createComputed<A, B>(
-	source: atom<A>,
-	selectorFunction: (value: A) -> B
-): computed<B>
+function module.createComputed<A, B>(source: atom<A>, selectorFunction: (value: A) -> B): computed<B>
 	return atomModule.computed(source, selectorFunction)
 end
 
@@ -249,11 +222,7 @@ end
 --- @param props elementModule.genericProps? Generic host props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A generic host element.
-function module.createElement(
-	className: string,
-	props: elementModule.genericProps?,
-	children: {element}?
-): element
+function module.createElement(className: string, props: elementModule.genericProps?, children: { element }?): element
 	return elementModule.createElement(className, props, children)
 end
 
@@ -271,10 +240,7 @@ end
 --- @param children {element} Child Reactily elements.
 --- @param key string? Stable reconciliation key.
 --- @return element A fragment element.
-function module.createFragment(
-	children: {element},
-	key: string?
-): element
+function module.createFragment(children: { element }, key: string?): element
 	return elementModule.createFragment(children, key)
 end
 
@@ -284,10 +250,7 @@ end
 --- @param props frameProps? Frame props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A Frame host element.
-function module.createFrame(
-	props: frameProps?,
-	children: {element}?
-): element
+function module.createFrame(props: frameProps?, children: { element }?): element
 	return elementModule.createFrame(props, children)
 end
 
@@ -297,10 +260,7 @@ end
 --- @param initialValue T Initial atom value.
 --- @param limit number Maximum number of past values retained.
 --- @return historyAtom<T> History-enabled atom.
-function module.createHistoryAtom<T>(
-	initialValue: T,
-	limit: number
-): historyAtom<T>
+function module.createHistoryAtom<T>(initialValue: T, limit: number): historyAtom<T>
 	return atomModule.history(initialValue, limit)
 end
 
@@ -310,10 +270,7 @@ end
 --- @param props imageButtonProps? ImageButton props.
 --- @param children {element}? Child Reactily elements.
 --- @return element An ImageButton host element.
-function module.createImageButton(
-	props: imageButtonProps?,
-	children: {element}?
-): element
+function module.createImageButton(props: imageButtonProps?, children: { element }?): element
 	return elementModule.createImageButton(props, children)
 end
 
@@ -323,10 +280,7 @@ end
 --- @param props imageLabelProps? ImageLabel props.
 --- @param children {element}? Child Reactily elements.
 --- @return element An ImageLabel host element.
-function module.createImageLabel(
-	props: imageLabelProps?,
-	children: {element}?
-): element
+function module.createImageLabel(props: imageLabelProps?, children: { element }?): element
 	return elementModule.createImageLabel(props, children)
 end
 
@@ -336,10 +290,7 @@ end
 --- @param className string Roblox class name used by Instance.new().
 --- @param maximumSize number Maximum number of inactive Instances retained.
 --- @return objectPool<Instance> A new Instance object pool.
-function module.createInstancePool(
-	className: string,
-	maximumSize: number
-): objectPool<Instance>
+function module.createInstancePool(className: string, maximumSize: number): objectPool<Instance>
 	return objectPoolModule.instance(className, maximumSize)
 end
 
@@ -365,12 +316,7 @@ function module.createObjectPool<T>(
 	deleteObject: (object: T) -> (),
 	maximumSize: number
 ): objectPool<T>
-	return objectPoolModule.new(
-		createObject,
-		resetObject,
-		deleteObject,
-		maximumSize
-	)
+	return objectPoolModule.new(createObject, resetObject, deleteObject, maximumSize)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -380,11 +326,7 @@ end
 --- @param children {element} Child Reactily elements.
 --- @param key string? Stable reconciliation key.
 --- @return element A portal element.
-function module.createPortal(
-	target: Instance,
-	children: {element},
-	key: string?
-): element
+function module.createPortal(target: Instance, children: { element }, key: string?): element
 	return elementModule.createPortal(target, children, key)
 end
 
@@ -411,10 +353,7 @@ end
 --- @param props screenGuiProps? ScreenGui props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A ScreenGui host element.
-function module.createScreenGui(
-	props: screenGuiProps?,
-	children: {element}?
-): element
+function module.createScreenGui(props: screenGuiProps?, children: { element }?): element
 	return elementModule.createScreenGui(props, children)
 end
 
@@ -424,10 +363,7 @@ end
 --- @param props scrollingFrameProps? ScrollingFrame props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A ScrollingFrame host element.
-function module.createScrollingFrame(
-	props: scrollingFrameProps?,
-	children: {element}?
-): element
+function module.createScrollingFrame(props: scrollingFrameProps?, children: { element }?): element
 	return elementModule.createScrollingFrame(props, children)
 end
 
@@ -454,7 +390,7 @@ end
 --- Later styles override earlier values.
 --- @param styles {style} Styles to merge in order.
 --- @return style Merged style.
-function module.createStyle(styles: {style}): style
+function module.createStyle(styles: { style }): style
 	return styleModule.merge(styles)
 end
 
@@ -464,10 +400,7 @@ end
 --- @param props surfaceGuiProps? SurfaceGui props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A SurfaceGui host element.
-function module.createSurfaceGui(
-	props: surfaceGuiProps?,
-	children: {element}?
-): element
+function module.createSurfaceGui(props: surfaceGuiProps?, children: { element }?): element
 	return elementModule.createSurfaceGui(props, children)
 end
 
@@ -477,10 +410,7 @@ end
 --- @param props textBoxProps? TextBox props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A TextBox host element.
-function module.createTextBox(
-	props: textBoxProps?,
-	children: {element}?
-): element
+function module.createTextBox(props: textBoxProps?, children: { element }?): element
 	return elementModule.createTextBox(props, children)
 end
 
@@ -490,10 +420,7 @@ end
 --- @param props textButtonProps? TextButton props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A TextButton host element.
-function module.createTextButton(
-	props: textButtonProps?,
-	children: {element}?
-): element
+function module.createTextButton(props: textButtonProps?, children: { element }?): element
 	return elementModule.createTextButton(props, children)
 end
 
@@ -503,10 +430,7 @@ end
 --- @param props textLabelProps? TextLabel props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A TextLabel host element.
-function module.createTextLabel(
-	props: textLabelProps?,
-	children: {element}?
-): element
+function module.createTextLabel(props: textLabelProps?, children: { element }?): element
 	return elementModule.createTextLabel(props, children)
 end
 
@@ -526,11 +450,7 @@ end
 --- @param goals {[string]: any} Target property values.
 --- @param options tweenOptions Tween duration and playback options.
 --- @return animation A new Reactily animation.
-function module.createTween(
-	instance: Instance,
-	goals: {[string]: any},
-	options: tweenOptions
-): animation
+function module.createTween(instance: Instance, goals: { [string]: any }, options: tweenOptions): animation
 	return animationModule.tween(instance, goals, options)
 end
 
@@ -539,9 +459,7 @@ end
 --- Creates a typed UIAspectRatioConstraint element.
 --- @param props uiAspectRatioConstraintProps? Constraint props.
 --- @return element A UIAspectRatioConstraint host element.
-function module.createUIAspectRatioConstraint(
-	props: uiAspectRatioConstraintProps?
-): element
+function module.createUIAspectRatioConstraint(props: uiAspectRatioConstraintProps?): element
 	return elementModule.createUIAspectRatioConstraint(props)
 end
 
@@ -550,9 +468,7 @@ end
 --- Creates a typed UICorner element.
 --- @param props uiCornerProps? UICorner props.
 --- @return element A UICorner host element.
-function module.createUICorner(
-	props: uiCornerProps?
-): element
+function module.createUICorner(props: uiCornerProps?): element
 	return elementModule.createUICorner(props)
 end
 
@@ -561,9 +477,7 @@ end
 --- Creates a typed UIGradient element.
 --- @param props uiGradientProps? UIGradient props.
 --- @return element A UIGradient host element.
-function module.createUIGradient(
-	props: uiGradientProps?
-): element
+function module.createUIGradient(props: uiGradientProps?): element
 	return elementModule.createUIGradient(props)
 end
 
@@ -572,9 +486,7 @@ end
 --- Creates a typed UIGridLayout element.
 --- @param props uiGridLayoutProps? UIGridLayout props.
 --- @return element A UIGridLayout host element.
-function module.createUIGridLayout(
-	props: uiGridLayoutProps?
-): element
+function module.createUIGridLayout(props: uiGridLayoutProps?): element
 	return elementModule.createUIGridLayout(props)
 end
 
@@ -583,9 +495,7 @@ end
 --- Creates a typed UIListLayout element.
 --- @param props uiListLayoutProps? UIListLayout props.
 --- @return element A UIListLayout host element.
-function module.createUIListLayout(
-	props: uiListLayoutProps?
-): element
+function module.createUIListLayout(props: uiListLayoutProps?): element
 	return elementModule.createUIListLayout(props)
 end
 
@@ -594,9 +504,7 @@ end
 --- Creates a typed UIPadding element.
 --- @param props uiPaddingProps? UIPadding props.
 --- @return element A UIPadding host element.
-function module.createUIPadding(
-	props: uiPaddingProps?
-): element
+function module.createUIPadding(props: uiPaddingProps?): element
 	return elementModule.createUIPadding(props)
 end
 
@@ -605,9 +513,7 @@ end
 --- Creates a typed UIPageLayout element.
 --- @param props uiPageLayoutProps? UIPageLayout props.
 --- @return element A UIPageLayout host element.
-function module.createUIPageLayout(
-	props: uiPageLayoutProps?
-): element
+function module.createUIPageLayout(props: uiPageLayoutProps?): element
 	return elementModule.createUIPageLayout(props)
 end
 
@@ -616,9 +522,7 @@ end
 --- Creates a typed UIScale element.
 --- @param props uiScaleProps? UIScale props.
 --- @return element A UIScale host element.
-function module.createUIScale(
-	props: uiScaleProps?
-): element
+function module.createUIScale(props: uiScaleProps?): element
 	return elementModule.createUIScale(props)
 end
 
@@ -627,9 +531,7 @@ end
 --- Creates a typed UISizeConstraint element.
 --- @param props uiSizeConstraintProps? Constraint props.
 --- @return element A UISizeConstraint host element.
-function module.createUISizeConstraint(
-	props: uiSizeConstraintProps?
-): element
+function module.createUISizeConstraint(props: uiSizeConstraintProps?): element
 	return elementModule.createUISizeConstraint(props)
 end
 
@@ -638,9 +540,7 @@ end
 --- Creates a typed UIStroke element.
 --- @param props uiStrokeProps? UIStroke props.
 --- @return element A UIStroke host element.
-function module.createUIStroke(
-	props: uiStrokeProps?
-): element
+function module.createUIStroke(props: uiStrokeProps?): element
 	return elementModule.createUIStroke(props)
 end
 
@@ -649,9 +549,7 @@ end
 --- Creates a typed UITextSizeConstraint element.
 --- @param props uiTextSizeConstraintProps? Constraint props.
 --- @return element A UITextSizeConstraint host element.
-function module.createUITextSizeConstraint(
-	props: uiTextSizeConstraintProps?
-): element
+function module.createUITextSizeConstraint(props: uiTextSizeConstraintProps?): element
 	return elementModule.createUITextSizeConstraint(props)
 end
 
@@ -661,10 +559,7 @@ end
 --- @param props videoFrameProps? VideoFrame props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A VideoFrame host element.
-function module.createVideoFrame(
-	props: videoFrameProps?,
-	children: {element}?
-): element
+function module.createVideoFrame(props: videoFrameProps?, children: { element }?): element
 	return elementModule.createVideoFrame(props, children)
 end
 
@@ -674,10 +569,7 @@ end
 --- @param props viewportFrameProps? ViewportFrame props.
 --- @param children {element}? Child Reactily elements.
 --- @return element A ViewportFrame host element.
-function module.createViewportFrame(
-	props: viewportFrameProps?,
-	children: {element}?
-): element
+function module.createViewportFrame(props: viewportFrameProps?, children: { element }?): element
 	return elementModule.createViewportFrame(props, children)
 end
 
@@ -686,9 +578,7 @@ end
 --- Creates a signal that suppresses consecutive duplicate values.
 --- @param source signal<T> Source signal.
 --- @return signal<T> Derived distinct signal.
-function module.distinctSignal<T>(
-	source: signal<T>
-): signal<T>
+function module.distinctSignal<T>(source: signal<T>): signal<T>
 	return signalModule.distinct(source)
 end
 
@@ -698,10 +588,7 @@ end
 --- @param source signal<T> Source signal.
 --- @param predicate (value: T) -> boolean Function deciding whether each value is forwarded.
 --- @return signal<T> Derived filtered signal.
-function module.filterSignal<T>(
-	source: signal<T>,
-	predicate: (value: T) -> boolean
-): signal<T>
+function module.filterSignal<T>(source: signal<T>, predicate: (value: T) -> boolean): signal<T>
 	return signalModule.filter(source, predicate)
 end
 
@@ -711,10 +598,7 @@ end
 --- @param source binding<T> Source binding.
 --- @param formatter (value: T) -> string Function that formats each value.
 --- @return binding<string> Derived formatted binding.
-function module.formatBinding<T>(
-	source: binding<T>,
-	formatter: (value: T) -> string
-): binding<string>
+function module.formatBinding<T>(source: binding<T>, formatter: (value: T) -> string): binding<string>
 	return bindingModule.format(source, formatter)
 end
 
@@ -732,10 +616,7 @@ end
 --- @param source binding<A> Source binding.
 --- @param mapper (value: A) -> B Function that transforms source values.
 --- @return binding<B> Derived mapped binding.
-function module.mapBinding<A, B>(
-	source: binding<A>,
-	mapper: (value: A) -> B
-): binding<B>
+function module.mapBinding<A, B>(source: binding<A>, mapper: (value: A) -> B): binding<B>
 	return bindingModule.map(source, mapper)
 end
 
@@ -745,10 +626,7 @@ end
 --- @param source signal<A> Source signal.
 --- @param mapper (value: A) -> B Function that transforms source values.
 --- @return signal<B> Derived mapped signal.
-function module.mapSignal<A, B>(
-	source: signal<A>,
-	mapper: (value: A) -> B
-): signal<B>
+function module.mapSignal<A, B>(source: signal<A>, mapper: (value: A) -> B): signal<B>
 	return signalModule.map(source, mapper)
 end
 
@@ -757,9 +635,7 @@ end
 --- Merges multiple signals into one output signal.
 --- @param sources {signal<T>} Source signals to merge.
 --- @return signal<T> Signal forwarding values from every source.
-function module.mergeSignals<T>(
-	sources: {signal<T>}
-): signal<T>
+function module.mergeSignals<T>(sources: { signal<T> }): signal<T>
 	return signalModule.merge(sources)
 end
 
@@ -779,11 +655,7 @@ end
 --- @param goals {[string]: any} Target property values.
 --- @param options tweenOptions Tween duration and playback options.
 --- @return animation The active Reactily animation.
-function module.playTween(
-	instance: Instance,
-	goals: {[string]: any},
-	options: tweenOptions
-): animation
+function module.playTween(instance: Instance, goals: { [string]: any }, options: tweenOptions): animation
 	return animationModule.play(instance, goals, options)
 end
 
@@ -793,10 +665,7 @@ end
 --- @param themeValue theme<T> Theme containing the source tokens.
 --- @param selectorFunction (tokens: T) -> R Function that selects or derives a value.
 --- @return R Resolved value.
-function module.resolveTheme<T, R>(
-	themeValue: theme<T>,
-	selectorFunction: (tokens: T) -> R
-): R
+function module.resolveTheme<T, R>(themeValue: theme<T>, selectorFunction: (tokens: T) -> R): R
 	return themeModule.resolve(themeValue, selectorFunction)
 end
 
@@ -816,13 +685,7 @@ function module.resolveVirtualList(
 	viewportSize: number,
 	overscan: number?
 ): virtualRange
-	return virtualListModule.resolve(
-		itemCount,
-		itemSize,
-		scrollOffset,
-		viewportSize,
-		overscan
-	)
+	return virtualListModule.resolve(itemCount, itemSize, scrollOffset, viewportSize, overscan)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -831,10 +694,7 @@ end
 --- @param source binding<number> Source numeric binding.
 --- @param precision number Number of decimal places to preserve.
 --- @return binding<number> Derived rounded binding.
-function module.roundBinding(
-	source: binding<number>,
-	precision: number
-): binding<number>
+function module.roundBinding(source: binding<number>, precision: number): binding<number>
 	return bindingModule.round(source, precision)
 end
 
@@ -844,10 +704,7 @@ end
 --- @param source signal<T> Source signal.
 --- @param amount number Number of initial emissions to skip.
 --- @return signal<T> Derived signal.
-function module.skipSignal<T>(
-	source: signal<T>,
-	amount: number
-): signal<T>
+function module.skipSignal<T>(source: signal<T>, amount: number): signal<T>
 	return signalModule.skip(source, amount)
 end
 
@@ -857,10 +714,7 @@ end
 --- @param items {T} Complete ordered item collection.
 --- @param rangeValue virtualRange Range returned by resolveVirtualList().
 --- @return {T} New array containing items inside the range.
-function module.sliceVirtualList<T>(
-	items: {T},
-	rangeValue: virtualRange
-): {T}
+function module.sliceVirtualList<T>(items: { T }, rangeValue: virtualRange): { T }
 	return virtualListModule.slice(items, rangeValue)
 end
 
@@ -870,10 +724,7 @@ end
 --- @param source signal<T> Source signal.
 --- @param maximum number Maximum number of values to forward.
 --- @return signal<T> Derived limited signal.
-function module.takeSignal<T>(
-	source: signal<T>,
-	maximum: number
-): signal<T>
+function module.takeSignal<T>(source: signal<T>, maximum: number): signal<T>
 	return signalModule.take(source, maximum)
 end
 
@@ -885,16 +736,8 @@ end
 --- @param defaultValue T Value used when the Attribute does not exist.
 --- @return T Current Attribute-backed value.
 --- @return (value: T) -> () Setter that updates the Attribute and hook state.
-function module.useAttribute<T>(
-	instance: Instance,
-	attributeName: string,
-	defaultValue: T
-): (T, (value: T) -> ())
-	return hooksModule.useAttribute(
-		instance,
-		attributeName,
-		defaultValue
-	)
+function module.useAttribute<T>(instance: Instance, attributeName: string, defaultValue: T): (T, (value: T) -> ())
+	return hooksModule.useAttribute(instance, attributeName, defaultValue)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -905,9 +748,7 @@ end
 --- @return () -> () Function that enables the value.
 --- @return () -> () Function that disables the value.
 --- @return () -> () Function that toggles the value.
-function module.useBoolean(
-	initialValue: boolean?
-): (boolean, () -> (), () -> (), () -> ())
+function module.useBoolean(initialValue: boolean?): (boolean, () -> (), () -> (), () -> ())
 	return hooksModule.useBoolean(initialValue)
 end
 
@@ -917,10 +758,7 @@ end
 --- @param callback T Callback value to memoize.
 --- @param dependencies {any}? Values controlling when the callback is replaced.
 --- @return T Memoized callback.
-function module.useCallback<T>(
-	callback: T,
-	dependencies: {any}?
-): T
+function module.useCallback<T>(callback: T, dependencies: { any }?): T
 	return hooksModule.useCallback(callback, dependencies)
 end
 
@@ -930,9 +768,7 @@ end
 --- @param initialValue number? Initial counter value. Defaults to zero.
 --- @return number Current counter value.
 --- @return counterControls Counter controls.
-function module.useCounter(
-	initialValue: number?
-): (number, counterControls)
+function module.useCounter(initialValue: number?): (number, counterControls)
 	return hooksModule.useCounter(initialValue)
 end
 
@@ -942,10 +778,7 @@ end
 --- @param value T Current source value.
 --- @param delaySeconds number Delay before the returned value updates.
 --- @return T Current debounced value.
-function module.useDebouncedValue<T>(
-	value: T,
-	delaySeconds: number
-): T
+function module.useDebouncedValue<T>(value: T, delaySeconds: number): T
 	return hooksModule.useDebouncedValue(value, delaySeconds)
 end
 
@@ -955,10 +788,7 @@ end
 --- Returning a cleanup function disposes the previous effect before rerunning and on deletion.
 --- @param callback () -> (() -> ())? Effect callback with optional cleanup.
 --- @param dependencies {any}? Values controlling when the effect reruns.
-function module.useEffect(
-	callback: () -> (() -> ())?,
-	dependencies: {any}?
-)
+function module.useEffect(callback: () -> (() -> ())?, dependencies: { any }?)
 	hooksModule.useEffect(callback, dependencies)
 end
 
@@ -968,10 +798,7 @@ end
 --- @param factory () -> T Function that produces the memoized value.
 --- @param dependencies {any}? Values controlling when the value is recalculated.
 --- @return T Current memoized value.
-function module.useMemo<T>(
-	factory: () -> T,
-	dependencies: {any}?
-): T
+function module.useMemo<T>(factory: () -> T, dependencies: { any }?): T
 	return hooksModule.useMemo(factory, dependencies)
 end
 
@@ -991,10 +818,7 @@ end
 --- @param initialState S Initial reducer state.
 --- @return S Current reducer state.
 --- @return reducerDispatch<A> Stable dispatch function.
-function module.useReducer<S, A>(
-	reducer: (stateValue: S, action: A) -> S,
-	initialState: S
-): (S, reducerDispatch<A>)
+function module.useReducer<S, A>(reducer: (stateValue: S, action: A) -> S, initialState: S): (S, reducerDispatch<A>)
 	return hooksModule.useReducer(reducer, initialState)
 end
 
@@ -1013,9 +837,7 @@ end
 --- @param initialValue T Initial state value.
 --- @return T Current state value.
 --- @return stateSetter<T> Setter accepting a value or updater function.
-function module.useState<T>(
-	initialValue: T
-): (T, stateSetter<T>)
+function module.useState<T>(initialValue: T): (T, stateSetter<T>)
 	return hooksModule.useState(initialValue)
 end
 
@@ -1026,9 +848,7 @@ end
 --- @return boolean Current boolean value.
 --- @return () -> () Function that toggles the value.
 --- @return (value: boolean) -> () Function that directly sets the value.
-function module.useToggle(
-	initialValue: boolean?
-): (boolean, () -> (), (value: boolean) -> ())
+function module.useToggle(initialValue: boolean?): (boolean, () -> (), (value: boolean) -> ())
 	return hooksModule.useToggle(initialValue)
 end
 

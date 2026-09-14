@@ -1,7 +1,5 @@
 --!strict
 
--- implements typed Reactily component hooks and effect lifecycle management
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -10,7 +8,7 @@ local module = {}
 
 type cleanup = () -> ()
 
-type dependencyList = {any}
+type dependencyList = { any }
 
 type hookSlot = {
 	callback: any,
@@ -28,10 +26,10 @@ type pendingEffect = {
 
 export type componentContext = {
 	hookIndex: number,
-	hooks: {hookSlot},
+	hooks: { hookSlot },
 	isDeleted: boolean,
 	isRendered: boolean,
-	pendingEffects: {pendingEffect},
+	pendingEffects: { pendingEffect },
 	renderedHookCount: number,
 	requestRender: () -> (),
 }
@@ -57,16 +55,21 @@ local currentContext: componentContext? = nil
 
 --————————————————————————————————————————————————————————————————————--
 
-local function dependenciesChanged(
-	previous: dependencyList?,
-	current: dependencyList?
-): boolean
-	if previous == nil then return true end
-	if current == nil then return true end
-	if #previous ~= #current then return true end
+local function dependenciesChanged(previous: dependencyList?, current: dependencyList?): boolean
+	if previous == nil then
+		return true
+	end
+	if current == nil then
+		return true
+	end
+	if #previous ~= #current then
+		return true
+	end
 
 	for index, value in current do
-		if previous[index] == value then continue end
+		if previous[index] == value then
+			continue
+		end
 
 		return true
 	end
@@ -93,10 +96,7 @@ local function getSlot(context: componentContext, kind: string): hookSlot
 	local existingSlot = context.hooks[context.hookIndex]
 
 	if existingSlot then
-		assert(
-			existingSlot.kind == kind,
-			`Reactily hook order changed from "{existingSlot.kind}" to "{kind}".`
-		)
+		assert(existingSlot.kind == kind, `Reactily hook order changed from "{existingSlot.kind}" to "{kind}".`)
 
 		return existingSlot
 	end
@@ -124,17 +124,16 @@ local function runCleanup(callback: cleanup)
 		return true
 	end)
 
-	if success then return end
+	if success then
+		return
+	end
 
 	warn(`Reactily effect cleanup failed: {failure}`)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function resolveStateValue<T>(
-	previous: T,
-	nextValue: T | ((previous: T) -> T)
-): T
+local function resolveStateValue<T>(previous: T, nextValue: T | ((previous: T) -> T)): T
 	if type(nextValue) == "function" then
 		return (nextValue :: (previous: T) -> T)(previous)
 	end
@@ -160,7 +159,9 @@ end
 --- @param context componentContext Component context to delete.
 --- @return boolean Whether deletion occurred.
 function module.deleteContext(context: componentContext): boolean
-	if context.isDeleted then return false end
+	if context.isDeleted then
+		return false
+	end
 
 	context.isDeleted = true
 
@@ -188,14 +189,8 @@ end
 --- Failed renders discard pending effects and restore the previous completed hook layout.
 --- @param context componentContext Component context completing its render.
 --- @param didComplete boolean Whether the component render completed successfully.
-function module.endRender(
-	context: componentContext,
-	didComplete: boolean
-)
-	assert(
-		currentContext == context,
-		"Reactily render context does not match the active component."
-	)
+function module.endRender(context: componentContext, didComplete: boolean)
+	assert(currentContext == context, "Reactily render context does not match the active component.")
 
 	currentContext = nil
 
@@ -216,10 +211,7 @@ function module.endRender(
 	end
 
 	if context.isRendered then
-		assert(
-			context.hookIndex == context.renderedHookCount,
-			"Reactily hook count changed between renders."
-		)
+		assert(context.hookIndex == context.renderedHookCount, "Reactily hook count changed between renders.")
 	end
 
 	context.isRendered = true
@@ -232,8 +224,12 @@ end
 --- Previous cleanup runs before a changed effect executes again.
 --- @param context componentContext Component context whose effects should be flushed.
 function module.flushEffects(context: componentContext)
-	if context.isDeleted then return end
-	if #context.pendingEffects == 0 then return end
+	if context.isDeleted then
+		return
+	end
+	if #context.pendingEffects == 0 then
+		return
+	end
 
 	local pendingEffects = context.pendingEffects
 
@@ -286,11 +282,7 @@ end
 --- @param defaultValue T Value used when the Attribute does not exist.
 --- @return T Current Attribute-backed value.
 --- @return (value: T) -> () Setter that updates both the Attribute and hook state.
-function module.useAttribute<T>(
-	instance: Instance,
-	attributeName: string,
-	defaultValue: T
-): (T, (value: T) -> ())
+function module.useAttribute<T>(instance: Instance, attributeName: string, defaultValue: T): (T, (value: T) -> ())
 	local initialAttribute = instance:GetAttribute(attributeName)
 	local initialValue = defaultValue
 
@@ -315,7 +307,9 @@ function module.useAttribute<T>(
 		local connection = instance:GetAttributeChangedSignal(attributeName):Connect(function()
 			local nextValue = instance:GetAttribute(attributeName)
 
-			if nextValue == nil then return end
+			if nextValue == nil then
+				return
+			end
 
 			setValue(nextValue :: T)
 		end)
@@ -344,9 +338,7 @@ end
 --- @return () -> () Function that sets the value to true.
 --- @return () -> () Function that sets the value to false.
 --- @return () -> () Function that toggles the current value.
-function module.useBoolean(
-	initialValue: boolean?
-): (boolean, () -> (), () -> (), () -> ())
+function module.useBoolean(initialValue: boolean?): (boolean, () -> (), () -> (), () -> ())
 	local defaultValue = false
 
 	if initialValue ~= nil then
@@ -379,10 +371,7 @@ end
 --- @param callback T Callback value to memoize.
 --- @param dependencies dependencyList? Values controlling when the callback is replaced.
 --- @return T Memoized callback.
-function module.useCallback<T>(
-	callback: T,
-	dependencies: dependencyList?
-): T
+function module.useCallback<T>(callback: T, dependencies: dependencyList?): T
 	return module.useMemo(function(): T
 		return callback
 	end, dependencies)
@@ -394,9 +383,7 @@ end
 --- @param initialValue number? Initial counter value. Defaults to zero.
 --- @return number Current counter value.
 --- @return counterControls Controls for incrementing, decrementing, setting, and resetting the counter.
-function module.useCounter(
-	initialValue: number?
-): (number, counterControls)
+function module.useCounter(initialValue: number?): (number, counterControls)
 	local defaultValue = 0
 
 	if initialValue ~= nil then
@@ -449,10 +436,7 @@ end
 --- @param value T Current source value.
 --- @param delaySeconds number Delay before the returned value updates.
 --- @return T Current debounced value.
-function module.useDebouncedValue<T>(
-	value: T,
-	delaySeconds: number
-): T
+function module.useDebouncedValue<T>(value: T, delaySeconds: number): T
 	assert(delaySeconds >= 0, "Reactily debounce delay must be non-negative.")
 
 	local debounced, setDebounced = module.useState(value)
@@ -469,13 +453,17 @@ function module.useDebouncedValue<T>(
 		local currentGeneration = generation.current
 
 		local thread = task.delay(delaySeconds, function()
-			if generation.current ~= currentGeneration then return end
+			if generation.current ~= currentGeneration then
+				return
+			end
 
 			setDebounced(value)
 		end)
 
 		return function()
-			if coroutine.status(thread) == "dead" then return end
+			if coroutine.status(thread) == "dead" then
+				return
+			end
 
 			task.cancel(thread)
 		end
@@ -491,14 +479,13 @@ end
 --- Omitting dependencies causes the effect to run after every completed render.
 --- @param callback () -> cleanup? Effect callback with optional cleanup.
 --- @param dependencies dependencyList? Values controlling when the effect reruns.
-function module.useEffect(
-	callback: () -> cleanup?,
-	dependencies: dependencyList?
-)
+function module.useEffect(callback: () -> cleanup?, dependencies: dependencyList?)
 	local context = getContext()
 	local slot = getSlot(context, "effect")
 
-	if slot.isInitialized and not dependenciesChanged(slot.dependencies, dependencies) then return end
+	if slot.isInitialized and not dependenciesChanged(slot.dependencies, dependencies) then
+		return
+	end
 
 	slot.isInitialized = true
 	slot.dependencies = nil
@@ -520,10 +507,7 @@ end
 --- @param factory () -> T Function that produces the memoized value.
 --- @param dependencies dependencyList? Values controlling when the value is recalculated.
 --- @return T Current memoized value.
-function module.useMemo<T>(
-	factory: () -> T,
-	dependencies: dependencyList?
-): T
+function module.useMemo<T>(factory: () -> T, dependencies: dependencyList?): T
 	local context = getContext()
 	local slot = getSlot(context, "memo")
 	local shouldResolve = not slot.isInitialized
@@ -570,10 +554,7 @@ end
 --- @param initialState S Initial reducer state.
 --- @return S Current reducer state.
 --- @return reducerDispatch<A> Stable dispatch function.
-function module.useReducer<S, A>(
-	reducer: (stateValue: S, action: A) -> S,
-	initialState: S
-): (S, reducerDispatch<A>)
+function module.useReducer<S, A>(reducer: (stateValue: S, action: A) -> S, initialState: S): (S, reducerDispatch<A>)
 	local context = getContext()
 	local slot = getSlot(context, "reducer")
 
@@ -582,12 +563,16 @@ function module.useReducer<S, A>(
 		slot.value = initialState
 
 		slot.callback = function(action: A)
-			if context.isDeleted then return end
+			if context.isDeleted then
+				return
+			end
 
 			local previous = slot.value :: S
 			local nextValue = reducer(previous, action)
 
-			if previous == nextValue then return end
+			if previous == nextValue then
+				return
+			end
 
 			slot.value = nextValue
 
@@ -625,9 +610,7 @@ end
 --- @param initialValue T Initial state value.
 --- @return T Current state value.
 --- @return stateSetter<T> Setter accepting a value or updater function.
-function module.useState<T>(
-	initialValue: T
-): (T, stateSetter<T>)
+function module.useState<T>(initialValue: T): (T, stateSetter<T>)
 	local context = getContext()
 	local slot = getSlot(context, "state")
 
@@ -636,12 +619,16 @@ function module.useState<T>(
 		slot.value = initialValue
 
 		slot.callback = function(nextValue: T | ((previous: T) -> T))
-			if context.isDeleted then return end
+			if context.isDeleted then
+				return
+			end
 
 			local previous = slot.value :: T
 			local resolved = resolveStateValue(previous, nextValue)
 
-			if previous == resolved then return end
+			if previous == resolved then
+				return
+			end
 
 			slot.value = resolved
 
@@ -659,9 +646,7 @@ end
 --- @return boolean Current boolean value.
 --- @return () -> () Function that toggles the current value.
 --- @return (value: boolean) -> () Function that directly sets the value.
-function module.useToggle(
-	initialValue: boolean?
-): (boolean, () -> (), (value: boolean) -> ())
+function module.useToggle(initialValue: boolean?): (boolean, () -> (), (value: boolean) -> ())
 	local value, enable, disable, toggle = module.useBoolean(initialValue)
 
 	local function set(nextValue: boolean)

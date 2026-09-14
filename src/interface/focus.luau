@@ -16,7 +16,7 @@ export type focusGroup = {
 	delete: () -> boolean,
 	focusFirst: () -> boolean,
 	focusLast: () -> boolean,
-	getItems: () -> {GuiObject},
+	getItems: () -> { GuiObject },
 	isDeleted: () -> boolean,
 	remove: (object: GuiObject) -> boolean,
 }
@@ -24,9 +24,15 @@ export type focusGroup = {
 --————————————————————————————————————————————————————————————————————--
 
 local function canFocusObject(object: GuiObject): boolean
-	if not object.Parent then return false end
-	if not object.Visible then return false end
-	if not object.Selectable then return false end
+	if not object.Parent then
+		return false
+	end
+	if not object.Visible then
+		return false
+	end
+	if not object.Selectable then
+		return false
+	end
 
 	return true
 end
@@ -35,7 +41,9 @@ end
 
 --- Clears the currently selected Roblox GUI object.
 function module.clearSelection()
-	if guiService.SelectedObject == nil then return end
+	if guiService.SelectedObject == nil then
+		return
+	end
 
 	guiService.SelectedObject = nil
 end
@@ -46,7 +54,7 @@ end
 --- @return focusGroup A new focus group.
 function module.new(): focusGroup
 	local isDeleted = false
-	local items: {GuiObject} = {}
+	local items: { GuiObject } = {}
 
 	--- Adds a GUI object to the focus group.
 	--- Duplicate objects are not added.
@@ -55,7 +63,9 @@ function module.new(): focusGroup
 	local function add(object: GuiObject): boolean
 		assert(not isDeleted, "Reactily focus group is deleted.")
 
-		if table.find(items, object) then return false end
+		if table.find(items, object) then
+			return false
+		end
 
 		items[#items + 1] = object
 
@@ -66,7 +76,9 @@ function module.new(): focusGroup
 	local function clear()
 		assert(not isDeleted, "Reactily focus group is deleted.")
 
-		if #items == 0 then return end
+		if #items == 0 then
+			return
+		end
 
 		table.clear(items)
 	end
@@ -74,7 +86,9 @@ function module.new(): focusGroup
 	--- Deletes the focus group and clears all tracked objects.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 
@@ -89,7 +103,9 @@ function module.new(): focusGroup
 		assert(not isDeleted, "Reactily focus group is deleted.")
 
 		for _, object in items do
-			if not canFocusObject(object) then continue end
+			if not canFocusObject(object) then
+				continue
+			end
 
 			if guiService.SelectedObject ~= object then
 				guiService.SelectedObject = object
@@ -109,7 +125,9 @@ function module.new(): focusGroup
 		for index = #items, 1, -1 do
 			local object = items[index]
 
-			if not canFocusObject(object) then continue end
+			if not canFocusObject(object) then
+				continue
+			end
 
 			if guiService.SelectedObject ~= object then
 				guiService.SelectedObject = object
@@ -123,7 +141,7 @@ function module.new(): focusGroup
 
 	--- Returns a copy of the GUI objects currently tracked by the group.
 	--- @return {GuiObject} Tracked objects in focus order.
-	local function getItems(): {GuiObject}
+	local function getItems(): { GuiObject }
 		assert(not isDeleted, "Reactily focus group is deleted.")
 
 		return table.clone(items)
@@ -141,7 +159,9 @@ function module.new(): focusGroup
 
 		local index = table.find(items, object)
 
-		if not index then return false end
+		if not index then
+			return false
+		end
 
 		table.remove(items, index)
 

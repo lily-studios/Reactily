@@ -71,10 +71,12 @@ end
 --- @param items {T} Complete ordered item collection.
 --- @param rangeValue range Range returned by resolve().
 --- @return {T} New array containing only items inside the range.
-function module.slice<T>(items: {T}, rangeValue: range): {T}
-	if rangeValue.first == 0 then return {} end
+function module.slice<T>(items: { T }, rangeValue: range): { T }
+	if rangeValue.first == 0 then
+		return {}
+	end
 
-	local output: {T} = table.create(rangeValue.last - rangeValue.first + 1)
+	local output: { T } = table.create(rangeValue.last - rangeValue.first + 1)
 
 	for index = rangeValue.first, rangeValue.last do
 		output[#output + 1] = items[index]

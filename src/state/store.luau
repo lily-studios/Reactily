@@ -48,7 +48,7 @@ type previousState<T> = {
 --- @param initialState T Initial store state and value restored by reset().
 --- @return store<T> A new store.
 function module.new<T>(initialState: T): store<T>
-	local activeSelectors: {() -> boolean} = {}
+	local activeSelectors: { () -> boolean } = {}
 	local batchDepth = 0
 	local batchedPrevious: previousState<T>? = nil
 	local changed: signalModule.signal<storeChange<T>> = signalModule.new()
@@ -59,7 +59,9 @@ function module.new<T>(initialState: T): store<T>
 
 	local function removeSelector(deleteSelector: () -> boolean)
 		for index, currentDeleteSelector in activeSelectors do
-			if currentDeleteSelector ~= deleteSelector then continue end
+			if currentDeleteSelector ~= deleteSelector then
+				continue
+			end
 
 			table.remove(activeSelectors, index)
 
@@ -71,7 +73,9 @@ function module.new<T>(initialState: T): store<T>
 
 	local function emitChange(previous: T)
 		if batchDepth > 0 then
-			if batchedPrevious then return end
+			if batchedPrevious then
+				return
+			end
 
 			batchedPrevious = {
 				value = previous,
@@ -102,7 +106,9 @@ function module.new<T>(initialState: T): store<T>
 	--- @return boolean Whether the state changed.
 	local function set(nextState: T): boolean
 		assert(not isDeleted, "Reactily store is deleted.")
-		if state == nextState then return false end
+		if state == nextState then
+			return false
+		end
 
 		local previous = state
 
@@ -144,7 +150,9 @@ function module.new<T>(initialState: T): store<T>
 			end
 		end
 
-		if success then return end
+		if success then
+			return
+		end
 
 		error(failure)
 	end
@@ -154,7 +162,9 @@ function module.new<T>(initialState: T): store<T>
 	--- Deletes the store, active selectors, and all store subscriptions.
 	--- @return boolean Whether deletion occurred.
 	local function delete(): boolean
-		if isDeleted then return false end
+		if isDeleted then
+			return false
+		end
 
 		isDeleted = true
 
@@ -195,9 +205,7 @@ function module.new<T>(initialState: T): store<T>
 	--- The selector notifies subscribers only when its selected value changes.
 	--- @param selectorFunction (state: T) -> R Function that derives the selected value.
 	--- @return selector<R> A derived selector owned by the store.
-	local function select<R>(
-		selectorFunction: (state: T) -> R
-	): selector<R>
+	local function select<R>(selectorFunction: (state: T) -> R): selector<R>
 		assert(not isDeleted, "Reactily store is deleted.")
 
 		local selectorChanged: signalModule.signal<storeChange<R>> = signalModule.new()
@@ -205,11 +213,15 @@ function module.new<T>(initialState: T): store<T>
 		local selected = selectorFunction(state)
 
 		local storeConnection = changed.connect(function(storeChangeValue: storeChange<T>)
-			if selectorIsDeleted then return end
+			if selectorIsDeleted then
+				return
+			end
 
 			local nextValue = selectorFunction(storeChangeValue.current)
 
-			if nextValue == selected then return end
+			if nextValue == selected then
+				return
+			end
 
 			local previous = selected
 
@@ -226,7 +238,9 @@ function module.new<T>(initialState: T): store<T>
 		--————————————————————————————————————————————————————————————————————--
 
 		deleteSelector = function(): boolean
-			if selectorIsDeleted then return false end
+			if selectorIsDeleted then
+				return false
+			end
 
 			selectorIsDeleted = true
 
@@ -256,9 +270,7 @@ function module.new<T>(initialState: T): store<T>
 		--- Subscribes to future selector value changes.
 		--- @param callback (change: storeChange<R>) -> () Callback receiving previous and current values.
 		--- @return signalModule.connection Connection used to stop future notifications.
-		local function subscribeSelector(
-			callback: (change: storeChange<R>) -> ()
-		): signalModule.connection
+		local function subscribeSelector(callback: (change: storeChange<R>) -> ()): signalModule.connection
 			assert(not selectorIsDeleted, "Reactily selector is deleted.")
 
 			return selectorChanged.connect(callback)
@@ -279,9 +291,7 @@ function module.new<T>(initialState: T): store<T>
 	--- Subscribes to future store changes.
 	--- @param callback (change: storeChange<T>) -> () Callback receiving previous and current state.
 	--- @return signalModule.connection Connection used to stop future notifications.
-	local function subscribe(
-		callback: (change: storeChange<T>) -> ()
-	): signalModule.connection
+	local function subscribe(callback: (change: storeChange<T>) -> ()): signalModule.connection
 		assert(not isDeleted, "Reactily store is deleted.")
 
 		return changed.connect(callback)
