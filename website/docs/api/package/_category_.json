@@ -1,0 +1,11 @@
+{
+  "label": "Package",
+  "position": 7,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Package API",
+    "description": "Reactily package API reference."
+  }
+}

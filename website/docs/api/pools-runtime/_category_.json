@@ -1,0 +1,11 @@
+{
+  "label": "Pools & Runtime",
+  "position": 8,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Pools & Runtime API",
+    "description": "Reactily pools & runtime API reference."
+  }
+}

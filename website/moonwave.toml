@@ -1,0 +1,43 @@
+title = "Reactily"
+gitRepoUrl = "https://github.com/lily-studios/Reactily"
+gitSourceBranch = "main"
+changelog = false
+classOrder = []
+
+[docusaurus]
+scripts = ["/Reactily/live-release.js"]
+organizationName = "lily-studios"
+projectName = "Reactily"
+url = "https://lily-studios.github.io"
+baseUrl = "/Reactily/"
+tagline = "Typed React-inspired UI for Roblox Luau"
+onBrokenLinks = "throw"
+onBrokenMarkdownLinks = "warn"
+
+[[navbar.items]]
+href = "https://github.com/lily-studios/Reactily/releases/latest"
+label = "Release"
+position = "right"
+
+[footer]
+style = "dark"
+copyright = "Copyright © Lily Studios and contributors. Built using Docusaurus and Moonwave."
+
+[[footer.links]]
+title = "Learn"
+
+[[footer.links.items]]
+label = "Introduction"
+to = "/docs/intro"
+
+[[footer.links.items]]
+label = "Getting Started"
+to = "/docs/getting-started"
+
+[[footer.links.items]]
+label = "API Reference"
+to = "/api"
+
+[[footer.links.items]]
+label = "Examples"
+to = "/docs/guides/examples"

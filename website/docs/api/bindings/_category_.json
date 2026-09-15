@@ -1,0 +1,11 @@
+{
+  "label": "Bindings",
+  "position": 3,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Bindings API",
+    "description": "Reactily bindings API reference."
+  }
+}

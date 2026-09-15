@@ -1,0 +1,11 @@
+{
+  "label": "Signals",
+  "position": 9,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Signals API",
+    "description": "Reactily signals API reference."
+  }
+}

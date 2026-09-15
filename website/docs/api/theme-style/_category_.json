@@ -1,0 +1,11 @@
+{
+  "label": "Theme & Style",
+  "position": 11,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Theme & Style API",
+    "description": "Reactily theme & style API reference."
+  }
+}

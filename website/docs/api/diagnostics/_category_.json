@@ -1,0 +1,11 @@
+{
+  "label": "Diagnostics & Strict Mode",
+  "position": 4,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Diagnostics & Strict Mode API",
+    "description": "Reactily diagnostics & strict mode API reference."
+  }
+}

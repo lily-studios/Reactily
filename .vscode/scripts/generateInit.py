@@ -1,3 +1,11 @@
+#Reactily · Lily Studios
+
+#Copyright (c) Lily Studios and contributors.
+#Licensed under the MIT License.
+#See LICENSE in the repository root for full terms.
+
+#--————————————————————————————————————————————————————————————————————--
+
 from __future__ import annotations
 
 import argparse

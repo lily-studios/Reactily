@@ -1,0 +1,26 @@
+{
+  "name": "reactily-documentation-site",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Docusaurus + Moonwave documentation site for Reactily.",
+  "scripts": {
+    "clean": "node scripts/cleanup.mjs",
+    "check": "node scripts/check.mjs",
+    "verify": "npm run clean && npm run check",
+    "predev": "node scripts/cleanup.mjs",
+    "dev": "moonwave dev --code moonwave-source",
+    "prestart": "node scripts/cleanup.mjs",
+    "start": "npm run dev",
+    "prebuild": "node scripts/cleanup.mjs",
+    "build": "moonwave build --code moonwave-source",
+    "production": "npm run verify && npm run build",
+    "prepublishOnly": "node scripts/cleanup.mjs",
+    "publish": "moonwave build --code moonwave-source --publish"
+  },
+  "devDependencies": {
+    "moonwave": "1.4.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
