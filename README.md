@@ -1,3 +1,4 @@
+````
 # Reactily
 
 > **Version:** `1.1.0`
@@ -15,7 +16,7 @@ This README is both the getting-started guide and the full supported reference f
 ## Table of Contents
 
 - [Overview](#overview)
-- [Installation and Source Layout](#installation-and-source-layout)
+- [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Core Conventions](#core-conventions)
 - [Elements and Typed Creators](#elements-and-typed-creators)
@@ -88,62 +89,7 @@ signal:Connect(callback)
 
 ---
 
-## Installation and Source Layout
-
-Reactily's source tree is:
-
-```text
-Reactily/
-├── README.md
-├── FEATURES.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── default.project.json
-├── test.project.json
-└── src/
-    ├── init.luau
-    ├── core/
-    │   ├── batching.luau
-    │   ├── compare.luau
-    │   ├── devMode.luau
-    │   ├── lifecycle.luau
-    │   ├── objectPool.luau
-    │   ├── scheduler.luau
-    │   ├── signal.luau
-    │   └── tableUtility.luau
-    ├── diagnostics/
-    │   ├── diagnostics.luau
-    │   └── profiler.luau
-    ├── interface/
-    │   ├── focus.luau
-    │   ├── style.luau
-    │   ├── theme.luau
-    │   ├── virtualGrid.luau
-    │   ├── virtualList.luau
-    │   └── virtualWindow.luau
-    ├── runtime/
-    │   ├── animation.luau
-    │   ├── animationGroup.luau
-    │   ├── binding.luau
-    │   ├── hostConfig.luau
-    │   ├── lazy.luau
-    │   ├── renderer.luau
-    │   ├── resource.luau
-    │   ├── root.luau
-    │   ├── spring.luau
-    │   └── transition.luau
-    ├── state/
-    │   ├── atom.luau
-    │   ├── context.luau
-    │   ├── hooks.luau
-    │   └── store.luau
-    └── virtual/
-        ├── element.luau
-        ├── forwardRef.luau
-        ├── memo.luau
-        └── reconciler.luau
-```
-
+## Installation
 
 For source development with Git:
 
@@ -332,7 +278,7 @@ Create the component element:
 local element = Reactily.createComponent<panelProps>(
 	panel,
 	{
-		title = "Effects",
+		title = "Settings",
 		visible = true,
 	}
 )
@@ -440,8 +386,8 @@ Host props expose `key`:
 
 ```lua
 Reactily.createTextButton({
-	key = `fixture-{fixtureId}`,
-	text = tostring(fixtureId),
+	key = `item-{itemId}`,
+	text = tostring(itemId),
 })
 ```
 
@@ -491,8 +437,8 @@ The ref receives the mounted host and later receives `nil` when the ref changes 
 ```lua
 Reactily.createFrame({
 	attributes = {
-		panelType = "effects",
-		fixtureId = 12,
+		section = "settings",
+		itemId = 12,
 		enabled = true,
 	},
 })
@@ -505,8 +451,8 @@ Supported values are documented under [`attributeValue`](#attributevalue).
 ```lua
 Reactily.createFrame({
 	tags = {
-		"[Lily] Interface",
-		"[Lily] Panel",
+		"ExampleInterface",
+		"ExamplePanel",
 	},
 })
 ```
@@ -591,9 +537,9 @@ Changing `.current` does not request a render.
 ### `useMemo`
 
 ```lua
-local visibleFixtures = Reactily.useMemo(function()
-	return calculateVisibleFixtures(fixtures, selection)
-end, {fixtures, selection})
+local visibleItems = Reactily.useMemo(function()
+	return calculateVisibleFixtures(items, selection)
+end, {items, selection})
 ```
 
 If dependencies are omitted, Reactily treats them as changed each render.
@@ -680,7 +626,7 @@ The delayed task is cancelled when dependencies change or the owning effect is d
 
 ```lua
 local enabled, setEnabled = Reactily.useAttribute(
-	fixture,
+	item,
 	"enabled",
 	true
 )
@@ -695,25 +641,25 @@ Synchronizes hook state with the Roblox Attribute.
 ## Atoms and Computed State
 
 ```lua
-local bpm = Reactily.createAtom(.7)
+local level = Reactily.createAtom(.7)
 ```
 
 Read:
 
 ```lua
-local current = bpm.get()
+local current = level.get()
 ```
 
 Set:
 
 ```lua
-local didChange = bpm.set(.8)
+local didChange = level.set(.8)
 ```
 
 Update:
 
 ```lua
-bpm.update(function(previous: number): number
+level.update(function(previous: number): number
 	return previous + .1
 end)
 ```
@@ -721,7 +667,7 @@ end)
 Subscribe:
 
 ```lua
-local connection = bpm.subscribe(function(change)
+local connection = level.subscribe(function(change)
 	print(change.previous, change.current)
 end)
 ```
@@ -729,14 +675,14 @@ end)
 Delete:
 
 ```lua
-bpm.delete()
+level.delete()
 ```
 
 ### Computed atoms
 
 ```lua
 local percentage = Reactily.createComputed(
-	intensity,
+	progress,
 	function(value: number): string
 		return `{math.round(value * 100)}%`
 	end
@@ -749,7 +695,7 @@ The computed value owns its source subscription. `percentage.delete()` disconnec
 
 ```lua
 local enabled = Reactily.createAttributeAtom(
-	fixture,
+	item,
 	"enabled",
 	true
 )
@@ -795,14 +741,14 @@ The `limit` applies to retained past entries.
 ```lua
 type panelState = {
 	page: string,
-	selectedFixture: number?,
-	bpm: number,
+	selectedItem: number?,
+	level: number,
 }
 
 local store = Reactily.createStore<panelState>({
 	page = "Home",
-	selectedFixture = nil,
-	bpm = .7,
+	selectedItem = nil,
+	level = .7,
 })
 ```
 
@@ -811,9 +757,9 @@ Update:
 ```lua
 store.update(function(previous: panelState): panelState
 	return {
-		page = "Effects",
-		selectedFixture = previous.selectedFixture,
-		bpm = previous.bpm,
+		page = "Library",
+		selectedItem = previous.selectedItem,
+		level = previous.level,
 	}
 end)
 ```
@@ -858,14 +804,14 @@ Nested batches are supported.
 ## Bindings
 
 ```lua
-local intensity = Reactily.createBinding(.5)
+local progress = Reactily.createBinding(.5)
 ```
 
 Map:
 
 ```lua
 local percent = Reactily.mapBinding(
-	intensity,
+	progress,
 	function(value: number): number
 		return value * 100
 	end
@@ -875,14 +821,14 @@ local percent = Reactily.mapBinding(
 Combine:
 
 ```lua
-local pan = Reactily.createBinding(0)
-local tilt = Reactily.createBinding(0)
+local x = Reactily.createBinding(0)
+local y = Reactily.createBinding(0)
 
 local position = Reactily.combineBindings(
-	pan,
-	tilt,
-	function(panValue: number, tiltValue: number): Vector2
-		return Vector2.new(panValue, tiltValue)
+	x,
+	y,
+	function(xValue: number, yValue: number): Vector2
+		return Vector2.new(xValue, yValue)
 	end
 )
 ```
@@ -890,20 +836,20 @@ local position = Reactily.combineBindings(
 Clamp:
 
 ```lua
-local normalized = Reactily.clampBinding(intensity, 0, 1)
+local normalized = Reactily.clampBinding(progress, 0, 1)
 ```
 
 Round:
 
 ```lua
-local rounded = Reactily.roundBinding(intensity, 2)
+local rounded = Reactily.roundBinding(progress, 2)
 ```
 
 Format:
 
 ```lua
 local label = Reactily.formatBinding(
-	intensity,
+	progress,
 	function(value: number): string
 		return `{math.round(value * 100)}%`
 	end
@@ -923,8 +869,8 @@ local selected = Reactily.createSignal<number>()
 Connect:
 
 ```lua
-local connection = selected.connect(function(fixtureId: number)
-	print(fixtureId)
+local connection = selected.connect(function(itemId: number)
+	print(itemId)
 end)
 ```
 
@@ -937,8 +883,8 @@ selected.fire(5)
 Once:
 
 ```lua
-selected.once(function(fixtureId: number)
-	print("first:", fixtureId)
+selected.once(function(itemId: number)
+	print("first:", itemId)
 end)
 ```
 
@@ -1143,7 +1089,7 @@ print(range.totalSize)
 Slice an array:
 
 ```lua
-local visibleFixtures = Reactily.sliceVirtualList(fixtures, range)
+local visibleItems = Reactily.sliceVirtualList(items, range)
 ```
 
 When `itemCount == 0`, `first` and `last` are both `0`.
@@ -1338,10 +1284,10 @@ Mapped/filtered/distinct/merged/take/skip signals and mapped/combined bindings d
 Stable keys preserve child identity when list ordering changes.
 
 ```lua
-for _, fixture in fixtures do
+for _, item in items do
 	children[#children + 1] = Reactily.createTextButton({
-		key = tostring(fixture.id),
-		text = fixture.name,
+		key = tostring(item.id),
+		text = item.name,
 	})
 end
 ```
@@ -5313,13 +5259,13 @@ root.render(
 local Reactily = require(path.Reactily)
 
 type appState = {
-	page: "Home" | "Effects" | "Position",
-	selectedFixture: number?,
+	page: "Home" | "Library" | "Settings",
+	selectedItem: number?,
 }
 
 local app = Reactily.createStore<appState>({
 	page = "Home",
-	selectedFixture = nil,
+	selectedItem = nil,
 })
 
 local page = app.select(function(state: appState)
@@ -5332,33 +5278,33 @@ end)
 
 app.update(function(previous: appState): appState
 	return {
-		page = "Effects",
-		selectedFixture = previous.selectedFixture,
+		page = "Library",
+		selectedItem = previous.selectedItem,
 	}
 end)
 ```
 
-## Position editor history
+## Coordinate editor history
 
 ```lua
 local Reactily = require(path.Reactily)
 
 type position = {
-	pan: number,
-	tilt: number,
+	x: number,
+	y: number,
 }
 
 local currentPosition = Reactily.createHistoryAtom<position>(
 	{
-		pan = 0,
-		tilt = 0,
+		x = 0,
+		y = 0,
 	},
 	100
 )
 
 currentPosition.set({
-	pan = 30,
-	tilt = -15,
+	x = 30,
+	y = -15,
 })
 
 currentPosition.undo()
@@ -5384,11 +5330,11 @@ local overlay = Reactily.createPortal(screenGui, {
 }, "settings-modal")
 ```
 
-## Virtualized fixture list
+## Virtualized item list
 
 ```lua
 local range = Reactily.resolveVirtualList(
-	#fixtures,
+	#items,
 	36,
 	scrollingFrame.CanvasPosition.Y,
 	scrollingFrame.AbsoluteWindowSize.Y,
@@ -5398,13 +5344,13 @@ local range = Reactily.resolveVirtualList(
 local children: {Reactily.element} = {}
 
 for index = range.first, range.last do
-	local fixture = fixtures[index]
+	local item = items[index]
 
 	children[#children + 1] = Reactily.createTextButton({
-		key = tostring(fixture.id),
+		key = tostring(item.id),
 		position = UDim2.fromOffset(0, (index - 1) * 36),
 		size = UDim2.new(1, 0, 0, 36),
-		text = fixture.name,
+		text = item.name,
 	})
 end
 ```
@@ -5412,13 +5358,13 @@ end
 ## Attribute-backed component state
 
 ```lua
-type fixtureToggleProps = {
-	fixture: Model,
+type itemToggleProps = {
+	item: Model,
 }
 
-local function fixtureToggle(props: fixtureToggleProps): Reactily.element
+local function itemToggle(props: itemToggleProps): Reactily.element
 	local enabled, setEnabled = Reactily.useAttribute(
-		props.fixture,
+		props.item,
 		"enabled",
 		true
 	)
@@ -6302,7 +6248,7 @@ A `binding<number>`.
 #### Usage
 
 ```lua
-local safeIntensity = Reactily.clampBinding(intensity, 0, 1)
+local safeProgress = Reactily.clampBinding(progress, 0, 1)
 ```
 
 ### `Reactily.clearFocus`
@@ -6358,8 +6304,8 @@ A `binding<R>`.
 #### Usage
 
 ```lua
-local point = Reactily.combineBindings(pan, tilt, function(panValue, tiltValue)
-	return Vector2.new(panValue, tiltValue)
+local point = Reactily.combineBindings(x, y, function(xValue, yValue)
+	return Vector2.new(xValue, yValue)
 end)
 ```
 
@@ -6392,7 +6338,7 @@ A `atom<T>`.
 #### Usage
 
 ```lua
-local enabled = Reactily.createAttributeAtom(fixture, "enabled", true)
+local enabled = Reactily.createAttributeAtom(item, "enabled", true)
 ```
 
 ### `Reactily.createAtom`
@@ -6418,7 +6364,7 @@ A `atom<T>`.
 #### Usage
 
 ```lua
-local bpm = Reactily.createAtom(.7)
+local level = Reactily.createAtom(.7)
 ```
 
 ### `Reactily.createBillboardGui`
@@ -6451,7 +6397,7 @@ local element = Reactily.createBillboardGui({
 }, {
 	Reactily.createTextLabel({
 		size = UDim2.fromScale(1, 1),
-		text = "Fixture",
+		text = "Item",
 	}),
 })
 ```
@@ -6479,7 +6425,7 @@ A `binding<T>`.
 #### Usage
 
 ```lua
-local intensity = Reactily.createBinding(.5)
+local progress = Reactily.createBinding(.5)
 ```
 
 ### `Reactily.createCanvasGroup`
@@ -6573,8 +6519,8 @@ A read-only derived `computed<B>`.
 #### Usage
 
 ```lua
-local label = Reactily.createComputed(bpm, function(value)
-	return string.format("%.2f BPM", value)
+local label = Reactily.createComputed(level, function(value)
+	return string.format("%.2f Level", value)
 end)
 ```
 
@@ -7786,7 +7732,7 @@ A `binding<string>`.
 #### Usage
 
 ```lua
-local text = Reactily.formatBinding(intensity, function(value)
+local text = Reactily.formatBinding(progress, function(value)
 	return `{math.round(value * 100)}%`
 end)
 ```
@@ -7839,7 +7785,7 @@ A `binding<B>`.
 #### Usage
 
 ```lua
-local percent = Reactily.mapBinding(intensity, function(value)
+local percent = Reactily.mapBinding(progress, function(value)
 	return value * 100
 end)
 ```
@@ -7869,7 +7815,7 @@ A `signal<B>`.
 
 ```lua
 local labels = Reactily.mapSignal(source, function(value)
-	return `Fixture {value}`
+	return `Item {value}`
 end)
 ```
 
@@ -8173,7 +8119,7 @@ Reactily.useAttribute<T>(
 
 ```lua
 local enabled, setEnabled = Reactily.useAttribute(
-	fixture,
+	item,
 	"enabled",
 	true
 )
@@ -11072,3 +11018,4 @@ These records are delivered only when the owning state system resolves a meaning
 ### Host creator `props`
 
 Each typed creator receives its own class-specific props type. Common host metadata includes `key`, `ref`, `attributes`, and `tags`; GUI creators also expose relevant Roblox properties and supported `on...` event callbacks. See the earlier **Typed Prop Reference** for every field.
+````

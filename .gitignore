@@ -8,7 +8,7 @@
 sourcemap.json
 .DS_Store
 .git/
-src/dist/
+dist/
 TODO.md
-dis``
+dist/
 mandatory_modules/
