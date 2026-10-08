@@ -1,58 +1,76 @@
 
 # ============================================================
 # Reactily · Lily Studios
-# Dependabot Configuration
+# Continuous Integration
 # ============================================================
 
-version: 2
+name: Reactily CI
 
-updates:
-  # ----------------------------------------------------------
-  # Reactily Dependencies
-  # ----------------------------------------------------------
+on:
+  push:
+    branches:
+      - main
 
-  - package-ecosystem: "npm"
-    directory: "/"
+  pull_request:
+    branches:
+      - main
 
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
+  workflow_dispatch:
 
-    open-pull-requests-limit: 5
+permissions:
+  contents: read
 
-    groups:
-      minor-and-patch:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-    commit-message:
-      prefix: "deps"
+jobs:
+  core:
+    name: Reactily Core
+    runs-on: ubuntu-latest
 
-  # ----------------------------------------------------------
-  # Reactily Website Dependencies
-  # ----------------------------------------------------------
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-  - package-ecosystem: "npm"
-    directory: "/reactily-website"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.0"
+          cache: npm
 
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      - name: Setup Rokit
+        uses: paradoxum-games/setup-rokit@v3
+        with:
+          cache: true
 
-    open-pull-requests-limit: 5
+      - name: Install dependencies
+        run: npm ci
 
-    groups:
-      minor-and-patch:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
+      - name: Validate Reactily
+        run: npm test
 
-    commit-message:
-      prefix: "deps"
+  website:
+    name: Reactily Website
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: reactily-website
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.0"
+          cache: npm
+          cache-dependency-path: reactily-website/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate website
+        run: npm run verify
