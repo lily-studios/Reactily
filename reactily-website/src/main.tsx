@@ -7,6 +7,7 @@ import { App } from "./App";
 import "./styles.css";
 import "./refinements.css";
 import "./neutral-theme.css";
+import "./changelog.css";
 
 type AppErrorBoundaryProps = {
   readonly children: ReactNode;

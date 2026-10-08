@@ -11,6 +11,7 @@ const navigation = [
   { label: "Learn", href: "/docs/intro", section: "learn" },
   { label: "API Reference", href: "/api", section: "api" },
   { label: "Examples", href: "/docs/guides/examples", section: "examples" },
+  { label: "Changelog", href: "/changelog", section: "changelog" },
 ] as const;
 
 export function Header() {
@@ -19,7 +20,9 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const activeSection = pathname === "/api" || pathname.startsWith("/docs/api/")
+  const activeSection = pathname === "/changelog"
+    ? "changelog"
+    : pathname === "/api" || pathname.startsWith("/docs/api/")
     ? "api"
     : pathname === "/docs/guides/examples"
       ? "examples"

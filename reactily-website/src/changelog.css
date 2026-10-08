@@ -1,0 +1,139 @@
+/* Live GitHub release changelog. Uses the global grayscale palette. */
+.changelogPage { min-height: calc(100vh - var(--header-height)); padding-bottom: 76px; }
+.changelogHero { padding-top: clamp(32px, 5vw, 64px); padding-bottom: 24px; }
+.changelogHero h1 {
+  margin: 10px 0 12px;
+  font-family: "Sora", sans-serif;
+  font-size: clamp(42px, 5.2vw, 70px);
+  font-weight: 700;
+  line-height: 1.09;
+  letter-spacing: -.035em;
+}
+.changelogHero p { max-width: 700px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.8; }
+.changelogHero p a { color: var(--text); text-underline-offset: 3px; }
+.changelogLayout { display: grid; grid-template-columns: 178px minmax(0, 1fr); gap: clamp(20px, 3vw, 42px); align-items: start; }
+.changelogJump {
+  position: sticky;
+  top: calc(var(--header-height) + 20px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 10px;
+  background: var(--surface);
+}
+.changelogJumpHeading { margin: 0 9px 10px; color: var(--muted); font-size: 12px; font-weight: 750; }
+.changelogJump ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; }
+.changelogJump li a {
+  min-height: 39px;
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  padding: 7px 9px; border-radius: 8px; color: var(--muted-strong);
+  font-family: var(--font-reading); font-size: 12.5px; font-weight: 650; text-decoration: none;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+.changelogJump li a:hover { background: var(--surface-strong); color: var(--text); }
+.changelogLatest, .changelogPrerelease {
+  display: inline-flex; align-items: center; border: 1px solid var(--border-strong);
+  border-radius: 5px; padding: 3px 6px;
+  color: var(--muted-strong); font-size: 10px; font-weight: 700;
+}
+.changelogJumpAll {
+  margin: 12px 9px 2px; padding-top: 13px;
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  border-top: 1px solid var(--border);
+  color: var(--muted-strong); font-size: 11px; font-weight: 650; text-decoration: none;
+}
+.changelogJumpAll:hover { color: var(--text); }
+.changelogEntries { display: grid; gap: 15px; min-width: 0; }
+.changelogSummary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 34px; color: var(--muted); font-size: 12px;
+}
+.changelogSummary span:last-child { display: inline-flex; align-items: center; gap: 6px; }
+.changelogEntry {
+  min-width: 0; border: 1px solid var(--border);
+  border-radius: 13px; overflow: hidden; background: var(--surface);
+  scroll-margin-top: calc(var(--header-height) + 20px);
+}
+.changelogEntryHeader {
+  padding: clamp(20px, 3vw, 30px);
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px 22px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+.changelogEntryMeta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; color: var(--muted); font-size: 12px; }
+.changelogEntryHeader h2 {
+  margin: 0; font-family: "Sora", sans-serif; font-size: clamp(23px, 3vw, 30px);
+  font-weight: 700; line-height: 1.2; letter-spacing: -.025em;
+}
+.changelogSource {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--border); border-radius: 8px;
+  min-height: 34px; padding: 0 10px; background: var(--bg-soft);
+  color: var(--muted-strong); font-size: 11px; font-weight: 650;
+  text-decoration: none; white-space: nowrap;
+}
+.changelogSource:hover { background: var(--surface-strong); color: var(--text); }
+.changelogBody {
+  padding: 22px clamp(20px, 3vw, 30px) 30px; min-width: 0;
+  font-family: var(--font-reading); font-size: 14px; line-height: 1.75; color: var(--text);
+}
+.changelogBody > :first-child { margin-top: 0; }
+.changelogBody > :last-child { margin-bottom: 0; }
+.changelogBody h3 {
+  margin: 24px 0 10px; font-family: "Sora", sans-serif; font-size: 20px;
+  font-weight: 700; line-height: 1.35; letter-spacing: -.015em;
+}
+.changelogBody h4 { margin: 22px 0 9px; font-size: 15px; font-weight: 750; }
+.changelogBody h5 { margin: 18px 0 8px; font-size: 14px; font-weight: 700; }
+.changelogBody p { margin: 0 0 13px; color: var(--muted-strong); }
+.changelogBody ul, .changelogBody ol { margin: 0 0 19px; padding-left: 21px; }
+.changelogBody li { padding-left: 3px; margin-bottom: 5px; overflow-wrap: anywhere; }
+.changelogBody li::marker { color: var(--muted); }
+.changelogBody strong { color: var(--text); font-weight: 750; }
+.changelogBody a { color: var(--text); text-underline-offset: 3px; }
+.changelogBody a:hover { text-decoration-thickness: 2px; }
+.changelogBody :not(pre) > code {
+  padding: 2px 5px; border: 1px solid var(--border);
+  border-radius: 5px; background: var(--bg-soft); color: var(--text);
+  font: 12px/1.5 var(--font-code); overflow-wrap: anywhere;
+}
+.changelogBody pre {
+  margin: 12px 0 18px; padding: 17px;
+  overflow: auto; border: 1px solid var(--code-border);
+  border-radius: 12px; background: var(--code-bg); color: var(--code-text);
+}
+.changelogBody pre code { padding: 0; font: 12px/1.7 var(--font-code); }
+.changelogBody blockquote {
+  margin: 14px 0; padding: 8px 16px; border-left: 3px solid var(--border-strong);
+  background: var(--bg-soft); color: var(--muted-strong);
+}
+.changelogBody hr { border: 0; border-top: 1px solid var(--border); margin: 25px 0; }
+.changelogBody table { display: block; overflow-x: auto; width: max-content; max-width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 12px; }
+.changelogBody th, .changelogBody td { border: 1px solid var(--border); padding: 9px 12px; text-align: left; }
+.changelogBody th { background: var(--bg-soft); }
+.changelogMessage {
+  min-height: 150px; padding: 22px 28px; border: 1px solid var(--border);
+  border-radius: 12px; background: var(--surface); font-size: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.changelogLoading { width: 16px; height: 16px; border: 2px solid var(--border-strong); border-top-color: var(--text); border-radius: 50%; animation: changelog-spin 800ms linear infinite; }
+@keyframes changelog-spin { to { transform: rotate(360deg); } }
+.changelogError { display: block; }
+.changelogError strong { display: block; margin-bottom: 6px; }
+.changelogError p { margin: 0 0 14px; color: var(--muted); }
+.changelogErrorActions { display: flex; flex-wrap: wrap; gap: 9px; }
+@media (max-width: 900px) {
+  .changelogLayout { grid-template-columns: 1fr; gap: 16px; }
+  .changelogJump { position: static; padding: 12px; }
+  .changelogJump ol { display: flex; flex-wrap: wrap; gap: 7px; }
+  .changelogJump li a { border: 1px solid var(--border); padding: 7px 11px; }
+  .changelogJumpAll { margin-top: 10px; }
+}
+@media (max-width: 600px) {
+  .changelogEntryHeader { padding: 20px; }
+  .changelogBody { padding: 19px 20px 25px; }
+  .changelogSource { width: fit-content; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .changelogLoading { animation: none; }
+  .changelogJump li a { transition: none; }
+}

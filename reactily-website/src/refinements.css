@@ -176,6 +176,40 @@
   outline-offset: 3px;
 }
 
+/* The fourth navigation link is always visible without crowding desktop controls. */
+@media (max-width: 1150px) {
+  .headerInner {
+    width: calc(100% - 30px);
+    max-width: none;
+    justify-content: space-between;
+  }
+  .desktopNav { display: none; }
+  .mobileMenuButton { display: inline-grid; }
+  .mobileNav {
+    position: absolute;
+    top: calc(var(--header-height) - 1px);
+    left: 12px;
+    right: 12px;
+    display: grid;
+    gap: 4px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow);
+  }
+  .mobileNav a {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .mobileNav a:hover, .mobileNav a.active { background: var(--accent-soft); }
+  .headerActions { flex: 0 0 auto; }
+}
+
 /* On narrow screens collapse optional labels, then switch to the mobile menu. */
 @media (max-width: 1120px) {
   .headerActions .headerGitHub {
