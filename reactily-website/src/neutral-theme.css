@@ -383,3 +383,19 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
     transition: none;
   }
 }
+
+/* Color only GitHub release status text; keep the rest of the UI neutral. */
+:root {
+  --release-latest: #8ed4a8;
+  --release-prerelease: #ebc27a;
+}
+:root[data-theme="light"] {
+  --release-latest: #227449;
+  --release-prerelease: #8c5a13;
+}
+.headerActions .versionSelectorShell .versionReleaseStatus--latest {
+  color: var(--release-latest);
+}
+.headerActions .versionSelectorShell .versionReleaseStatus--prerelease {
+  color: var(--release-prerelease);
+}
