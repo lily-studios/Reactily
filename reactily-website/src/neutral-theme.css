@@ -384,6 +384,16 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
   }
 }
 
+/* Release version is a link, but it should read as a button, not underlined text. */
+:root .headerActions a.versionSelectorShell,
+:root .headerActions a.versionSelectorShell:link,
+:root .headerActions a.versionSelectorShell:visited,
+:root .headerActions a.versionSelectorShell:hover,
+:root .headerActions a.versionSelectorShell:focus-visible,
+:root .headerActions a.versionSelectorShell:active {
+  text-decoration: none;
+}
+
 /* Make the release status unmistakable; only the badge uses color. */
 .headerActions .versionSelectorShell .versionSelectorCurrent {
   font-size: 14px;
