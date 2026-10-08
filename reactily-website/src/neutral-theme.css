@@ -349,12 +349,16 @@ body { font-size: 15px; line-height: 1.65; }
   font-weight: 800;
 }
 
-.docsSidebar .sidebarGroupName {
+.docsSidebar .sidebarNestedGroup .sidebarGroupToggle .sidebarGroupName {
   min-width: 0;
+  font-family: var(--font-reading);
+  font-size: 12.5px;
+  font-weight: inherit;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
-.docsSidebar .sidebarGroupCount {
+.docsSidebar .sidebarNestedGroup .sidebarGroupToggle .sidebarGroupCount {
   min-width: 22px;
   padding: 2px 5px;
   border-radius: 5px;
