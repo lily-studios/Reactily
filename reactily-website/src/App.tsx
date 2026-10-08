@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from "react-router";
 import { VersionedDocsProvider } from "./lib/versioned-docs";
+import { DeploymentUpdateWatcher } from "./components/DeploymentUpdateWatcher";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { ApiPage } from "./pages/ApiPage";
@@ -13,6 +14,7 @@ function AppView() {
 
   return (
     <div className="appShell">
+      <DeploymentUpdateWatcher />
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />

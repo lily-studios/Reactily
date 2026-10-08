@@ -179,6 +179,7 @@ function spa404Plugin(base: string): Plugin {
 
 export default defineConfig(({ command }) => {
   const base = resolveBase(command);
+  const buildId = process.env.GITHUB_SHA ?? `local-${Date.now().toString(36)}`;
 
   return {
     /* ========================================================
@@ -188,7 +189,23 @@ export default defineConfig(({ command }) => {
     plugins: [
       react(),
       spa404Plugin(base),
+      {
+        name: "reactily-deployment-version",
+        apply: "build",
+        generateBundle() {
+          this.emitFile({
+            type: "asset",
+            fileName: "build-version.json",
+            source: JSON.stringify({ id: buildId }) + "\n",
+          });
+        },
+      },
     ],
+
+    // The running SPA compares this build identifier with the deployed site.
+    define: {
+      __REACTILY_BUILD_ID__: JSON.stringify(buildId),
+    },
 
     /* ========================================================
      * Base Path
