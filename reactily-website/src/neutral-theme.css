@@ -9,7 +9,7 @@
   --surface: #202020;
   --surface-strong: #303030;
   --text: #f2f2f2;
-  --muted: #b4b4b4;
+  --muted: #bdbdbd;
   --muted-strong: #dedede;
   --border: #333333;
   --border-strong: #565656;
@@ -28,7 +28,7 @@
   --surface: #ffffff;
   --surface-strong: #ededed;
   --text: #1c1c1c;
-  --muted: #636363;
+  --muted: #565656;
   --muted-strong: #383838;
   --border: #dedede;
   --border-strong: #bcbcbc;
@@ -39,7 +39,14 @@
   --shadow: 0 12px 30px rgba(0,0,0,.07);
 }
 body, button, input, select, textarea { font-family: var(--font-reading); }
-body { font-size: 15px; line-height: 1.65; }
+body { font-size: 15px; line-height: 1.65; font-weight: 500; }
+/* Reading copy gains definition; display headings and code remain unchanged. */
+:where(.heroCopy > p, .apiHero p, .docHeader p,
+  .markdownBody p, .markdownBody li,
+  .changelogBody p, .changelogBody li,
+  .searchResultCopy small, .footerBrand p) {
+  font-weight: 500;
+}
 /* Large display type remains Sora, unchanged. */
 :where(.brandName, .heroCopy h1, .docHeader h1, .apiHero h1,
  .sectionHeading h2, .splitCopy h2, .finalCta h2,

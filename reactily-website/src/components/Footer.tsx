@@ -19,8 +19,8 @@ export function Footer() {
             <Link to="/api">API</Link>
           </div>
           <div>
-            <strong>Project</strong>
-            <a href="https://github.com/lily-studios/Reactily" target="_blank" rel="noreferrer">GitHub</a>
+            <strong>Updates</strong>
+            <Link to="/changelog">Changelog</Link>
             <a href="https://github.com/lily-studios/Reactily/releases/latest" target="_blank" rel="noreferrer">Releases</a>
           </div>
         </div>

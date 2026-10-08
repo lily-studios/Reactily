@@ -90,7 +90,7 @@ export function VersionSelector() {
       title="View this version on GitHub"
     >
       <span className="versionSelectorCurrent">
-        {releaseTag}
+        <span className="versionTag">{releaseTag}</span>
         {statusLabel ? <span className="versionReleaseStatus">· {statusLabel}</span> : null}
       </span>
       <ExternalLink className="versionSelectorChevron" size={13} aria-hidden="true" />

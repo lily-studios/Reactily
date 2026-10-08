@@ -3605,8 +3605,8 @@ body {
 .desktopNav { justify-self: center; width: 100%; max-width: 440px; }
 .desktopNav a { flex: 1; white-space: nowrap; padding: 7px 11px; }
 .headerActions { min-width: 0; justify-self: stretch; justify-content: flex-end; gap: 7px; }
-.headerGitHub { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 88px; height: 38px; padding: 0 11px; background: var(--surface); color: var(--muted-strong); border: 1px solid var(--border); border-radius: 9px; text-decoration: none; font-size: 12px; font-weight: 600; transition: background-color 180ms ease,border-color 180ms ease; }
-.headerGitHub:hover { background: var(--surface-strong); border-color: var(--border-strong); }
+
+
 .versionSelectorShell { min-width: 161px; height: 38px; }
 .searchButton { flex: 1 1 180px; max-width: 280px; min-width: 100px; height: 38px; justify-content: flex-start; padding-inline: 12px; }
 .searchButton kbd { margin-left: auto; }
@@ -3621,8 +3621,8 @@ body {
 .docsArticle { padding-inline: clamp(20px,3vw,42px); }
 @media (max-width: 1270px) {
   .headerInner { grid-template-columns: auto minmax(270px,1fr) auto; }
-  .headerGitHub { min-width: 38px; width: 38px; padding: 0; }
-  .headerGitHub span { display: none; }
+
+
   .searchButton { flex: 0 0 38px; width: 38px; min-width: 38px; padding: 0; justify-content: center; }
   .searchButton span,.searchButton kbd { display: none; }
 }
@@ -3638,10 +3638,10 @@ body {
   .heroSection .heroVisualColumn { max-width: 740px; }
 }
 @media (max-width: 720px) {
-  .headerGitHub { display: none; }
+
   .versionSelectorShell { min-width: 135px; }
   .container { width: calc(100% - 30px); }
   .docsShell { display: block; }
 }
 @media (max-width: 470px) { .versionSelectorShell { display: none; } }
-@media (prefers-reduced-motion:reduce) { .headerGitHub { transition: none; } }
+
