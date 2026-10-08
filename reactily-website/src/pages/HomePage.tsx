@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { DeprecatedVersionNotice } from "../components/DeprecatedVersionNotice";
 import { Link } from "react-router";
 import { useVersionedDocs } from "../lib/versioned-docs";
 import { reactilyRuntime } from "../lib/runtime";
@@ -37,12 +38,8 @@ export function HomePage() {
   const apiDocs = docs.filter((doc) => doc.sourcePath.startsWith("api/"));
   return (
     <main>
-      {outdatedVersion ? (
-        <div className="container deprecatedNotice deprecatedNotice--release" role="note">
-          <div><strong>Deprecated version: {tag}</strong>
-            <p>A newer stable major release ({highestTag}) is available. Documentation for {tag} remains accessible.</p>
-          </div>
-        </div>
+      {outdatedVersion && tag && highestTag ? (
+        <DeprecatedVersionNotice currentVersion={tag} latestVersion={highestTag} context="home" />
       ) : null}
       <section className="heroSection">
         <div className="container heroLayout">

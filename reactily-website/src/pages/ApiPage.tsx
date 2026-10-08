@@ -1,4 +1,5 @@
 import { ArrowRight, Box, Search } from "lucide-react";
+import { DeprecatedVersionNotice } from "../components/DeprecatedVersionNotice";
 import { useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
 import { Link } from "react-router";
@@ -58,12 +59,8 @@ export function ApiPage() {
         </div>
       </section>
 
-      {status === "ready" && outdatedVersion ? (
-        <div className="container deprecatedNotice deprecatedNotice--release" role="note">
-          <div><strong>Deprecated version: {tag}</strong>
-            <p>A newer stable major release ({highestTag}) exists. These APIs are preserved from {tag}; this does not automatically deprecate each API.</p>
-          </div>
-        </div>
+      {status === "ready" && outdatedVersion && tag && highestTag ? (
+        <DeprecatedVersionNotice currentVersion={tag} latestVersion={highestTag} context="api" />
       ) : null}
       {status === "loading" ? <div className="container versionDocsMessage" role="status">Loading {tag} documentation…</div> : null}
       {status === "error" ? <div className="container versionDocsMessage" role="alert">{error}</div> : null}

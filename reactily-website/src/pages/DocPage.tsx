@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, Menu, TriangleAlert } from "lucide-react";
+import { DeprecatedVersionNotice } from "../components/DeprecatedVersionNotice";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { DocsSidebar } from "../components/DocsSidebar";
@@ -81,14 +82,8 @@ export function DocPage() {
           </h1>
           <p>{doc.description}</p>
         </header>
-        {outdatedVersion ? (
-          <div className="deprecatedNotice deprecatedNotice--release" role="note" aria-label="Deprecated release notice">
-            <TriangleAlert size={18} aria-hidden="true" />
-            <div>
-              <strong>Deprecated version: {tag}</strong>
-              <p>A newer stable major release ({highestTag}) is available. This page documents the original {tag} release; individual APIs are only deprecated when explicitly marked.</p>
-            </div>
-          </div>
+        {outdatedVersion && tag && highestTag ? (
+          <DeprecatedVersionNotice currentVersion={tag} latestVersion={highestTag} context="doc" />
         ) : null}
         {doc.experimental ? (
           <div className="experimentalNotice experimentalNotice--page" role="note" aria-label="Experimental API warning">
