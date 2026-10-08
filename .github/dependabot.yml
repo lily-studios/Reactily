@@ -1,10 +1,10 @@
 
 # ============================================================
 # Reactily · Lily Studios
-# Dependabot Configuration
+# Continuous Integration
 # ============================================================
 
-version: 2
+name: Reactily CI
 
 updates:
   # Reactily Core
