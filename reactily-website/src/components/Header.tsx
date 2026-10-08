@@ -57,7 +57,7 @@ export function Header() {
       key={item.section}
       to={item.href}
       className={activeSection === item.section ? "active" : undefined}
-      aria-current={pathname === item.href ? "page" : undefined}
+      aria-current={activeSection === item.section ? "page" : undefined}
       onClick={mobile ? () => setMobileOpen(false) : undefined}
     >
       {item.label}
@@ -74,7 +74,17 @@ export function Header() {
           </nav>
           <div className="headerActions">
             <VersionSelector />
-            <a className="headerGitHub" href="https://github.com/lily-studios/Reactily" target="_blank" rel="noopener noreferrer" aria-label="Reactily on GitHub"><ExternalLink size={17} /><span>GitHub</span></a>
+            <a
+              className="headerGitHub"
+              href="https://github.com/lily-studios/Reactily"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open Reactily on GitHub"
+              title="Source on GitHub"
+            >
+              <ExternalLink size={16} aria-hidden="true" />
+              <span>GitHub</span>
+            </a>
             <button
               className="searchButton"
               type="button"
@@ -83,8 +93,8 @@ export function Header() {
               title="Search documentation (Ctrl/Command + K)"
             >
               <Search size={16} aria-hidden="true" />
-              <span>Search</span>
-              <kbd>⌘K</kbd>
+              <span>Search docs</span>
+              <kbd>⌘ K</kbd>
             </button>
             <button
               className="iconButton"
