@@ -33,17 +33,15 @@ available for existing projects. Prefer the typed host creators such as
 and checking.
 
 ```lua
---!strict
-
 local Reactily = require(path.Reactily)
 
 type HelloMessageProps = {
-	name: string,
+	Name: string,
 }
 
 local function HelloMessage(props: HelloMessageProps): Reactily.Element
 	local labelProps: Reactily.TextLabelProps = {
-		Text = `Hello {props.name}`,
+		Text = `Hello {props.Name}`,
 		TextWrapped = true,
 	}
 
@@ -53,7 +51,7 @@ end
 local root = Reactily.createRoot(playerGui)
 
 local greeting: Reactily.Element = Reactily.createElement(HelloMessage, {
-	name = "Lily",
+	Name = "Lily",
 })
 
 root.render(greeting)
