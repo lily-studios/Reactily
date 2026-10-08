@@ -10,7 +10,7 @@ import { highestNumberedReleaseTag, isSupersededRelease } from "../lib/release-l
 export function ApiPage() {
   const [query, setQuery] = useState("");
   const { tag, docs, releases, status, error, path } = useVersionedDocs();
-  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag));
+  const highestTag = highestNumberedReleaseTag(releases.filter((release) => release.channel === "stable").map((release) => release.tag));
   const outdatedVersion = tag !== null && isSupersededRelease(tag, highestTag);
   const apiGroups = useMemo(() => makeApiGroups(docs), [docs]);
   const apiCount = apiGroups.reduce((sum, group) => sum + group.docs.length, 0);
@@ -61,7 +61,7 @@ export function ApiPage() {
       {status === "ready" && outdatedVersion ? (
         <div className="container deprecatedNotice deprecatedNotice--release" role="note">
           <div><strong>Deprecated version: {tag}</strong>
-            <p>A newer release ({highestTag}) exists. These APIs are preserved from {tag}; this does not automatically deprecate each API.</p>
+            <p>A newer stable major release ({highestTag}) exists. These APIs are preserved from {tag}; this does not automatically deprecate each API.</p>
           </div>
         </div>
       ) : null}

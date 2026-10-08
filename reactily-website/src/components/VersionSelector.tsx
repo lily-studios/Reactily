@@ -44,15 +44,16 @@ export function VersionSelector() {
     };
   }, [open]);
 
-  const latestStable = releases.find((release) => getReleaseChannel(release) === "stable");
-  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag_name));
+  const stableReleases = releases.filter((release) => getReleaseChannel(release) === "stable");
+  const highestTag = highestNumberedReleaseTag(stableReleases.map((release) => release.tag_name));
+  const latestStable = stableReleases.find((release) => release.tag_name === highestTag) ?? stableReleases[0];
   const shownTag = isDevelopment ? "Development" : tag ?? latestStable?.tag_name ?? fallbackTag;
   const superseded = !isDevelopment && isSupersededRelease(shownTag, highestTag);
   const current = releases.find((release) => release.tag_name === shownTag);
   const channel = current ? getReleaseChannel(current) : null;
-  const currentStatus = superseded ? "Deprecated" :
-    channel === "experimental" ? "Experimental" :
+  const currentStatus = channel === "experimental" ? "Experimental" :
     channel === "prerelease" ? "Pre-release" :
+    superseded ? "Deprecated" :
       shownTag === latestStable?.tag_name ? "Latest" : channel === "stable" ? "Stable" : null;
   const choose = (next: string | null): void => { selectTag(next); setOpen(false); };
 
@@ -67,7 +68,7 @@ export function VersionSelector() {
           {currentStatus ? (
             <>
               <span className="versionReleaseSeparator" aria-hidden="true">·</span>
-              <span className={`versionReleaseStatus versionReleaseStatus--${superseded ? "deprecated" : channel === "stable" ? "latest" : channel}`}>{currentStatus}</span>
+              <span className={`versionReleaseStatus versionReleaseStatus--${superseded && channel === "stable" ? "deprecated" : channel === "stable" ? "latest" : channel}`}>{currentStatus}</span>
             </>
           ) : null}
         </span>
@@ -87,16 +88,16 @@ export function VersionSelector() {
             const outdated = isSupersededRelease(release.tag_name, highestTag);
             const status = releaseChannel === "experimental" ? "Experimental" :
               releaseChannel === "prerelease" ? "Pre-release" :
-              release.id === latestStable?.id && !outdated ? "Latest" : "Stable";
+              release.id === latestStable?.id && !outdated ? "Latest" : outdated ? "Deprecated" : "Stable";
             return (
               <div className="versionReleaseOption" key={release.id}>
                 <button className="versionReleasePick" type="button"
                   onClick={() => choose(release.tag_name)}
                   aria-current={tag === release.tag_name ? "true" : undefined}
                   title={`View documentation for ${release.tag_name}`}>
-                  <span className={`versionReleaseOptionStatus versionReleaseOptionStatus--${releaseChannel === "stable" ? "latest" : releaseChannel}`}>{status}</span>
+                  <span className={`versionReleaseOptionStatus versionReleaseOptionStatus--${outdated && releaseChannel === "stable" ? "deprecated" : releaseChannel === "stable" ? "latest" : releaseChannel}`}>{status}</span>
                   <span className="versionReleaseOptionTag">{release.tag_name}</span>
-                  {outdated ? <span className="versionReleaseOptionStatus versionReleaseOptionStatus--deprecated">Deprecated</span> : null}
+                  {outdated && releaseChannel !== "stable" ? <span className="versionReleaseOptionStatus versionReleaseOptionStatus--deprecated">Deprecated</span> : null}
                   {tag === release.tag_name ? <Check size={14} aria-hidden="true" /> : null}
                 </button>
                 <a className="versionReleaseGitHub" href={release.html_url} target="_blank"

@@ -29,8 +29,9 @@ export function ChangelogPage() {
   const [status, setStatus] = useState<LoadStatus>("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [refreshCount, setRefreshCount] = useState(0);
-  const latestStable = releases.find((release) => getReleaseChannel(release) === "stable");
-  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag_name));
+  const stableReleases = releases.filter((release) => getReleaseChannel(release) === "stable");
+  const highestTag = highestNumberedReleaseTag(stableReleases.map((release) => release.tag_name));
+  const latestStable = stableReleases.find((release) => release.tag_name === highestTag) ?? stableReleases[0];
 
   useEffect(() => {
     const controller = new AbortController();
@@ -108,6 +109,8 @@ export function ChangelogPage() {
                       <span className="changelogPrerelease">Pre-release</span>
                     ) : release.id === latestStable?.id && !isSupersededRelease(release.tag_name, highestTag) ? (
                       <span className="changelogLatest">Latest</span>
+                    ) : getReleaseChannel(release) === "stable" && !isSupersededRelease(release.tag_name, highestTag) ? (
+                      <span className="changelogStable">Stable</span>
                     ) : null}
                     {isSupersededRelease(release.tag_name, highestTag) ? (
                       <span className="changelogDeprecated">Deprecated</span>
@@ -144,6 +147,8 @@ export function ChangelogPage() {
                         <span className="changelogPrerelease">Pre-release</span>
                       ) : release.id === latestStable?.id && !isSupersededRelease(release.tag_name, highestTag) ? (
                         <span className="changelogLatest">Latest stable</span>
+                      ) : getReleaseChannel(release) === "stable" && !isSupersededRelease(release.tag_name, highestTag) ? (
+                        <span className="changelogStable">Stable</span>
                       ) : null}
                       {isSupersededRelease(release.tag_name, highestTag) ? (
                         <span className="changelogDeprecated">Deprecated version</span>
@@ -158,7 +163,7 @@ export function ChangelogPage() {
 
                 {isSupersededRelease(release.tag_name, highestTag) ? (
                   <p className="changelogOutdatedNotice">
-                    This release is superseded by {highestTag}. Its release notes and archived documentation remain available.
+                    This release belongs to an older major version than the current stable release ({highestTag}). Its release notes and archived documentation remain available.
                   </p>
                 ) : null}
                 <div className="changelogBody">

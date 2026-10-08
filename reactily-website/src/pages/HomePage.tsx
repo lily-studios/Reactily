@@ -32,7 +32,7 @@ function LuauTerminal() {
 
 export function HomePage() {
   const { tag, docs, releases, path } = useVersionedDocs();
-  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag));
+  const highestTag = highestNumberedReleaseTag(releases.filter((release) => release.channel === "stable").map((release) => release.tag));
   const outdatedVersion = tag !== null && isSupersededRelease(tag, highestTag);
   const apiDocs = docs.filter((doc) => doc.sourcePath.startsWith("api/"));
   return (
@@ -40,7 +40,7 @@ export function HomePage() {
       {outdatedVersion ? (
         <div className="container deprecatedNotice deprecatedNotice--release" role="note">
           <div><strong>Deprecated version: {tag}</strong>
-            <p>A higher version ({highestTag}) is available. Documentation for {tag} remains accessible.</p>
+            <p>A newer stable major release ({highestTag}) is available. Documentation for {tag} remains accessible.</p>
           </div>
         </div>
       ) : null}

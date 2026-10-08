@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { createDoc, docs as currentDocs, isDocAvailable } from "./docs";
 import type { DocRecord } from "./docs";
+import { highestNumberedReleaseTag } from "./release-lifecycle";
 
 export type ArchivedRelease = {
   readonly tag: string;
@@ -83,7 +84,9 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
   const [index, setIndex] = useState<DocsIndex | null>(null);
   const [indexError, setIndexError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
-  const latest = index?.releases.find((release) => release.channel === "stable");
+  const stableReleases = index?.releases.filter((release) => release.channel === "stable") ?? [];
+  const newestStableTag = highestNumberedReleaseTag(stableReleases.map((release) => release.tag));
+  const latest = stableReleases.find((release) => release.tag === newestStableTag) ?? stableReleases[0];
   const development = explicitTag === "development";
   const tag = development ? null : explicitTag || latest?.tag || null;
   const [data, setData] = useState<{ tag: string | null; docs: readonly DocRecord[]; status: LoadStatus; error: string | null }>({

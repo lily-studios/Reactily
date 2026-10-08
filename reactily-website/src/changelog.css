@@ -161,3 +161,6 @@
   font-size: 12px;
   line-height: 1.55;
 }
+
+/* Non-latest stable releases in the current major stay supported. */
+:root .changelogStable { color: var(--muted-strong); font-weight: 700; }

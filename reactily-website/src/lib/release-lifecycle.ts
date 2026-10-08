@@ -1,8 +1,8 @@
 /**
  * Release lifecycle detection for documentation navigation.
  *
- * A numerically newer published version supersedes an older one, regardless
- * of whether either release is stable, pre-release, or experimental.
+ * Only a higher stable MAJOR version deprecates an older major release line.
+ * Minor and patch updates do not deprecate releases within the same major.
  * This does not imply that the older version's individual APIs are deprecated.
  */
 
@@ -55,7 +55,11 @@ export function highestNumberedReleaseTag(tags: readonly string[]): string | nul
   return highest;
 }
 
-/** Mark a release deprecated only when a strictly higher numbered tag exists. */
-export function isSupersededRelease(tag: string, highestTag: string | null): boolean {
-  return highestTag !== null && compareReleaseNumbers(tag, highestTag) === -1;
+/** Only older major versions are deprecated; highestStableTag must be stable. */
+export function isSupersededRelease(tag: string, highestStableTag: string | null): boolean {
+  if (!highestStableTag) return false;
+  const selected = parseReleaseNumbers(tag);
+  const latestStable = parseReleaseNumbers(highestStableTag);
+  if (!selected || !latestStable) return false;
+  return compareNumberStrings(selected[0] ?? "0", latestStable[0] ?? "0") < 0;
 }

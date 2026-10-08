@@ -12,7 +12,7 @@ import { useVersionedDocs } from "../lib/versioned-docs";
 export function DocPage() {
   const location = useLocation();
   const { tag, docs, releases, status, error, path } = useVersionedDocs();
-  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag));
+  const highestTag = highestNumberedReleaseTag(releases.filter((release) => release.channel === "stable").map((release) => release.tag));
   const outdatedVersion = tag !== null && isSupersededRelease(tag, highestTag);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const slug = location.pathname.replace(/\/$/, "") || "/docs/intro";
@@ -86,7 +86,7 @@ export function DocPage() {
             <TriangleAlert size={18} aria-hidden="true" />
             <div>
               <strong>Deprecated version: {tag}</strong>
-              <p>A higher numbered release ({highestTag}) is available. This page documents the original {tag} release; individual APIs are only deprecated when explicitly marked.</p>
+              <p>A newer stable major release ({highestTag}) is available. This page documents the original {tag} release; individual APIs are only deprecated when explicitly marked.</p>
             </div>
           </div>
         ) : null}
