@@ -2,82 +2,119 @@
 :root {
   --ui-ease: cubic-bezier(.2, .8, .2, 1);
   --ui-motion: 220ms;
-  --header-item-gap: clamp(9px, 1vw, 15px);
+  --header-height: 60px;
+  --header-item-gap: 8px;
 }
 
-/* Keep all desktop controls beside each other, with consistent gaps. */
+/* One compact, centered row: no expanding grid columns or spacer flex items. */
 .headerInner {
-  width: min(1440px, calc(100% - 40px));
   display: flex;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  height: 100%;
+  margin: 0 auto;
   align-items: center;
   justify-content: center;
   gap: var(--header-item-gap);
 }
+
 .headerInner > .brand {
   flex: 0 0 auto;
   white-space: nowrap;
+  margin: 0;
 }
+
 .desktopNav {
   display: flex;
-  flex: 1 1 390px;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+  min-width: 0;
   align-items: center;
   justify-content: center;
-  gap: var(--header-item-gap);
-  width: auto;
-  max-width: 470px;
-  min-width: 0;
   justify-self: auto;
+  gap: var(--header-item-gap);
   padding: 0;
   border: 0;
   background: transparent;
 }
+
 .desktopNav a {
-  flex: 1 1 0;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  flex: 0 0 auto;
   min-width: 0;
   height: 38px;
-  padding: 0 clamp(10px, 1vw, 17px);
+  padding: 0 12px;
+  align-items: center;
+  justify-content: center;
   border: 1px solid transparent;
   border-radius: 9px;
   white-space: nowrap;
   text-align: center;
+  font-size: 13px;
 }
+
 .desktopNav a.active {
   background: var(--accent-soft);
   border-color: var(--border);
 }
+
 .headerActions {
   display: flex;
-  flex: 1 1 575px;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--header-item-gap);
+  flex: 0 0 auto;
   width: auto;
-  max-width: 660px;
+  max-width: none;
   min-width: 0;
-  justify-self: auto;
-}
-.headerActions .versionSelectorShell { flex: 0 0 159px; min-width: 0; }
-.headerActions .headerGitHub { flex: 0 0 auto; }
-.headerActions .searchButton {
-  flex: 1 1 180px;
-  min-width: 125px;
-  max-width: 260px;
-  width: auto;
+  align-items: center;
   justify-content: flex-start;
-  padding: 0 12px;
+  justify-self: auto;
+  gap: var(--header-item-gap);
 }
-.headerActions .searchButton span { display: inline; white-space: nowrap; }
-.headerActions .searchButton kbd { display: inline; }
-.headerActions .iconButton { flex: 0 0 38px; }
+
+.headerActions .versionSelectorShell {
+  flex: 0 0 152px;
+  width: 152px;
+  min-width: 152px;
+  height: 38px;
+}
+
+.headerActions .headerGitHub {
+  flex: 0 0 auto;
+}
+
+.headerActions .searchButton {
+  flex: 0 0 140px;
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+  height: 38px;
+  padding: 0 10px;
+  justify-content: flex-start;
+  gap: 7px;
+}
+
+.headerActions .searchButton span {
+  display: inline;
+  white-space: nowrap;
+}
+
+.headerActions .searchButton kbd {
+  display: inline;
+}
+
+.headerActions .iconButton {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+}
+
 .desktopNav a, .headerGitHub, .versionSelectorShell, .searchButton, .iconButton {
   transition: background-color var(--ui-motion) var(--ui-ease),
               border-color var(--ui-motion) var(--ui-ease),
               color var(--ui-motion) var(--ui-ease),
               transform var(--ui-motion) var(--ui-ease);
 }
+
 .desktopNav a:hover, .headerGitHub:hover { transform: translateY(-1px); }
 .desktopNav a:active, .headerGitHub:active { transform: translateY(0); }
 
@@ -139,25 +176,25 @@
   outline-offset: 3px;
 }
 
-/* Desktop compression retains the same visual gaps. */
-@media (max-width: 1260px) {
-  .headerInner { --header-item-gap: 9px; }
-  .desktopNav { flex-basis: 330px; }
-  .headerActions { flex-basis: 500px; }
-  .headerActions .headerGitHub { width: 38px; min-width: 38px; padding: 0; }
-  .headerActions .headerGitHub span { display: none; }
-  .headerActions .searchButton { min-width: 100px; }
-}
+/* On narrow screens collapse optional labels, then switch to the mobile menu. */
 @media (max-width: 1120px) {
-  .headerActions .searchButton {
-    flex: 0 0 38px;
+  .headerActions .headerGitHub {
+    flex-basis: 38px;
     width: 38px;
     min-width: 38px;
-    justify-content: center;
     padding: 0;
   }
-  .headerActions .searchButton span, .headerActions .searchButton kbd { display: none; }
-  .desktopNav { flex-basis: 320px; }
+  .headerActions .headerGitHub span { display: none; }
+  .headerActions .searchButton {
+    flex-basis: 38px;
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    padding: 0;
+    justify-content: center;
+  }
+  .headerActions .searchButton span,
+  .headerActions .searchButton kbd { display: none; }
   .docsShell {
     grid-template-columns: minmax(265px, 285px) minmax(0, 1fr);
     max-width: 1120px;
@@ -165,23 +202,32 @@
   }
   .tableOfContents { display: none; }
 }
+
 @media (max-width: 980px) {
   .headerInner {
     width: calc(100% - 30px);
+    max-width: none;
     justify-content: space-between;
   }
   .desktopNav { display: none; }
-  .headerActions { flex: 0 1 auto; max-width: none; width: auto; }
+  .headerActions { flex: 0 0 auto; }
   .docsShell { display: block; }
   .docsSidebarWrap { width: min(340px, 89vw); }
 }
+
 @media (max-width: 720px) {
   .headerActions .headerGitHub { display: none; }
-  .headerActions .versionSelectorShell { flex-basis: 132px; }
+  .headerActions .versionSelectorShell {
+    flex-basis: 132px;
+    width: 132px;
+    min-width: 132px;
+  }
 }
+
 @media (max-width: 470px) {
   .headerActions .versionSelectorShell { display: none; }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .docHeader, .apiHeroGrid, .heroCopy, .heroVisualColumn { animation: none; }
   .desktopNav a, .headerGitHub, .versionSelectorShell, .searchButton,
