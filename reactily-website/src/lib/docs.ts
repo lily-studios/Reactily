@@ -1,3 +1,5 @@
+import { formatDocumentationMarkdown } from "./doc-format";
+
 export type DocFrontmatter = {
   readonly title?: string;
   readonly description?: string;
@@ -152,7 +154,7 @@ function createDoc(path: string, source: string): DocRecord {
   const { frontmatter, body: rawBody } = parseFrontmatter(source);
   const fallbackTitle = firstHeading(rawBody) ?? titleCase(path.split("/").at(-1)?.replace(/\.md$/, "") ?? "Document");
   const title = frontmatter.title ?? fallbackTitle;
-  const body = stripDuplicateTitle(rawBody, title);
+  const body = formatDocumentationMarkdown(stripDuplicateTitle(rawBody, title));
   const category = categoryFor(path);
   const description = frontmatter.description ?? descriptionFromBody(body);
 
