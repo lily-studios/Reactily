@@ -52,8 +52,8 @@ class AppErrorBoundary extends Component<
           style={{
             minHeight: "100vh",
             padding: "32px",
-            background: "#0f171a",
-            color: "#eef9fa",
+            background: "#141414",
+            color: "#f2f2f2",
             fontFamily:
               "ui-monospace, SFMono-Regular, Menlo, monospace",
           }}
@@ -62,7 +62,7 @@ class AppErrorBoundary extends Component<
             Reactily docs failed to render
           </h1>
 
-          <p style={{ color: "#9db2b7" }}>
+          <p style={{ color: "#b4b4b4" }}>
             The application hit a runtime error.
           </p>
 
@@ -71,7 +71,7 @@ class AppErrorBoundary extends Component<
               overflowX: "auto",
               padding: "16px",
               borderRadius: "8px",
-              background: "#151f23",
+              background: "#1c1c1c",
               whiteSpace: "pre-wrap",
             }}
           >
