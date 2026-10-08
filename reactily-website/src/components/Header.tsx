@@ -1,4 +1,4 @@
-import { Menu, Moon, Search, Sun, X } from "lucide-react";
+import { Github, Menu, Moon, Search, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import type { Theme } from "../lib/theme";
@@ -9,7 +9,7 @@ import { VersionSelector } from "./VersionSelector";
 
 const navigation = [
   { label: "Learn", href: "/docs/intro", section: "learn" },
-  { label: "API", href: "/api", section: "api" },
+  { label: "API Reference", href: "/api", section: "api" },
   { label: "Examples", href: "/docs/guides/examples", section: "examples" },
 ] as const;
 
@@ -74,6 +74,7 @@ export function Header() {
           </nav>
           <div className="headerActions">
             <VersionSelector />
+            <a className="headerGitHub" href="https://github.com/lily-studios/Reactily" target="_blank" rel="noopener noreferrer" aria-label="Reactily on GitHub"><Github size={17} /><span>GitHub</span></a>
             <button
               className="searchButton"
               type="button"
