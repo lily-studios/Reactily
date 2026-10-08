@@ -206,7 +206,7 @@ function tokenizeCode(source: string): readonly SyntaxToken[] {
   return tokens;
 }
 
-function HighlightedCode({ source }: { readonly source: string }) {
+export function HighlightedCode({ source }: { readonly source: string }) {
   const tokens = tokenizeCode(source);
 
   return (
