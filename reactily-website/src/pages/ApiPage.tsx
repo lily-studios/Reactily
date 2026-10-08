@@ -64,7 +64,11 @@ export function ApiPage() {
             <div className="apiFunctionList">
               {(query.trim() || expanded.has(group.id) ? group.docs : group.docs.slice(0, 6)).map((doc) => (
                 <Link key={doc.id} to={doc.slug}>
-                  <code>{doc.title}</code><ArrowRight size={14} />
+                  <span className="apiFunctionLabel">
+                    <code>{doc.title}</code>
+                    {doc.experimental ? <span className="experimentalFlag experimentalFlag--small">Experimental</span> : null}
+                  </span>
+                  <ArrowRight size={14} />
                 </Link>
               ))}
             </div>

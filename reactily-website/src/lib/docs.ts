@@ -4,6 +4,7 @@ export type DocFrontmatter = {
   readonly title?: string;
   readonly description?: string;
   readonly sidebarPosition?: number;
+  readonly experimental?: boolean;
 };
 
 export type DocRecord = {
@@ -16,6 +17,7 @@ export type DocRecord = {
   readonly category: string;
   readonly body: string;
   readonly searchableText: string;
+  readonly experimental: boolean;
 };
 
 export type DocGroup = {
@@ -98,6 +100,7 @@ function parseFrontmatter(source: string): { frontmatter: DocFrontmatter; body: 
       ...(values.title ? { title: values.title } : {}),
       ...(values.description ? { description: values.description } : {}),
       sidebarPosition: Number.isFinite(position) ? position : Number.POSITIVE_INFINITY,
+      experimental: values.experimental?.toLowerCase() === "true",
     },
     body,
   };
@@ -167,7 +170,8 @@ function createDoc(path: string, source: string): DocRecord {
     sidebarPosition: frontmatter.sidebarPosition ?? Number.POSITIVE_INFINITY,
     category,
     body,
-    searchableText: `${title} ${description} ${body}`.toLowerCase(),
+    experimental: frontmatter.experimental ?? false,
+    searchableText: `${title} ${description} ${body} ${frontmatter.experimental ? "experimental" : ""}`.toLowerCase(),
   };
 }
 

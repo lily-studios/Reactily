@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Menu } from "lucide-react";
+import { ArrowLeft, ArrowRight, Menu, TriangleAlert } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { DocsSidebar } from "../components/DocsSidebar";
@@ -56,9 +56,21 @@ export function DocPage() {
           <span>{labelForCategory(doc.category)}</span>
         </div>
         <header className="docHeader">
-          <h1>{doc.title}</h1>
+          <h1>
+            {doc.title}
+            {doc.experimental ? <span className="experimentalFlag">Experimental</span> : null}
+          </h1>
           <p>{doc.description}</p>
         </header>
+        {doc.experimental ? (
+          <div className="experimentalNotice experimentalNotice--page" role="note" aria-label="Experimental API warning">
+            <TriangleAlert size={18} aria-hidden="true" />
+            <div>
+              <strong>Experimental API</strong>
+              <p>This API is under development and may contain bugs, cause errors, or change without notice. Test it before using it in production.</p>
+            </div>
+          </div>
+        ) : null}
         <div className="markdownBody">
           <MarkdownArticle doc={doc} />
         </div>

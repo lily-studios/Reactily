@@ -1,4 +1,4 @@
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, TriangleAlert } from "lucide-react";
 import { Children, isValidElement, useState } from "react";
 import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
@@ -243,6 +243,11 @@ function CodeContent({
 function CopyablePre({ children }: { readonly children?: ReactNode }) {
   const [copied, setCopied] = useState(false);
   const text = flattenText(children).replace(/\n$/, "");
+  const experimental = Children.toArray(children).some((child) =>
+    isValidElement<{ className?: string }>(child) &&
+    typeof child.props.className === "string" &&
+    /\blanguage-[a-z0-9_+.-]+-experimental\b/i.test(child.props.className),
+  );
 
   const copy = async (): Promise<void> => {
     try {
@@ -255,7 +260,7 @@ function CopyablePre({ children }: { readonly children?: ReactNode }) {
   };
 
   return (
-    <div className="codeBlock">
+    <div className={experimental ? "codeBlock codeBlock--experimental" : "codeBlock"}>
       <div className="codeChrome">
         <span className="codeChromeLeft">
           <span className="codeDots" aria-hidden="true">
@@ -277,6 +282,12 @@ function CopyablePre({ children }: { readonly children?: ReactNode }) {
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
+      {experimental ? (
+        <div className="experimentalNotice experimentalNotice--code" role="note" aria-label="Experimental code warning">
+          <TriangleAlert size={15} aria-hidden="true" />
+          <span><strong>Experimental code.</strong> This example may contain bugs, cause errors, or change without notice.</span>
+        </div>
+      ) : null}
       <pre>{children}</pre>
     </div>
   );

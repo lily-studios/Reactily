@@ -80,8 +80,11 @@ export function formatDocumentationMarkdown(source: string): string {
     if (fence) {
       blank();
       const marker = fence[1] ?? "```";
-      const language = (fence[2] ?? "").trim().toLowerCase();
-      output.push(`${marker}${language}`);
+      const languageInfo = (fence[2] ?? "").trim().toLowerCase();
+      // A fence such as "luau experimental" marks just that example as experimental.
+      const experimentalFence = /^([a-z0-9_+.-]+)\s+experimental$/.exec(languageInfo);
+      const language = experimentalFence?.[1] ?? languageInfo;
+      output.push(`${marker}${experimentalFence ? `${language}-experimental` : language}`);
       const body: string[] = [];
       index += 1;
       while (index < lines.length && !lines[index]?.trim().startsWith(marker)) {

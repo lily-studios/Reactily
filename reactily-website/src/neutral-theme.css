@@ -599,3 +599,90 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
 /* Experimental is a separate release channel, styled as text without a background. */
 :root .versionReleaseOptionStatus--experimental { color: #c6adff; }
 :root[data-theme="light"] .versionReleaseOptionStatus--experimental { color: #7251a8; }
+
+/* Markdown experimental API and code notices */
+:root .experimentalFlag {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: 12px;
+  padding: 3px 8px;
+  vertical-align: middle;
+  border: 1px solid #8d76b5;
+  border-radius: 6px;
+  color: #c6adff;
+  background: transparent;
+  font-family: var(--font-reading);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+:root[data-theme="light"] .experimentalFlag {
+  border-color: #aa93c5;
+  color: #7251a8;
+}
+:root .experimentalFlag--small {
+  margin-left: 0;
+  padding: 2px 6px;
+  font-size: 10px;
+}
+.apiFunctionLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.apiFunctionLabel code {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.apiFunctionLabel .experimentalFlag { flex-shrink: 0; }
+
+:root .experimentalNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 16px;
+  border: 1px solid var(--border);
+  border-left: 3px solid #a38acd;
+  border-radius: 9px;
+  background: var(--bg-soft);
+  color: var(--muted-strong);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.experimentalNotice > svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #c6adff;
+}
+:root[data-theme="light"] .experimentalNotice > svg { color: #7251a8; }
+.experimentalNotice strong {
+  color: var(--text);
+  font-weight: 800;
+}
+.experimentalNotice p { margin: 4px 0 0; }
+:root .experimentalNotice--page { margin: 0 0 20px; }
+
+:root .markdownBody .codeBlock .experimentalNotice--code {
+  margin: 0;
+  padding: 9px 13px;
+  border: 0;
+  border-left: 3px solid #a38acd;
+  border-bottom: 1px solid var(--code-border);
+  border-radius: 0;
+  background: var(--code-header);
+  color: var(--code-text);
+  font-size: 12px;
+}
+:root .markdownBody .codeBlock .experimentalNotice--code strong {
+  color: #c6adff;
+}
+@media (max-width: 600px) {
+  :root .experimentalFlag { margin-left: 8px; }
+  .apiFunctionLabel { flex-wrap: wrap; gap: 4px 8px; }
+}
