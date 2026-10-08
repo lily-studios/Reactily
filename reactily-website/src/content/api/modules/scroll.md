@@ -11,34 +11,34 @@ description: Public Reactily Scroll module.
 
 ## Methods
 
-### `Scroll.by`
+### `Scroll.By`
 
 Scrolls by a pixel delta while clamping to the canvas bounds.
 
 ```luau
-Reactily.Scroll.by(frame: ScrollingFrame, delta: Vector2)
+Reactily.Scroll.By(frame: ScrollingFrame, delta: Vector2)
 ```
 
-### `Scroll.toBottom`
+### `Scroll.ToBottom`
 
 Scrolls to the bottom-right canvas limit.
 
 ```luau
-Reactily.Scroll.toBottom(frame: ScrollingFrame)
+Reactily.Scroll.ToBottom(frame: ScrollingFrame)
 ```
 
-### `Scroll.toObject`
+### `Scroll.ToObject`
 
 Scrolls until a descendant GuiObject is visible.
 
 ```luau
-Reactily.Scroll.toObject(frame: ScrollingFrame, object: GuiObject)
+Reactily.Scroll.ToObject(frame: ScrollingFrame, object: GuiObject)
 ```
 
-### `Scroll.toTop`
+### `Scroll.ToTop`
 
 Scrolls to the top-left origin.
 
 ```luau
-Reactily.Scroll.toTop(frame: ScrollingFrame)
+Reactily.Scroll.ToTop(frame: ScrollingFrame)
 ```

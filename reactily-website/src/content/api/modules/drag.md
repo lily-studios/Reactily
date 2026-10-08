@@ -11,10 +11,10 @@ description: Public Reactily Drag module.
 
 ## Methods
 
-### `Drag.bind`
+### `Drag.Bind`
 
 Makes a GuiObject draggable using input events only while dragging.
 
 ```luau
-Reactily.Drag.bind(target: GuiObject, options: DragOptions?): DragController
+Reactily.Drag.Bind(target: GuiObject, options: DragOptions?): DragController
 ```

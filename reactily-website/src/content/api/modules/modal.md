@@ -11,10 +11,10 @@ description: Public Reactily Modal module.
 
 ## Methods
 
-### `Modal.create`
+### `Modal.Create`
 
 Creates a full-screen modal overlay element around children.
 
 ```luau
-Reactily.Modal.create(options: ModalOptions?, children: { any }): elementModule.Element
+Reactily.Modal.Create(options: ModalOptions?, children: { any }): Reactily.Element
 ```

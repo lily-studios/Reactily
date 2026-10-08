@@ -11,10 +11,12 @@ description: Public Reactily Form module.
 
 ## Methods
 
-### `Form.create`
+### `Form.Create`
 
 Creates a reactive form with per-field bindings, reset, dirty state, and validation.
 
 ```luau
-Reactily.Form.create<T>(initial: T): form<T>
+Reactily.Form.Create<T>(initial: T): form<T>
 ```
+
+The returned owned controller (the internal Luau type is `form<T>`) exposes `Get()`, `Set()`, `Field()`, `GetErrors()`, `IsDirty()`, `Reset()`, `Subscribe()`, `Validate()`, `Delete()`, and `IsDeleted()`.

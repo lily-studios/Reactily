@@ -11,18 +11,18 @@ description: Public Reactily VirtualWindow module.
 
 ## Methods
 
-### `VirtualWindow.new`
+### `VirtualWindow.New`
 
 Creates a cached controller for variable-size virtualized lists.
 
 ```luau
-Reactily.VirtualWindow.new(sizes: { number }, viewportSize: number, overscan: number?): VariableVirtualList
+Reactily.VirtualWindow.New(sizes: { number }, viewportSize: number, overscan: number?): VariableVirtualList
 ```
 
-### `VirtualWindow.resolve`
+### `VirtualWindow.Resolve`
 
 Resolves a visible range for variable-size items.
 
 ```luau
-Reactily.VirtualWindow.resolve(sizes: { number }, scrollOffset: number, viewportSize: number, overscan: number?): variableRange
+Reactily.VirtualWindow.Resolve(sizes: { number }, scrollOffset: number, viewportSize: number, overscan: number?): VariableVirtualRange
 ```

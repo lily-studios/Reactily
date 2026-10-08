@@ -11,10 +11,10 @@ description: Public Reactily Layer module.
 
 ## Methods
 
-### `Layer.create`
+### `Layer.Create`
 
 Creates an owned ScreenGui layer manager for portals, overlays, modals, and tooltips.
 
 ```luau
-Reactily.Layer.create(parent: Instance, definitions: { [string]: LayerDefinition }?): LayerManager
+Reactily.Layer.Create(parent: Instance, definitions: { [string]: LayerDefinition }?): LayerManager
 ```

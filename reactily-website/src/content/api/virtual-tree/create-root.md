@@ -40,14 +40,14 @@ Run the example in a client `LocalScript`. Rendering again on the same root upda
 ## Cleanup
 
 ```luau
-Root.delete()
+Root.Delete()
 ```
 
 Call `delete()` when the interface is permanently dismissed. Do not call `render()` on a deleted root.
 
 ## Version 2.1.0 conventions
 
-The root method is lowercase **`Root.render()`**, not `Root.Render()`. Reactily public functions such as `createRoot()` are camelCase; exported types and Roblox host properties are PascalCase.
+The root render method is lowercase **`Root.render()`**, not `Root.Render()`; cleanup is **`Root.Delete()`**, not `Root.delete()`. Reactily public functions such as `createRoot()` are camelCase; exported types and Roblox host properties are PascalCase.
 
 ## Related
 

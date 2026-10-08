@@ -10,9 +10,9 @@ Reactily-owned resources use `delete()` and `isDeleted()`.
 local Root = Reactily.createRoot(playerGui)
 
 -- Later:
-Root.delete()
+Root.Delete()
 ```
-Deletion should:
+Calling `Delete()` on an owned resource should:
 
 1. disconnect owned connections,
 2. stop owned runtime work,

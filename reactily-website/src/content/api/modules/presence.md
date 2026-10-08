@@ -11,10 +11,10 @@ description: Public Reactily presence module.
 
 ## Methods
 
-### `Presence.create`
+### `Presence.Create`
 
 Creates an enter/exit visibility controller for a GuiObject.
 
 ```luau
-Reactily.Presence.create(object: GuiObject, options: PresenceOptions?): Presence
+Reactily.Presence.Create(object: GuiObject, options: PresenceOptions?): Presence
 ```

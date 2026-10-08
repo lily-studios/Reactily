@@ -11,42 +11,42 @@ description: Public Reactily Children module.
 
 ## Methods
 
-### `Children.count`
+### `Children.Count`
 
 Counts normalized Reactily children.
 
 ```luau
-Reactily.Children.count(children: { any }): number
+Reactily.Children.Count(children: { any }): number
 ```
 
-### `Children.forEach`
+### `Children.ForEach`
 
 Invokes a callback for every normalized child.
 
 ```luau
-Reactily.Children.forEach(children: { any }, callback: (child: elementModule.Element, index: number) -> ())
+Reactily.Children.ForEach(children: { any }, callback: (child: Reactily.Element, index: number) -> ())
 ```
 
-### `Children.map`
+### `Children.Map`
 
 Maps normalized children and flattens returned child arrays.
 
 ```luau
-Reactily.Children.map( children: { any }, callback: (child: elementModule.Element, index: number) -> any ): { elementModule.Element }
+Reactily.Children.Map( children: { any }, callback: (child: Reactily.Element, index: number) -> any ): { Reactily.Element }
 ```
 
-### `Children.only`
+### `Children.Only`
 
 Returns the only normalized child and errors when the count differs from one.
 
 ```luau
-Reactily.Children.only(children: { any }): elementModule.Element
+Reactily.Children.Only(children: { any }): Reactily.Element
 ```
 
-### `Children.toArray`
+### `Children.ToArray`
 
 Flattens nested children into a new ordered array.
 
 ```luau
-Reactily.Children.toArray(children: { any }): { elementModule.Element }
+Reactily.Children.ToArray(children: { any }): { Reactily.Element }
 ```

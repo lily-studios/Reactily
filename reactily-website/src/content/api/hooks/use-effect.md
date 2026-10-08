@@ -17,7 +17,8 @@ Reactily.useEffect(callback: () -> (() -> ())?, dependencies: {any}?)
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `callback` | `() -> (() -> ())?, dependencies: {any}?` | No | Function Reactily calls for the operation, subscription, effect, batch, scheduled task, or event. |
+| `callback` | `() -> (() -> ())?` | Yes | Runs after the component renders; may return a cleanup callback. |
+| `dependencies` | `{any}?` | No | Re-runs the effect when a dependency changes. |
 
 ## Returns
 

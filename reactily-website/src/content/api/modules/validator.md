@@ -11,50 +11,50 @@ description: Public Reactily Validator module.
 
 ## Methods
 
-### `Validator.combine`
+### `Validator.Combine`
 
 Combines validators and returns the first validation error.
 
 ```luau
-Reactily.Validator.combine<T>(validators: { validator<T> }): validator<T>
+Reactily.Validator.Combine<T>(validators: { validator<T> }): validator<T>
 ```
 
-### `Validator.maxLength`
+### `Validator.MaxLength`
 
 Validates a string maximum length.
 
 ```luau
-Reactily.Validator.maxLength(maximum: number, message: string?): validator<string>
+Reactily.Validator.MaxLength(maximum: number, message: string?): validator<string>
 ```
 
-### `Validator.number`
+### `Validator.Number`
 
 Validates that a value is numeric.
 
 ```luau
-Reactily.Validator.number(message: string?): validator<any>
+Reactily.Validator.Number(message: string?): validator<any>
 ```
 
-### `Validator.pattern`
+### `Validator.Pattern`
 
 Validates a Lua string pattern.
 
 ```luau
-Reactily.Validator.pattern(pattern: string, message: string?): validator<string>
+Reactily.Validator.Pattern(pattern: string, message: string?): validator<string>
 ```
 
-### `Validator.range`
+### `Validator.Range`
 
 Validates a numeric range inclusively.
 
 ```luau
-Reactily.Validator.range(minimum: number, maximum: number, message: string?): validator<number>
+Reactily.Validator.Range(minimum: number, maximum: number, message: string?): validator<number>
 ```
 
-### `Validator.required`
+### `Validator.Required`
 
 Validates that a value is present and non-empty when it is a string.
 
 ```luau
-Reactily.Validator.required(message: string?): validator<any>
+Reactily.Validator.Required(message: string?): validator<any>
 ```

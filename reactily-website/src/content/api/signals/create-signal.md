@@ -23,7 +23,9 @@ A `Signal<T>`.
 
 ## Usage
 ```luau
-local selected = Reactily.createSignal<number>()
-selected.connect(print)
-selected.fire(5)
+local Selected = Reactily.createSignal<number>()
+local Connection = Selected.Connect(print)
+Selected.Fire(5)
+Connection.Disconnect()
+Selected.Delete()
 ```

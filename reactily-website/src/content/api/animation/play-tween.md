@@ -27,13 +27,13 @@ Reactily.playTween(
 
 ## Returns
 
-An owned Reactily animation wrapper.
+An owned Reactily animation handle with `Play()`, `Cancel()`, `Delete()`, `IsDeleted()`, and `OnCompleted()` methods.
 
 ## Usage
 ```luau
-local Animation = Reactily.playTween(frame, {
+local Animation = Reactily.playTween(Frame, {
 	BackgroundTransparency = 0,
 }, {
-	Time = .2,
+	Time = 0.2,
 })
 ```

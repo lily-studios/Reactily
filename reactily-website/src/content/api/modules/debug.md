@@ -11,18 +11,18 @@ description: Public Reactily Debug module.
 
 ## Methods
 
-### `Debug.formatTree`
+### `Debug.FormatTree`
 
 Formats a root inspection snapshot as a readable tree.
 
 ```luau
-Reactily.Debug.formatTree(snapshot: any): string
+Reactily.Debug.FormatTree(snapshot: any): string
 ```
 
-### `Debug.inspect`
+### `Debug.Inspect`
 
 Returns profiler information and a formatted runtime tree for a root.
 
 ```luau
-Reactily.Debug.inspect(rootValue: any): any
+Reactily.Debug.Inspect(rootValue: any): any
 ```

@@ -11,18 +11,18 @@ description: Public Reactily SafeArea module.
 
 ## Methods
 
-### `SafeArea.getInsets`
+### `SafeArea.GetInsets`
 
 Returns current Roblox GUI inset values in pixels.
 
 ```luau
-Reactily.SafeArea.getInsets(): insets
+Reactily.SafeArea.GetInsets(): SafeAreaInsets
 ```
 
-### `SafeArea.padding`
+### `SafeArea.Padding`
 
 Creates a UIPadding element from current Roblox GUI insets.
 
 ```luau
-Reactily.SafeArea.padding(): elementModule.Element
+Reactily.SafeArea.Padding(): Reactily.Element
 ```

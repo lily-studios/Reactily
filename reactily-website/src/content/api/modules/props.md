@@ -11,50 +11,50 @@ description: Public Reactily Props module.
 
 ## Methods
 
-### `Props.defaults`
+### `Props.Defaults`
 
 Returns a copy of props with missing values filled from defaults.
 
 ```luau
-Reactily.Props.defaults<T>(props: T, defaults: PropMap): T
+Reactily.Props.Defaults<T>(props: T, defaults: PropMap): T
 ```
 
-### `Props.equal`
+### `Props.Equal`
 
 Returns whether two prop tables are shallowly equal.
 
 ```luau
-Reactily.Props.equal(first: PropMap, second: PropMap): boolean
+Reactily.Props.Equal(first: PropMap, second: PropMap): boolean
 ```
 
-### `Props.changed`
+### `Props.Changed`
 
 Returns changed current values plus keys that were removed.
 
 ```luau
-Reactily.Props.changed(previous: PropMap, current: PropMap): (PropMap, { any })
+Reactily.Props.Changed(previous: PropMap, current: PropMap): (PropMap, { any })
 ```
 
-### `Props.merge`
+### `Props.Merge`
 
 Merges prop tables from left to right without mutating any input.
 
 ```luau
-Reactily.Props.merge(...: PropMap): PropMap
+Reactily.Props.Merge(...: PropMap): PropMap
 ```
 
-### `Props.omit`
+### `Props.Omit`
 
 Returns a copy without the supplied keys.
 
 ```luau
-Reactily.Props.omit(props: PropMap, keys: { any }): PropMap
+Reactily.Props.Omit(props: PropMap, keys: { any }): PropMap
 ```
 
-### `Props.pick`
+### `Props.Pick`
 
 Returns a new table containing only the supplied keys.
 
 ```luau
-Reactily.Props.pick(props: PropMap, keys: { any }): PropMap
+Reactily.Props.Pick(props: PropMap, keys: { any }): PropMap
 ```

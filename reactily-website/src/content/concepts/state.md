@@ -19,11 +19,13 @@ Atoms are useful outside component-local state:
 ```luau
 local count = Reactily.createAtom(0)
 
-count.subscribe(function(value)
-	print(value)
+local Connection = count.Subscribe(function(change: Reactily.AtomChange<number>)
+    print(change.Current)
 end)
 
-count.set(1)
+count.Set(1)
+Connection.Disconnect()
+count.Delete()
 ```
 Reactily avoids downstream work when the resolved value has not changed.
 

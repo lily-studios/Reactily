@@ -11,10 +11,10 @@ description: Public Reactily Shortcut module.
 
 ## Methods
 
-### `Shortcut.create`
+### `Shortcut.Create`
 
 Creates an owned keyboard shortcut.
 
 ```luau
-Reactily.Shortcut.create(options: ShortcutOptions, callback: () -> ()): inputModule.InputBinding
+Reactily.Shortcut.Create(options: ShortcutOptions, callback: () -> ()): InputBinding
 ```

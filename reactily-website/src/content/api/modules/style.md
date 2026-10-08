@@ -11,58 +11,58 @@ description: Public Reactily style module.
 
 ## Methods
 
-### `Style.create`
+### `Style.Create`
 
 Creates a frozen reusable style table.
 
 ```luau
-Reactily.Style.create(values: Style): Style
+Reactily.Style.Create(values: Style): Style
 ```
 
-### `Style.variant`
+### `Style.Variant`
 
 Resolves a base style and named variant into one style table.
 
 ```luau
-Reactily.Style.variant(definition: VariantStyle, variant: string?): Style
+Reactily.Style.Variant(definition: VariantStyle, variant: string?): Style
 ```
 
-### `Style.apply`
+### `Style.Apply`
 
 Applies a style to a property table without mutating the original table.
 
 ```luau
-Reactily.Style.apply<T>(properties: T, styleValue: Style): T
+Reactily.Style.Apply<T>(properties: T, styleValue: Style): T
 ```
 
-### `Style.merge`
+### `Style.Merge`
 
 Merges multiple style tables without mutating the input styles.
 
 ```luau
-Reactily.Style.merge(styles: { Style }): Style
+Reactily.Style.Merge(styles: { Style }): Style
 ```
 
-### `Style.when`
+### `Style.When`
 
 Returns a style only when the supplied condition is true.
 
 ```luau
-Reactily.Style.when(condition: boolean, styleValue: Style): Style
+Reactily.Style.When(condition: boolean, styleValue: Style): Style
 ```
 
-### `Style.without`
+### `Style.Without`
 
 Creates a style without one specified property.
 
 ```luau
-Reactily.Style.without(styleValue: Style, property: string): Style
+Reactily.Style.Without(styleValue: Style, property: string): Style
 ```
 
-### `Style.withProperty`
+### `Style.WithProperty`
 
 Creates a style with one property assigned to a new value.
 
 ```luau
-Reactily.Style.withProperty(styleValue: Style, property: string, value: any): Style
+Reactily.Style.WithProperty(styleValue: Style, property: string, value: any): Style
 ```

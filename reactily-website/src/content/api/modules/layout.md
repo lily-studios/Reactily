@@ -11,50 +11,50 @@ description: Public Reactily Layout module.
 
 ## Methods
 
-### `Layout.horizontal`
+### `Layout.Horizontal`
 
 Creates a transparent horizontal list container.
 
 ```luau
-Reactily.Layout.horizontal(options: ListOptions?, children: { any }): elementModule.Element
+Reactily.Layout.Horizontal(options: ListOptions?, children: { any }): Reactily.Element
 ```
 
-### `Layout.vertical`
+### `Layout.Vertical`
 
 Creates a transparent vertical list container.
 
 ```luau
-Reactily.Layout.vertical(options: ListOptions?, children: { any }): elementModule.Element
+Reactily.Layout.Vertical(options: ListOptions?, children: { any }): Reactily.Element
 ```
 
-### `Layout.wrap`
+### `Layout.Wrap`
 
 Creates a transparent wrapping list container.
 
 ```luau
-Reactily.Layout.wrap(options: ListOptions?, children: { any }): elementModule.Element
+Reactily.Layout.Wrap(options: ListOptions?, children: { any }): Reactily.Element
 ```
 
-### `Layout.grid`
+### `Layout.Grid`
 
 Creates a grid container backed by UIGridLayout.
 
 ```luau
-Reactily.Layout.grid(options: GridOptions, children: { any }): elementModule.Element
+Reactily.Layout.Grid(options: GridOptions, children: { any }): Reactily.Element
 ```
 
-### `Layout.stack`
+### `Layout.Stack`
 
 Creates a transparent stacking container where children share the same bounds.
 
 ```luau
-Reactily.Layout.stack(options: CommonOptions?, children: { any }): elementModule.Element
+Reactily.Layout.Stack(options: CommonOptions?, children: { any }): Reactily.Element
 ```
 
-### `Layout.center`
+### `Layout.Center`
 
 Creates a container whose children are centered by UIListLayout.
 
 ```luau
-Reactily.Layout.center(options: CommonOptions?, children: { any }): elementModule.Element
+Reactily.Layout.Center(options: CommonOptions?, children: { any }): Reactily.Element
 ```

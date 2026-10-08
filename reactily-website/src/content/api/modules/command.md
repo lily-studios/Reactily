@@ -11,10 +11,10 @@ description: Public Reactily command module.
 
 ## Methods
 
-### `Command.create`
+### `Command.Create`
 
 Creates a command registry that can share actions across buttons, menus, and shortcuts.
 
 ```luau
-Reactily.Command.create(): CommandRegistry
+Reactily.Command.Create(): CommandRegistry
 ```

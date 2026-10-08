@@ -11,34 +11,34 @@ description: Public Reactily virtualList module.
 
 ## Methods
 
-### `VirtualList.resolve`
+### `VirtualList.Resolve`
 
 Resolves a visible range for a fixed-size virtual list.
 
 ```luau
-Reactily.VirtualList.resolve( itemCount: number, itemSize: number, scrollOffset: number, viewportSize: number, overscan: number? ): range
+Reactily.VirtualList.Resolve( itemCount: number, itemSize: number, scrollOffset: number, viewportSize: number, overscan: number? ): VirtualRange
 ```
 
-### `VirtualList.new`
+### `VirtualList.New`
 
 Creates a small stateful virtual-list range controller.
 
 ```luau
-Reactily.VirtualList.new(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): VirtualList
+Reactily.VirtualList.New(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): VirtualList
 ```
 
-### `VirtualList.slice`
+### `VirtualList.Slice`
 
 Returns the items contained inside a resolved virtual range.
 
 ```luau
-Reactily.VirtualList.slice<T>(items: { T }, rangeValue: range): { T }
+Reactily.VirtualList.Slice<T>(items: { T }, rangeValue: VirtualRange): { T }
 ```
 
-### `VirtualList.render`
+### `VirtualList.Render`
 
 Creates a virtualized vertical ScrollingFrame element for a fixed-size item list.
 
 ```luau
-Reactily.VirtualList.render<T>(options: renderOptions<T>): elementModule.Element
+Reactily.VirtualList.Render<T>(options: VirtualListRenderOptions<T>): Reactily.Element
 ```

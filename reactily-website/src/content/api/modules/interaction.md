@@ -11,10 +11,10 @@ description: Public Reactily Interaction module.
 
 ## Methods
 
-### `Interaction.bind`
+### `Interaction.Bind`
 
 Binds hover, pressed, focused, and disabled visual states to a GuiObject.
 
 ```luau
-Reactily.Interaction.bind(object: GuiObject, options: InteractionOptions): InteractionController
+Reactily.Interaction.Bind(object: GuiObject, options: InteractionOptions): InteractionController
 ```

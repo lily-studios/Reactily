@@ -15,12 +15,12 @@ Reactily.parallelAnimations(animations: {AnimationPlayable}): AnimationGroup
 ```
 ## Usage
 ```luau
-local group = Reactily.parallelAnimations({
+local Group = Reactily.parallelAnimations({
 	firstAnimation,
 	secondAnimation,
 })
 
-group.play()
+Group.Play()
 ```
 ## Works with
 

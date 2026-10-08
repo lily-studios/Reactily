@@ -11,18 +11,18 @@ description: Public Reactily Focus module.
 
 ## Methods
 
-### `Focus.clearSelection`
+### `Focus.ClearSelection`
 
 Clears the current Roblox GUI selection.
 
 ```luau
-Reactily.Focus.clearSelection()
+Reactily.Focus.ClearSelection()
 ```
 
-### `Focus.new`
+### `Focus.New`
 
 Creates a focus group with forward/backward navigation.
 
 ```luau
-Reactily.Focus.new(): FocusGroup
+Reactily.Focus.New(): FocusGroup
 ```

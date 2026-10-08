@@ -11,26 +11,26 @@ description: Public Reactily Input module.
 
 ## Methods
 
-### `Input.bind`
+### `Input.Bind`
 
 Binds a filtered UserInputService InputBegan callback.
 
 ```luau
-Reactily.Input.bind( predicate: (input: InputObject) -> boolean, callback: (input: InputObject) -> (), options: InputOptions? ): InputBinding
+Reactily.Input.Bind( predicate: (input: InputObject) -> boolean, callback: (input: InputObject) -> (), options: InputOptions? ): InputBinding
 ```
 
-### `Input.bindKey`
+### `Input.BindKey`
 
 Binds a keyboard key with optional required modifiers.
 
 ```luau
-Reactily.Input.bindKey(keyCode: Enum.KeyCode, callback: (input: InputObject) -> (), options: KeyOptions?): InputBinding
+Reactily.Input.BindKey(keyCode: Enum.KeyCode, callback: (input: InputObject) -> (), options: KeyOptions?): InputBinding
 ```
 
-### `Input.bindType`
+### `Input.BindType`
 
 Binds a UserInputType such as mouse or touch input.
 
 ```luau
-Reactily.Input.bindType( inputType: Enum.UserInputType, callback: (input: InputObject) -> (), options: InputOptions? ): InputBinding
+Reactily.Input.BindType( inputType: Enum.UserInputType, callback: (input: InputObject) -> (), options: InputOptions? ): InputBinding
 ```

@@ -27,6 +27,6 @@ A `HistoryAtom<T>` with undo/redo history.
 ## Usage
 ```luau
 local Position = Reactily.createHistoryAtom(Vector2.zero, 100)
-position.set(Vector2.new(20, 10))
-position.undo()
+Position.Set(Vector2.new(20, 10))
+Position.Undo()
 ```

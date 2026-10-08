@@ -15,13 +15,13 @@ Reactily.sequenceAnimations(animations: {AnimationPlayable}): AnimationGroup
 ```
 ## Usage
 ```luau
-local group = Reactily.sequenceAnimations({
+local Group = Reactily.sequenceAnimations({
 	firstAnimation,
 	Reactily.createAnimationDelay(.1),
 	secondAnimation,
 })
 
-group.play()
+Group.Play()
 ```
 ## Works with
 

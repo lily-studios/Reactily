@@ -11,18 +11,18 @@ description: Public Reactily Motion module.
 
 ## Methods
 
-### `Motion.create`
+### `Motion.Create`
 
 Creates a Reactily animation without playing it.
 
 ```luau
-Reactily.Motion.create(instance: Instance, goals: { [string]: any }, options: MotionOptions?): animationModule.Animation
+Reactily.Motion.Create(instance: Instance, goals: { [string]: any }, options: MotionOptions?): Reactily.Animation
 ```
 
-### `Motion.play`
+### `Motion.Play`
 
 Plays a Roblox property animation immediately.
 
 ```luau
-Reactily.Motion.play(instance: Instance, goals: { [string]: any }, options: MotionOptions?): animationModule.Animation
+Reactily.Motion.Play(instance: Instance, goals: { [string]: any }, options: MotionOptions?): Reactily.Animation
 ```

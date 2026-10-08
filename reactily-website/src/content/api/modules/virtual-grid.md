@@ -11,18 +11,18 @@ description: Public Reactily VirtualGrid module.
 
 ## Methods
 
-### `VirtualGrid.resolve`
+### `VirtualGrid.Resolve`
 
 Resolves the visible item range for a fixed-size grid.
 
 ```luau
-Reactily.VirtualGrid.resolve( itemCount: number, cellWidth: number, cellHeight: number, viewportWidth: number, viewportHeight: number, scrollOffsetY: number, horizontalGap: number?, verticalGap: number?, overscanRows: number? ): GridRange
+Reactily.VirtualGrid.Resolve( itemCount: number, cellWidth: number, cellHeight: number, viewportWidth: number, viewportHeight: number, scrollOffsetY: number, horizontalGap: number?, verticalGap: number?, overscanRows: number? ): GridRange
 ```
 
-### `VirtualGrid.render`
+### `VirtualGrid.Render`
 
 Creates a virtualized vertical ScrollingFrame element for a fixed-cell grid.
 
 ```luau
-Reactily.VirtualGrid.render<T>(options: renderOptions<T>): elementModule.Element
+Reactily.VirtualGrid.Render<T>(options: VirtualGridRenderOptions<T>): Reactily.Element
 ```

@@ -11,58 +11,58 @@ description: Public Reactily Profiler module.
 
 ## Methods
 
-### `Profiler.clear`
+### `Profiler.Clear`
 
 Clears all collected profiler data.
 
 ```luau
-Reactily.Profiler.clear()
+Reactily.Profiler.Clear()
 ```
 
-### `Profiler.isEnabled`
+### `Profiler.IsEnabled`
 
 Returns whether component profiling is enabled.
 
 ```luau
-Reactily.Profiler.isEnabled(): boolean
+Reactily.Profiler.IsEnabled(): boolean
 ```
 
-### `Profiler.get`
+### `Profiler.Get`
 
 Returns a copy of profile data for one component.
 
 ```luau
-Reactily.Profiler.get(componentValue: Component): ComponentProfile?
+Reactily.Profiler.Get(componentValue: Component): ComponentProfile?
 ```
 
-### `Profiler.snapshot`
+### `Profiler.Snapshot`
 
 Returns all currently collected component profiles.
 
 ```luau
-Reactily.Profiler.snapshot(): profileMap
+Reactily.Profiler.Snapshot(): profileMap
 ```
 
-### `Profiler.getSlowComponents`
+### `Profiler.GetSlowComponents`
 
 Returns the slowest recorded components ordered by average render time.
 
 ```luau
-Reactily.Profiler.getSlowComponents(limit: number?): { slowComponent }
+Reactily.Profiler.GetSlowComponents(limit: number?): { slowComponent }
 ```
 
-### `Profiler.record`
+### `Profiler.Record`
 
 Records one component render when profiling is enabled.
 
 ```luau
-Reactily.Profiler.record(componentValue: Component, duration: number, reason: string)
+Reactily.Profiler.Record(componentValue: Component, duration: number, reason: string)
 ```
 
-### `Profiler.setEnabled`
+### `Profiler.SetEnabled`
 
 Enables or disables component profiling.
 
 ```luau
-Reactily.Profiler.setEnabled(value: boolean)
+Reactily.Profiler.SetEnabled(value: boolean)
 ```

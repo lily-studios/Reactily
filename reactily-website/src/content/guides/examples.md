@@ -4,7 +4,7 @@ title: Examples
 description: Practical, copyable Luau patterns for Reactily v2.1.0.
 ---
 
-The examples below follow the [v2.1.0 release](https://github.com/lily-studios/Reactily/releases/tag/v2.1.0). Public function names stay camelCase, exported types and Roblox host properties use PascalCase, and render roots expose `render()` and `delete()`.
+The examples below follow the [v2.1.0 release](https://github.com/lily-studios/Reactily/releases/tag/v2.1.0). Public function names stay camelCase, exported types and Roblox host properties use PascalCase, and render roots expose `render()` and `Delete()`.
 
 ## Before you begin
 
@@ -83,12 +83,12 @@ Root.render(Panel)
 
 ```luau
 local CounterAtom = Reactily.createAtom(0)
-local Connection = CounterAtom.subscribe(function(value: number)
-    print("Count:", value)
+local Connection = CounterAtom.Subscribe(function(change: Reactily.AtomChange<number>)
+    print("Count:", change.Current)
 end)
 
-CounterAtom.set(1)
-Connection()
+CounterAtom.Set(1)
+Connection.Disconnect()
 ```
 
 Subscriptions must be cleaned up when no longer needed. Check the [atom reference](/docs/api/state/create-atom) for its precise subscription contract.
@@ -136,7 +136,7 @@ local Animation = Reactily.playTween(Frame, {
 })
 
 -- When this animation is no longer needed:
--- Animation.delete()
+-- Animation.Delete()
 ```
 
 [Animation reference](/docs/api/animation/play-tween) covers the owned animation handle.
@@ -146,7 +146,7 @@ local Animation = Reactily.playTween(Frame, {
 **Use this for:** Closing an interface or disposing of a local UI controller.
 
 ```luau
-Root.delete()
+Root.Delete()
 ```
 
 Do not continue rendering into a root after deleting it. Use Roblox's own `:Destroy()` and `:Disconnect()` methods for Roblox-owned resources.

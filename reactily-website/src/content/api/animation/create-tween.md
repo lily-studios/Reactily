@@ -27,14 +27,14 @@ Reactily.createTween(
 
 ## Returns
 
-An owned Reactily animation wrapper.
+An owned `Animation` handle with PascalCase `Play()`, `Cancel()`, `Delete()`, and `IsDeleted()` methods.
 
 ## Usage
 ```luau
-local Animation = Reactily.createTween(frame, {
+local Animation = Reactily.createTween(Frame, {
 	BackgroundTransparency = 0,
 }, {
-	Time = .2,
+	Time = 0.2,
 })
-Animation.play()
+Animation.Play()
 ```

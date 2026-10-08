@@ -11,18 +11,18 @@ description: Public Reactily component module.
 
 ## Methods
 
-### `Component.create`
+### `Component.Create`
 
 Creates a reusable function component with optional default props.
 
 ```luau
-Reactily.Component.create<P>( render: (props: P) -> elementModule.Element?, options: ComponentOptions<P>? ): elementModule.Component<P>
+Reactily.Component.Create<P>( render: (props: P) -> Reactily.Element?, options: ComponentOptions<P>? ): Reactily.Component<P>
 ```
 
-### `Component.withDefaults`
+### `Component.WithDefaults`
 
 Wraps a component with default props while preserving function-component behavior.
 
 ```luau
-Reactily.Component.withDefaults<P>(componentValue: elementModule.Component<P>, defaults: P): elementModule.Component<P>
+Reactily.Component.WithDefaults<P>(componentValue: Reactily.Component<P>, defaults: P): Reactily.Component<P>
 ```

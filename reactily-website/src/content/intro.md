@@ -17,7 +17,7 @@ Reactily is designed for developers who want component-driven UI without giving 
 ## Why use it?
 
 - **Strict typed API:** Public contracts are designed for `--!strict`, autocomplete, and clear ownership.
-- **component-driven UI:** Build interfaces from reusable function components and virtual elements.
+- **Component-driven UI:** Build interfaces from reusable function components and virtual elements.
 - **Explicit lifecycle:** Reactily-owned resources use `.delete()` / `.isDeleted()` instead of hiding cleanup.
 - **Change-only work:** State, UI, and runtime systems avoid work when the resolved value has not changed.
 - **Idle-safe runtime:** Continuous work exists only while a feature actually needs it.
@@ -41,12 +41,12 @@ Reactily may not be the right fit when:
 
 ## API conventions
 
-Reactily-owned APIs use dot calls:
+Reactily public functions use camelCase dot calls; owned resource methods use the exact casing of their exported type:
 ```luau
 local Root = Reactily.createRoot(playerGui)
 
 Root.render(Element)
-Root.delete()
+Root.Delete()
 ```
 Roblox-owned APIs keep Roblox syntax:
 ```luau

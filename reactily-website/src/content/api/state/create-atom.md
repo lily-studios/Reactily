@@ -21,9 +21,15 @@ Reactily.createAtom<T>(initialValue: T): Atom<T>
 
 ## Returns
 
-A `Atom<T>`.
+An `Atom<T>` with PascalCase `Get()`, `Set()`, `Update()`, `Subscribe()`, `Delete()`, and `IsDeleted()` methods.
 
 ## Usage
 ```luau
-local level = Reactily.createAtom(.7)
+local Level = Reactily.createAtom(0.7)
+local Connection = Level.Subscribe(function(change: Reactily.AtomChange<number>)
+    print(change.Previous, change.Current)
+end)
+Level.Set(0.9)
+Connection.Disconnect()
+Level.Delete()
 ```

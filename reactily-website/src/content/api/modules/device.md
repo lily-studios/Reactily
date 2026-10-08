@@ -11,10 +11,10 @@ description: Public Reactily Device module.
 
 ## Methods
 
-### `Device.create`
+### `Device.Create`
 
 Creates an event-driven monitor for Roblox device and viewport capabilities.
 
 ```luau
-Reactily.Device.create(): DeviceMonitor
+Reactily.Device.Create(): DeviceMonitor
 ```

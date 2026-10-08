@@ -54,4 +54,4 @@ A portal renders a subtree into a different Roblox parent while maintaining the 
 
 ## Cleanup
 
-Call `Root.delete()` to release the root. For more detail see [Lifecycle](/docs/concepts/lifecycle) and [Examples](/docs/guides/examples).
+Call `Root.Delete()` to release the root (`Root.render()` intentionally remains lowercase). For more detail see [Lifecycle](/docs/concepts/lifecycle) and [Examples](/docs/guides/examples).

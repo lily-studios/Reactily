@@ -11,10 +11,10 @@ description: Public Reactily Responsive module.
 
 ## Methods
 
-### `Responsive.resolve`
+### `Responsive.Resolve`
 
 Resolves a responsive value from viewport width.
 
 ```luau
-Reactily.Responsive.resolve<T>(viewportSize: Vector2, values: breakpointValues<T>, options: breakpoints?): T
+Reactily.Responsive.Resolve<T>(viewportSize: Vector2, values: ResponsiveValues<T>, options: ResponsiveBreakpoints?): T
 ```

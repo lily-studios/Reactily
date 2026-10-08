@@ -11,10 +11,10 @@ description: Public Reactily measure module.
 
 ## Methods
 
-### `Measure.create`
+### `Measure.Create`
 
 Observes AbsolutePosition and AbsoluteSize for a GuiObject.
 
 ```luau
-Reactily.Measure.create(object: GuiObject): Measure
+Reactily.Measure.Create(object: GuiObject): Measure
 ```

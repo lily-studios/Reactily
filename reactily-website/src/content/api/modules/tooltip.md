@@ -11,10 +11,10 @@ description: Public Reactily tooltip module.
 
 ## Methods
 
-### `Tooltip.attach`
+### `Tooltip.Attach`
 
 Attaches an owned tooltip to a GuiObject.
 
 ```luau
-Reactily.Tooltip.attach(parent: Instance, target: GuiObject, text: string, options: TooltipOptions?): Tooltip
+Reactily.Tooltip.Attach(parent: Instance, target: GuiObject, text: string, options: TooltipOptions?): Tooltip
 ```

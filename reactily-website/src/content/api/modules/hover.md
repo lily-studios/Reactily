@@ -11,10 +11,10 @@ description: Public Reactily Hover module.
 
 ## Methods
 
-### `Hover.bind`
+### `Hover.Bind`
 
 Binds a hover style and automatically restores the original Roblox property values.
 
 ```luau
-Reactily.Hover.bind( object: GuiObject, Style: interactionModule.InteractionStyle ): interactionModule.InteractionController
+Reactily.Hover.Bind( object: GuiObject, style: Reactily.InteractionStyle ): Reactily.InteractionController
 ```

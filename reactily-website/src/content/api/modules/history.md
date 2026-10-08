@@ -11,10 +11,10 @@ description: Public Reactily History module.
 
 ## Methods
 
-### `History.create`
+### `History.Create`
 
 Creates bounded undo/redo history.
 
 ```luau
-Reactily.History.create<T>(initialValue: T, capacity: number?): history<T>
+Reactily.History.Create<T>(initialValue: T, capacity: number?): history<T>
 ```
