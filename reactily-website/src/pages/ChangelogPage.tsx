@@ -10,6 +10,7 @@ import {
   releaseDescription,
 } from "../lib/changelog";
 import type { GitHubRelease } from "../lib/changelog";
+import { highestNumberedReleaseTag, isSupersededRelease } from "../lib/release-lifecycle";
 
 type LoadStatus = "loading" | "ready" | "error";
 
@@ -29,7 +30,7 @@ export function ChangelogPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [refreshCount, setRefreshCount] = useState(0);
   const latestStable = releases.find((release) => getReleaseChannel(release) === "stable");
-
+  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag_name));
 
   useEffect(() => {
     const controller = new AbortController();
@@ -105,8 +106,11 @@ export function ChangelogPage() {
                       <span className="changelogExperimental">Experimental</span>
                     ) : getReleaseChannel(release) === "prerelease" ? (
                       <span className="changelogPrerelease">Pre-release</span>
-                    ) : release.id === latestStable?.id ? (
+                    ) : release.id === latestStable?.id && !isSupersededRelease(release.tag_name, highestTag) ? (
                       <span className="changelogLatest">Latest</span>
+                    ) : null}
+                    {isSupersededRelease(release.tag_name, highestTag) ? (
+                      <span className="changelogDeprecated">Deprecated</span>
                     ) : null}
                   </a>
                 </li>
@@ -138,8 +142,11 @@ export function ChangelogPage() {
                         <span className="changelogExperimental">Experimental</span>
                       ) : getReleaseChannel(release) === "prerelease" ? (
                         <span className="changelogPrerelease">Pre-release</span>
-                      ) : release.id === latestStable?.id ? (
+                      ) : release.id === latestStable?.id && !isSupersededRelease(release.tag_name, highestTag) ? (
                         <span className="changelogLatest">Latest stable</span>
+                      ) : null}
+                      {isSupersededRelease(release.tag_name, highestTag) ? (
+                        <span className="changelogDeprecated">Deprecated version</span>
                       ) : null}
                     </div>
                     <h2 id={`release-heading-${release.id}`}>{release.name || `Reactily ${release.tag_name}`}</h2>
@@ -149,6 +156,11 @@ export function ChangelogPage() {
                   </a>
                 </div>
 
+                {isSupersededRelease(release.tag_name, highestTag) ? (
+                  <p className="changelogOutdatedNotice">
+                    This release is superseded by {highestTag}. Its release notes and archived documentation remain available.
+                  </p>
+                ) : null}
                 <div className="changelogBody">
                   {releaseDescription(release.body) ? (
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>

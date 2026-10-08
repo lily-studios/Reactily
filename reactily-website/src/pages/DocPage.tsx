@@ -6,11 +6,14 @@ import { MarkdownArticle } from "../components/MarkdownArticle";
 import { TableOfContents } from "../components/TableOfContents";
 import { extractHeadings, isDocDeprecated, labelForCategory } from "../lib/docs";
 import { reactilyRuntime } from "../lib/runtime";
+import { highestNumberedReleaseTag, isSupersededRelease } from "../lib/release-lifecycle";
 import { useVersionedDocs } from "../lib/versioned-docs";
 
 export function DocPage() {
   const location = useLocation();
-  const { tag, docs, status, error, path } = useVersionedDocs();
+  const { tag, docs, releases, status, error, path } = useVersionedDocs();
+  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag));
+  const outdatedVersion = tag !== null && isSupersededRelease(tag, highestTag);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const slug = location.pathname.replace(/\/$/, "") || "/docs/intro";
   const doc = docs.find((record) => record.slug === slug);
@@ -78,6 +81,15 @@ export function DocPage() {
           </h1>
           <p>{doc.description}</p>
         </header>
+        {outdatedVersion ? (
+          <div className="deprecatedNotice deprecatedNotice--release" role="note" aria-label="Deprecated release notice">
+            <TriangleAlert size={18} aria-hidden="true" />
+            <div>
+              <strong>Deprecated version: {tag}</strong>
+              <p>A higher numbered release ({highestTag}) is available. This page documents the original {tag} release; individual APIs are only deprecated when explicitly marked.</p>
+            </div>
+          </div>
+        ) : null}
         {doc.experimental ? (
           <div className="experimentalNotice experimentalNotice--page" role="note" aria-label="Experimental API warning">
             <TriangleAlert size={18} aria-hidden="true" />

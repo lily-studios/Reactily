@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 import { useVersionedDocs } from "../lib/versioned-docs";
 import { reactilyRuntime } from "../lib/runtime";
+import { highestNumberedReleaseTag, isSupersededRelease } from "../lib/release-lifecycle";
 import { HighlightedCode } from "../components/MarkdownArticle";
 
 function LuauTerminal() {
@@ -30,10 +31,19 @@ function LuauTerminal() {
 }
 
 export function HomePage() {
-  const { tag, docs, path } = useVersionedDocs();
+  const { tag, docs, releases, path } = useVersionedDocs();
+  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag));
+  const outdatedVersion = tag !== null && isSupersededRelease(tag, highestTag);
   const apiDocs = docs.filter((doc) => doc.sourcePath.startsWith("api/"));
   return (
     <main>
+      {outdatedVersion ? (
+        <div className="container deprecatedNotice deprecatedNotice--release" role="note">
+          <div><strong>Deprecated version: {tag}</strong>
+            <p>A higher version ({highestTag}) is available. Documentation for {tag} remains accessible.</p>
+          </div>
+        </div>
+      ) : null}
       <section className="heroSection">
         <div className="container heroLayout">
           <div className="heroCopy">

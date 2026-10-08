@@ -5,10 +5,13 @@ import { Link } from "react-router";
 import { isDocDeprecated, makeApiGroups } from "../lib/docs";
 import { useVersionedDocs } from "../lib/versioned-docs";
 import { reactilyRuntime } from "../lib/runtime";
+import { highestNumberedReleaseTag, isSupersededRelease } from "../lib/release-lifecycle";
 
 export function ApiPage() {
   const [query, setQuery] = useState("");
-  const { tag, docs, status, error, path } = useVersionedDocs();
+  const { tag, docs, releases, status, error, path } = useVersionedDocs();
+  const highestTag = highestNumberedReleaseTag(releases.map((release) => release.tag));
+  const outdatedVersion = tag !== null && isSupersededRelease(tag, highestTag);
   const apiGroups = useMemo(() => makeApiGroups(docs), [docs]);
   const apiCount = apiGroups.reduce((sum, group) => sum + group.docs.length, 0);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
@@ -55,6 +58,13 @@ export function ApiPage() {
         </div>
       </section>
 
+      {status === "ready" && outdatedVersion ? (
+        <div className="container deprecatedNotice deprecatedNotice--release" role="note">
+          <div><strong>Deprecated version: {tag}</strong>
+            <p>A newer release ({highestTag}) exists. These APIs are preserved from {tag}; this does not automatically deprecate each API.</p>
+          </div>
+        </div>
+      ) : null}
       {status === "loading" ? <div className="container versionDocsMessage" role="status">Loading {tag} documentation…</div> : null}
       {status === "error" ? <div className="container versionDocsMessage" role="alert">{error}</div> : null}
       {status === "ready" && tag ? <p className="container versionDocsCaption">Documented APIs for Reactily {tag}. Other releases may have different APIs.</p> : null}

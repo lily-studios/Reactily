@@ -778,3 +778,20 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
 :root .markdownBody .codeBlock .deprecatedNotice--code strong {
   color: #f0c17f;
 }
+
+/* Automatically superseded release labels; distinct from per-API deprecations. */
+:root .versionReleaseOptionStatus--deprecated,
+:root .headerActions .versionSelectorShell .versionReleaseStatus--deprecated { color: #f0c17f; }
+:root[data-theme="light"] .versionReleaseOptionStatus--deprecated,
+:root[data-theme="light"] .headerActions .versionSelectorShell .versionReleaseStatus--deprecated { color: #8a551e; }
+:root .deprecatedNotice--release {
+  max-width: 100%;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+:root .deprecatedNotice--release p {
+  max-width: 85ch;
+}
+.versionReleaseOption .versionReleaseOptionStatus--deprecated {
+  font-size: 10px;
+}

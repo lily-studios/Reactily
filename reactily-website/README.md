@@ -113,3 +113,9 @@ Mark an individual code example without changing the entire page:
 ````
 
 Only APIs present in a release's source archive should be documented for that version. Never reuse newer API examples under an older release label.
+
+## Automatic deprecated-version labels
+
+When a numbered GitHub release is published, every release with a lower numeric version is automatically labeled **Deprecated** in the version menu, changelog, and documentation views. Version comparisons work with tags such as `v1`, `v1.1`, `v1.1.0`, `v.2.0`, `2.0.1-beta`, and `v2.1.1 Experimental`. Missing numeric components are interpreted as zero, so `v1.1` and `v1.1.0` represent the same number. Channel labels (Stable, Pre-release, Experimental) remain independent. An Experimental release can supersede an older stable release without becoming the default stable documentation.
+
+Purely word-based tags without a version number cannot be numerically compared and are not automatically marked deprecated. Deprecating a **release** is different from deprecating individual APIs: API deprecation still requires `deprecated: true` or `deprecated_since` in the API Markdown. Older release docs remain accessible and unchanged.

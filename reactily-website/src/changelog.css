@@ -148,3 +148,16 @@
 /* Experimental entries are distinct from stable and prerelease entries. */
 :root .changelogExperimental { color: #c6adff; }
 :root[data-theme="light"] .changelogExperimental { color: #7251a8; }
+
+/* Automatically superseded versions, independent of their release channel. */
+:root .changelogDeprecated { color: #f0c17f; font-weight: 750; }
+:root[data-theme="light"] .changelogDeprecated { color: #8a551e; }
+.changelogOutdatedNotice {
+  margin: 0;
+  padding: 10px clamp(20px, 3vw, 30px);
+  color: var(--muted-strong);
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid #b58a56;
+  font-size: 12px;
+  line-height: 1.55;
+}
