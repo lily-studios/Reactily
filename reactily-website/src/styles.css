@@ -3332,3 +3332,20 @@ body {
   :root .terminalCode,
   :root .markdownBody .codeBlock pre { padding: 16px; }
 }
+
+/* Homepage terminal — neutral soft black in both themes. */
+:root .heroSection .terminalCard,
+:root[data-theme="light"] .heroSection .terminalCard {
+  background: #1c1c1f;
+  border-color: #3b3b40;
+  border-radius: 16px;
+}
+:root .heroSection .terminalTopbar,
+:root[data-theme="light"] .heroSection .terminalTopbar {
+  background: #262629;
+  border-bottom-color: #3b3b40;
+}
+:root .heroSection .terminalCode,
+:root[data-theme="light"] .heroSection .terminalCode {
+  background: #1c1c1f;
+}
