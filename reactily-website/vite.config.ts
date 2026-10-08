@@ -103,7 +103,7 @@ function spa404Plugin(base: string): Plugin {
       target.pathname + target.search + target.hash
     );
   } catch (_) {
-    // Continue loading even if storage is unavailable.
+    // Continue loading if storage is unavailable.
   }
 })();
 `;
@@ -134,7 +134,7 @@ function spa404Plugin(base: string): Plugin {
             requested
           );
         } catch (_) {
-          // Continue to the homepage when storage is blocked.
+          // Continue when storage is unavailable.
         }
 
         window.location.replace(base);
@@ -151,7 +151,7 @@ function spa404Plugin(base: string): Plugin {
     name: "reactily-github-pages-spa",
     apply: "build",
 
-    // Restore the route before application scripts run.
+    // Restore the original path before React loads.
     transformIndexHtml() {
       return [
         {
@@ -162,7 +162,7 @@ function spa404Plugin(base: string): Plugin {
       ];
     },
 
-    // Generate dist/404.html automatically.
+    // Generate a GitHub Pages SPA fallback.
     generateBundle() {
       this.emitFile({
         type: "asset",
@@ -207,83 +207,9 @@ export default defineConfig(({ command }) => {
       emptyOutDir: true,
       cssCodeSplit: true,
 
-      /* ======================================================
-       * Rolldown Code Splitting
-       * ====================================================== */
-
-      rolldownOptions: {
-        output: {
-          codeSplitting: {
-            groups: [
-              /* ----------------------------------------------
-               * React Core
-               * ---------------------------------------------- */
-
-              {
-                name: "react-core",
-
-                test: /[/\\]node_modules[/\\](?:react|react-dom|scheduler)(?:[/\\]|$)/,
-
-                priority: 40,
-              },
-
-              /* ----------------------------------------------
-               * React Router
-               * ---------------------------------------------- */
-
-              {
-                name: "react-router",
-
-                test: /[/\\]node_modules[/\\](?:react-router|react-router-dom)(?:[/\\]|$)/,
-
-                priority: 30,
-              },
-
-              /* ----------------------------------------------
-               * Markdown Processing
-               * ---------------------------------------------- */
-
-              {
-                name: "markdown",
-
-                test: /[/\\]node_modules[/\\](?:react-markdown|remark-[^/\\]+|rehype-[^/\\]+|unified|micromark)(?:[/\\]|$)/,
-
-                maxSize: 300_000,
-
-                priority: 20,
-              },
-
-              /* ----------------------------------------------
-               * Syntax Highlighting
-               * ---------------------------------------------- */
-
-              {
-                name: "syntax-highlighting",
-
-                test: /[/\\]node_modules[/\\](?:shiki|@shikijs|prismjs|highlight\.js)(?:[/\\]|$)/,
-
-                maxSize: 300_000,
-
-                priority: 15,
-              },
-
-              /* ----------------------------------------------
-               * Other Dependencies
-               * ---------------------------------------------- */
-
-              {
-                name: "dependencies",
-
-                test: /[/\\]node_modules[/\\]/,
-
-                maxSize: 300_000,
-
-                priority: 1,
-              },
-            ],
-          },
-        },
-      },
+      // Use Vite's automatic chunk splitting.
+      // Avoid forced dependency groups that may create
+      // circular imports or initialization-order issues.
     },
   };
 });
