@@ -152,26 +152,7 @@ body { font-size: 15px; line-height: 1.65; }
   line-height: 1.65;
 }
 
-/* Syntax highlighting is gray too: no hidden blue, teal, or purple tones. */
-:root .terminalCard .syntax-keyword,
-:root .markdownBody .codeBlock .syntax-keyword { color: #f2f2f2; font-weight: 600; }
-:root .terminalCard .syntax-type,
-:root .markdownBody .codeBlock .syntax-type { color: #d4d4d4; }
-:root .terminalCard .syntax-function,
-:root .markdownBody .codeBlock .syntax-function { color: #ffffff; font-weight: 500; }
-:root .terminalCard .syntax-property,
-:root .markdownBody .codeBlock .syntax-property { color: #c7c7c7; }
-:root .terminalCard .syntax-string,
-:root .markdownBody .codeBlock .syntax-string { color: #bcbcbc; }
-:root .terminalCard .syntax-number,
-:root .markdownBody .codeBlock .syntax-number { color: #e0e0e0; }
-:root .terminalCard .syntax-comment,
-:root .markdownBody .codeBlock .syntax-comment { color: #969696; }
-:root .terminalCard .syntax-constant,
-:root .markdownBody .codeBlock .syntax-constant { color: #e6e6e6; }
-:root .terminalCard .syntax-punctuation,
-:root .markdownBody .codeBlock .syntax-punctuation { color: #bbbbbb; }
-
+/* Keep the original colorful Luau syntax highlighting from styles.css. */
 :root .markdownBody .codeBlock .codeChrome button {
   color: #e6e6e6;
   background: #333333;
