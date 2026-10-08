@@ -99,6 +99,25 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
 }
 :root .brandMark { color: #151515; background: #dedede; }
 :root[data-theme="light"] .brandMark { color: #ffffff; background: #303030; }
+
+/* The shared Reactily image is always a true 32px square, not a styled text badge. */
+:root .brand img.brandMark {
+  display: block;
+  flex: 0 0 32px;
+  box-sizing: border-box;
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  object-fit: contain;
+  background: transparent;
+}
+
 ::selection { background: #777777; color: #ffffff; }
 /* Shared, strictly neutral terminal palette for every theme and code block. */
 :root,
