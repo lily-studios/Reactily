@@ -18,7 +18,7 @@ local module = {}
 --- @param source T Source table that remains unchanged.
 --- @param changes {[any]: any} Fields to assign on the clone.
 --- @return T New patched table.
-function module.patch<T>(source: T, changes: { [any]: any }): T
+function module.Patch<T>(source: T, changes: { [any]: any }): T
 	assert(type(source) == "table", "Reactily.patch source must be a table.")
 
 	local output: any = table.clone(source :: any)

@@ -1,3 +1,4 @@
+
 {
   "name": "reactily-luau",
   "version": "2.0.0",
@@ -8,15 +9,17 @@
     "node": ">=22.22.0"
   },
   "scripts": {
-    "generate:init": "node tools/generate-init.cjs && stylua scripts/init.luau",
-    "check:init": "node tools/generate-init.cjs --check",
-    "preview:init": "node tools/generate-init.cjs --dry-run",
+    "generate:init": "node tools/generate-init.cjs",
     "generate:init:verbose": "node tools/generate-init.cjs --verbose",
     "generate:init:debug": "node tools/generate-init.cjs --debug",
+    "preview:init": "node tools/generate-init.cjs --dry-run",
+    "check:init": "node tools/generate-init.cjs --check",
+    "verify:modules": "node tools/verify-reactily.cjs",
     "format": "stylua scripts",
     "format:check": "stylua --check scripts",
     "lint": "selene scripts",
-    "check": "npm run check:init && npm run format:check && npm run lint",
+    "sync": "npm run generate:init && npm run format",
+    "check": "npm run check:init && npm run verify:modules && npm run format:check && npm run lint",
     "test": "npm run check",
     "build:release": "node tools/build-release.cjs",
     "build:release:clean": "node tools/build-release.cjs --clean",

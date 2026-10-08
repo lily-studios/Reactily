@@ -15,20 +15,20 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type variableRange = {
-	first: number,
-	last: number,
-	offset: number,
-	totalSize: number,
+	First: number,
+	Last: number,
+	Offset: number,
+	TotalSize: number,
 }
 
 export type variableVirtualList = {
-	delete: () -> boolean,
-	getRange: () -> variableRange,
-	isDeleted: () -> boolean,
-	setScrollOffset: (scrollOffset: number) -> boolean,
-	setSize: (index: number, size: number) -> boolean,
-	setSizes: (sizes: { number }) -> boolean,
-	setViewportSize: (viewportSize: number) -> boolean,
+	Delete: () -> boolean,
+	GetRange: () -> variableRange,
+	IsDeleted: () -> boolean,
+	SetScrollOffset: (scrollOffset: number) -> boolean,
+	SetSize: (index: number, size: number) -> boolean,
+	SetSizes: (sizes: { number }) -> boolean,
+	SetViewportSize: (viewportSize: number) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -88,10 +88,10 @@ local function resolveFromOffsets(
 
 	if count == 0 then
 		return {
-			first = 0,
-			last = 0,
-			offset = 0,
-			totalSize = 0,
+			First = 0,
+			Last = 0,
+			Offset = 0,
+			TotalSize = 0,
 		}
 	end
 
@@ -102,10 +102,10 @@ local function resolveFromOffsets(
 	local last = math.min(findIndex(offsets, finish, count) + extra, count)
 
 	return {
-		first = first,
-		last = last,
-		offset = offsets[first],
-		totalSize = totalSize,
+		First = first,
+		Last = last,
+		Offset = offsets[first],
+		TotalSize = totalSize,
 	}
 end
 
@@ -116,7 +116,7 @@ end
 --- @param viewportSize number Initial visible viewport size.
 --- @param overscan number? Extra items before and after the viewport.
 --- @return variableVirtualList Cached variable-size virtual-list controller.
-function module.new(sizes: { number }, viewportSize: number, overscan: number?): variableVirtualList
+function module.New(sizes: { number }, viewportSize: number, overscan: number?): variableVirtualList
 	assert(viewportSize >= 0, "Reactily virtual viewportSize must be non-negative.")
 
 	local itemSizes = table.clone(sizes)
@@ -193,7 +193,7 @@ function module.new(sizes: { number }, viewportSize: number, overscan: number?):
 	end
 
 	return {
-		delete = function(): boolean
+		Delete = function(): boolean
 			if isDeleted then
 				return false
 			end
@@ -203,14 +203,14 @@ function module.new(sizes: { number }, viewportSize: number, overscan: number?):
 			table.clear(offsets)
 			return true
 		end,
-		getRange = getRange,
-		isDeleted = function(): boolean
+		GetRange = getRange,
+		IsDeleted = function(): boolean
 			return isDeleted
 		end,
-		setScrollOffset = setScrollOffset,
-		setSize = setSize,
-		setSizes = setSizes,
-		setViewportSize = setViewportSize,
+		SetScrollOffset = setScrollOffset,
+		SetSize = setSize,
+		SetSizes = setSizes,
+		SetViewportSize = setViewportSize,
 	}
 end
 
@@ -222,7 +222,7 @@ end
 --- @param viewportSize number Visible viewport size.
 --- @param overscan number? Extra item count before and after the visible range.
 --- @return variableRange Calculated virtual range.
-function module.resolve(sizes: { number }, scrollOffset: number, viewportSize: number, overscan: number?): variableRange
+function module.Resolve(sizes: { number }, scrollOffset: number, viewportSize: number, overscan: number?): variableRange
 	assert(viewportSize >= 0, "Reactily virtual viewportSize must be non-negative.")
 
 	local offsets, totalSize = buildOffsets(sizes)

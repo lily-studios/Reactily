@@ -22,7 +22,7 @@ local module = {}
 --- @param object GuiObject Target UI object.
 --- @param style interactionStyle Properties applied while hovered.
 --- @return interactionController Owned hover controller.
-function module.bind(
+function module.Bind(
 	object: GuiObject,
 	style: interactionModule.interactionStyle
 ): interactionModule.interactionController
@@ -33,9 +33,9 @@ function module.bind(
 		normal[propertyName] = target[propertyName]
 	end
 
-	return interactionModule.bind(object, {
-		hover = style,
-		normal = normal,
+	return interactionModule.Bind(object, {
+		Hover = style,
+		Normal = normal,
 	})
 end
 

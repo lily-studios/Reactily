@@ -41,7 +41,7 @@ end
 
 --- Returns whether a global Reactily batch is currently active.
 --- @return boolean True while one or more nested batches are open.
-function module.isBatching(): boolean
+function module.IsBatching(): boolean
 	return batchDepth > 0
 end
 
@@ -50,7 +50,7 @@ end
 --- Queues a callback for the end of the current global batch.
 --- @param callback () -> () Callback that should run once after batching finishes.
 --- @return boolean True when the callback was queued, false when no batch was active.
-function module.queue(callback: () -> ()): boolean
+function module.Queue(callback: () -> ()): boolean
 	if batchDepth == 0 then
 		return false
 	end
@@ -63,7 +63,7 @@ end
 
 --- Runs a callback inside a nested-safe global Reactily batch.
 --- @param callback () -> () Work whose downstream notifications should be coalesced.
-function module.run(callback: () -> ())
+function module.Run(callback: () -> ())
 	batchDepth += 1
 
 	local success, failure = pcall(function(): boolean

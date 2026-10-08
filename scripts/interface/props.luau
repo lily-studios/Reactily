@@ -18,7 +18,7 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType
+--- @reactilyType PropMap
 export type propMap = { [any]: any }
 
 --————————————————————————————————————————————————————————————————————--
@@ -37,7 +37,7 @@ end
 --- @param props T Source props.
 --- @param defaults propMap Default values used only when a key is absent.
 --- @return T Copied props with defaults applied.
-function module.defaults<T>(props: T, defaults: propMap): T
+function module.Defaults<T>(props: T, defaults: propMap): T
 	local output: any = copy(props :: any)
 
 	for key, value in defaults do
@@ -57,8 +57,8 @@ end
 --- @param first propMap First prop table.
 --- @param second propMap Second prop table.
 --- @return boolean Whether both tables contain the same shallow values.
-function module.equal(first: propMap, second: propMap): boolean
-	return compareModule.shallowEqual(first, second)
+function module.Equal(first: propMap, second: propMap): boolean
+	return compareModule.ShallowEqual(first, second)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -68,7 +68,7 @@ end
 --- @param current propMap Current props.
 --- @return propMap Map of changed or added keys to their current values.
 --- @return {any} Keys that existed previously and are now absent.
-function module.changed(previous: propMap, current: propMap): (propMap, { any })
+function module.Changed(previous: propMap, current: propMap): (propMap, { any })
 	local output: propMap = {}
 	local removed: { any } = {}
 	local seen: { [any]: boolean } = {}
@@ -104,7 +104,7 @@ end
 --- Merges prop tables from left to right without mutating any input.
 --- @param ... propMap Prop tables to merge.
 --- @return propMap New merged prop table.
-function module.merge(...: propMap): propMap
+function module.Merge(...: propMap): propMap
 	local output: propMap = {}
 
 	for _, source in { ... } do
@@ -122,7 +122,7 @@ end
 --- @param props propMap Source props.
 --- @param keys {any} Keys to remove.
 --- @return propMap Copied props without omitted keys.
-function module.omit(props: propMap, keys: { any }): propMap
+function module.Omit(props: propMap, keys: { any }): propMap
 	local output = copy(props)
 
 	for _, key in keys do
@@ -138,7 +138,7 @@ end
 --- @param props propMap Source props.
 --- @param keys {any} Keys to include.
 --- @return propMap Picked prop values.
-function module.pick(props: propMap, keys: { any }): propMap
+function module.Pick(props: propMap, keys: { any }): propMap
 	local output: propMap = {}
 
 	for _, key in keys do

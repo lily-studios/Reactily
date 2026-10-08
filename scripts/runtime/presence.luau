@@ -18,20 +18,20 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType presenceOptions
+--- @reactilyType PresenceOptions
 export type presenceOptions = {
-	enter: { [string]: any }?,
-	exit: { [string]: any }?,
-	motion: motionModule.motionOptions?,
+	Enter: { [string]: any }?,
+	Exit: { [string]: any }?,
+	Motion: motionModule.motionOptions?,
 }
 
---- @reactilyType presence
+--- @reactilyType Presence
 export type presence = {
-	delete: () -> boolean,
-	hide: () -> boolean,
-	isDeleted: () -> boolean,
-	isVisible: () -> boolean,
-	show: () -> boolean,
+	Delete: () -> boolean,
+	Hide: () -> boolean,
+	IsDeleted: () -> boolean,
+	IsVisible: () -> boolean,
+	Show: () -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -40,22 +40,22 @@ export type presence = {
 --- @param object GuiObject Target object.
 --- @param options presenceOptions? Enter and exit property goals.
 --- @return presence Owned presence controller.
-function module.create(object: GuiObject, options: presenceOptions?): presence
+function module.Create(object: GuiObject, options: presenceOptions?): presence
 	local enterGoals: { [string]: any }? = nil
 	local exitGoals: { [string]: any }? = nil
 	local motionOptions: motionModule.motionOptions? = nil
 
 	if options then
-		if options.enter ~= nil then
-			enterGoals = options.enter
+		if options.Enter ~= nil then
+			enterGoals = options.Enter
 		end
 
-		if options.exit ~= nil then
-			exitGoals = options.exit
+		if options.Exit ~= nil then
+			exitGoals = options.Exit
 		end
 
-		if options.motion ~= nil then
-			motionOptions = options.motion
+		if options.Motion ~= nil then
+			motionOptions = options.Motion
 		end
 	end
 
@@ -75,7 +75,7 @@ function module.create(object: GuiObject, options: presenceOptions?): presence
 
 		currentAnimation = nil
 
-		animationValue.delete()
+		animationValue.Delete()
 	end
 
 	--——————————————————————————————————————————————————————————————————--
@@ -112,11 +112,11 @@ function module.create(object: GuiObject, options: presenceOptions?): presence
 
 		local localGeneration = generation
 
-		local animationValue = motionModule.play(object, enterGoals, motionOptions)
+		local animationValue = motionModule.Play(object, enterGoals, motionOptions)
 
 		currentAnimation = animationValue
 
-		animationValue.onCompleted(function()
+		animationValue.OnCompleted(function()
 			if isDeleted then
 				return
 			end
@@ -135,7 +135,7 @@ function module.create(object: GuiObject, options: presenceOptions?): presence
 
 			currentAnimation = nil
 
-			animationValue.delete()
+			animationValue.Delete()
 		end)
 
 		return true
@@ -166,11 +166,11 @@ function module.create(object: GuiObject, options: presenceOptions?): presence
 			return true
 		end
 
-		local animationValue = motionModule.play(object, exitGoals, motionOptions)
+		local animationValue = motionModule.Play(object, exitGoals, motionOptions)
 
 		currentAnimation = animationValue
 
-		animationValue.onCompleted(function()
+		animationValue.OnCompleted(function()
 			if isDeleted then
 				return
 			end
@@ -191,7 +191,7 @@ function module.create(object: GuiObject, options: presenceOptions?): presence
 
 			setVisible(false)
 
-			animationValue.delete()
+			animationValue.Delete()
 		end)
 
 		return true
@@ -231,11 +231,11 @@ function module.create(object: GuiObject, options: presenceOptions?): presence
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		delete = delete,
-		hide = hide,
-		isDeleted = getIsDeleted,
-		isVisible = getIsVisible,
-		show = show,
+		Delete = delete,
+		Hide = hide,
+		IsDeleted = getIsDeleted,
+		IsVisible = getIsVisible,
+		Show = show,
 	}
 end
 

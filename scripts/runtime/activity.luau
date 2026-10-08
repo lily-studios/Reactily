@@ -11,8 +11,8 @@ local module = {}
 export type mode = "visible" | "hidden"
 
 type visibilitySnapshot = {
-	propertyName: string,
-	value: boolean,
+	PropertyName: string,
+	Value: boolean,
 }
 
 local snapshots: { [Instance]: visibilitySnapshot } = {}
@@ -34,7 +34,7 @@ local function resolveVisibilityProperty(instance: Instance): string?
 	return nil
 end
 
-function module.hide(instance: Instance)
+function module.Hide(instance: Instance)
 	local propertyName = resolveVisibilityProperty(instance)
 	if not propertyName then
 		return
@@ -52,8 +52,8 @@ function module.hide(instance: Instance)
 	end
 
 	snapshots[instance] = {
-		propertyName = propertyName,
-		value = current,
+		PropertyName = propertyName,
+		Value = current,
 	}
 
 	pcall(function()
@@ -61,7 +61,7 @@ function module.hide(instance: Instance)
 	end)
 end
 
-function module.show(instance: Instance)
+function module.Show(instance: Instance)
 	local snapshot = snapshots[instance]
 	if not snapshot then
 		return
@@ -70,11 +70,11 @@ function module.show(instance: Instance)
 
 	local target = instance :: any
 	pcall(function()
-		target[snapshot.propertyName] = snapshot.value
+		target[snapshot.PropertyName] = snapshot.Value
 	end)
 end
 
-function module.clear(instance: Instance)
+function module.Clear(instance: Instance)
 	snapshots[instance] = nil
 end
 

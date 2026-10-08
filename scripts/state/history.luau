@@ -18,18 +18,18 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType history<T>
+--- @reactilyType History<T>
 export type history<T> = {
-	canRedo: () -> boolean,
-	canUndo: () -> boolean,
-	clear: (value: T?) -> (),
-	delete: () -> boolean,
-	get: () -> T,
-	isDeleted: () -> boolean,
-	push: (value: T) -> boolean,
-	redo: () -> T?,
-	subscribe: (callback: (value: T) -> ()) -> signalModule.connection,
-	undo: () -> T?,
+	CanRedo: () -> boolean,
+	CanUndo: () -> boolean,
+	Clear: (value: T?) -> (),
+	Delete: () -> boolean,
+	Get: () -> T,
+	IsDeleted: () -> boolean,
+	Push: (value: T) -> boolean,
+	Redo: () -> T?,
+	Subscribe: (callback: (value: T) -> ()) -> signalModule.connection,
+	Undo: () -> T?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -38,11 +38,11 @@ export type history<T> = {
 --- @param initialValue T Initial state.
 --- @param capacity number? Maximum number of retained states. Defaults to 100.
 --- @return history<T> Owned history controller.
-function module.create<T>(initialValue: T, capacity: number?): history<T>
+function module.Create<T>(initialValue: T, capacity: number?): history<T>
 	local maximum = capacity or 100
 	assert(maximum >= 1, "Reactily history capacity must be at least one.")
 
-	local changed = signalModule.new()
+	local changed = signalModule.New()
 	local index = 1
 	local isDeleted = false
 	local values: { T } = { initialValue }
@@ -70,7 +70,7 @@ function module.create<T>(initialValue: T, capacity: number?): history<T>
 		end
 
 		index = #values
-		changed.fire(value)
+		changed.Fire(value)
 		return true
 	end
 
@@ -82,7 +82,7 @@ function module.create<T>(initialValue: T, capacity: number?): history<T>
 
 		index -= 1
 		local value = values[index]
-		changed.fire(value)
+		changed.Fire(value)
 		return value
 	end
 
@@ -94,7 +94,7 @@ function module.create<T>(initialValue: T, capacity: number?): history<T>
 
 		index += 1
 		local value = values[index]
-		changed.fire(value)
+		changed.Fire(value)
 		return value
 	end
 
@@ -108,7 +108,7 @@ function module.create<T>(initialValue: T, capacity: number?): history<T>
 		table.clear(values)
 		values[1] = current :: T
 		index = 1
-		changed.fire(current :: T)
+		changed.Fire(current :: T)
 	end
 
 	local function delete(): boolean
@@ -118,30 +118,30 @@ function module.create<T>(initialValue: T, capacity: number?): history<T>
 
 		isDeleted = true
 		table.clear(values)
-		changed.delete()
+		changed.Delete()
 		return true
 	end
 
 	return {
-		canRedo = function(): boolean
+		CanRedo = function(): boolean
 			return not isDeleted and index < #values
 		end,
-		canUndo = function(): boolean
+		CanUndo = function(): boolean
 			return not isDeleted and index > 1
 		end,
-		clear = clear,
-		delete = delete,
-		get = get,
-		isDeleted = function(): boolean
+		Clear = clear,
+		Delete = delete,
+		Get = get,
+		IsDeleted = function(): boolean
 			return isDeleted
 		end,
-		push = push,
-		redo = redo,
-		subscribe = function(callback: (value: T) -> ()): signalModule.connection
+		Push = push,
+		Redo = redo,
+		Subscribe = function(callback: (value: T) -> ()): signalModule.connection
 			assert(not isDeleted, "Reactily history is deleted.")
-			return changed.connect(callback)
+			return changed.Connect(callback)
 		end,
-		undo = undo,
+		Undo = undo,
 	}
 end
 

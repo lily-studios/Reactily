@@ -18,29 +18,29 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType virtualGridRenderOptions
+--- @reactilyType VirtualGridRenderOptions
 export type renderOptions<T> = {
 	CanvasPosition: Vector2?,
-	cellSize: Vector2,
-	gap: Vector2?,
-	items: { T },
+	CellSize: Vector2,
+	Gap: Vector2?,
+	Items: { T },
 	Name: string?,
-	overscanRows: number?,
-	renderItem: (item: T, index: number) -> elementModule.element,
+	OverscanRows: number?,
+	RenderItem: (item: T, index: number) -> elementModule.element,
 	ScrollBarThickness: number?,
 	Size: UDim2?,
-	viewportSize: Vector2,
+	ViewportSize: Vector2,
 }
 
 export type gridRange = {
-	columnCount: number,
-	firstIndex: number,
-	firstRow: number,
-	lastIndex: number,
-	lastRow: number,
-	offsetY: number,
-	rowCount: number,
-	totalHeight: number,
+	ColumnCount: number,
+	FirstIndex: number,
+	FirstRow: number,
+	LastIndex: number,
+	LastRow: number,
+	OffsetY: number,
+	RowCount: number,
+	TotalHeight: number,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -56,7 +56,7 @@ export type gridRange = {
 --- @param verticalGap number? Vertical spacing between rows.
 --- @param overscanRows number? Extra rows rendered above and below the viewport.
 --- @return gridRange Calculated visible grid range.
-function module.resolve(
+function module.Resolve(
 	itemCount: number,
 	cellWidth: number,
 	cellHeight: number,
@@ -81,14 +81,14 @@ function module.resolve(
 
 	if itemCount == 0 then
 		return {
-			columnCount = columns,
-			firstIndex = 0,
-			firstRow = 0,
-			lastIndex = 0,
-			lastRow = 0,
-			offsetY = 0,
-			rowCount = 0,
-			totalHeight = 0,
+			ColumnCount = columns,
+			FirstIndex = 0,
+			FirstRow = 0,
+			LastIndex = 0,
+			LastRow = 0,
+			OffsetY = 0,
+			RowCount = 0,
+			TotalHeight = 0,
 		}
 	end
 
@@ -103,14 +103,14 @@ function module.resolve(
 	local lastIndex = math.min(lastRow * columns, itemCount)
 
 	return {
-		columnCount = columns,
-		firstIndex = firstIndex,
-		firstRow = firstRow,
-		lastIndex = lastIndex,
-		lastRow = lastRow,
-		offsetY = (firstRow - 1) * strideY,
-		rowCount = rows,
-		totalHeight = math.max(rows * strideY - gapY, 0),
+		ColumnCount = columns,
+		FirstIndex = firstIndex,
+		FirstRow = firstRow,
+		LastIndex = lastIndex,
+		LastRow = lastRow,
+		OffsetY = (firstRow - 1) * strideY,
+		RowCount = rows,
+		TotalHeight = math.max(rows * strideY - gapY, 0),
 	}
 end
 
@@ -119,44 +119,44 @@ end
 --- Creates a virtualized vertical ScrollingFrame element for a fixed-cell grid.
 --- @param options renderOptions<T> Virtual-grid render options.
 --- @return element Virtualized grid ScrollingFrame element.
-function module.render<T>(options: renderOptions<T>): elementModule.element
-	local gap = options.gap or Vector2.zero
+function module.Render<T>(options: renderOptions<T>): elementModule.element
+	local gap = options.Gap or Vector2.zero
 	local canvasPosition = options.CanvasPosition or Vector2.zero
-	local rangeValue = module.resolve(
-		#options.items,
-		options.cellSize.X,
-		options.cellSize.Y,
-		options.viewportSize.X,
-		options.viewportSize.Y,
+	local rangeValue = module.Resolve(
+		#options.Items,
+		options.CellSize.X,
+		options.CellSize.Y,
+		options.ViewportSize.X,
+		options.ViewportSize.Y,
 		canvasPosition.Y,
 		gap.X,
 		gap.Y,
-		options.overscanRows
+		options.OverscanRows
 	)
 	local children: { any } = {}
-	local strideX = options.cellSize.X + gap.X
-	local strideY = options.cellSize.Y + gap.Y
+	local strideX = options.CellSize.X + gap.X
+	local strideY = options.CellSize.Y + gap.Y
 
-	if rangeValue.firstIndex ~= 0 then
-		for index = rangeValue.firstIndex, rangeValue.lastIndex do
+	if rangeValue.FirstIndex ~= 0 then
+		for index = rangeValue.FirstIndex, rangeValue.LastIndex do
 			local zeroIndex = index - 1
-			local column = zeroIndex % rangeValue.columnCount
-			local row = math.floor(zeroIndex / rangeValue.columnCount)
-			children[#children + 1] = elementModule.createFrame({
+			local column = zeroIndex % rangeValue.ColumnCount
+			local row = math.floor(zeroIndex / rangeValue.ColumnCount)
+			children[#children + 1] = elementModule.CreateFrame({
 				BackgroundTransparency = 1,
 				Name = `VirtualGridItem_{index}`,
 				Position = UDim2.fromOffset(column * strideX, row * strideY),
-				Size = UDim2.fromOffset(options.cellSize.X, options.cellSize.Y),
+				Size = UDim2.fromOffset(options.CellSize.X, options.CellSize.Y),
 			}, {
-				options.renderItem(options.items[index], index),
+				options.RenderItem(options.Items[index], index),
 			})
 		end
 	end
 
-	return elementModule.createScrollingFrame({
+	return elementModule.CreateScrollingFrame({
 		BackgroundTransparency = 1,
 		CanvasPosition = canvasPosition,
-		CanvasSize = UDim2.fromOffset(0, rangeValue.totalHeight),
+		CanvasSize = UDim2.fromOffset(0, rangeValue.TotalHeight),
 		Name = options.Name or "VirtualGrid",
 		ScrollBarThickness = options.ScrollBarThickness or 8,
 		ScrollingDirection = Enum.ScrollingDirection.Y,

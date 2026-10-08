@@ -18,21 +18,21 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType resizeOptions
+--- @reactilyType ResizeOptions
 export type resizeOptions = {
-	enabled: boolean?,
-	maximumSize: Vector2?,
-	minimumSize: Vector2?,
-	onChanged: ((size: UDim2) -> ())?,
+	Enabled: boolean?,
+	MaximumSize: Vector2?,
+	MinimumSize: Vector2?,
+	OnChanged: ((size: UDim2) -> ())?,
 }
 
---- @reactilyType resizeController
+--- @reactilyType ResizeController
 export type resizeController = {
-	delete: () -> boolean,
-	disable: () -> boolean,
-	enable: () -> boolean,
-	isDeleted: () -> boolean,
-	isEnabled: () -> boolean,
+	Delete: () -> boolean,
+	Disable: () -> boolean,
+	Enable: () -> boolean,
+	IsDeleted: () -> boolean,
+	IsEnabled: () -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -64,27 +64,27 @@ end
 --- @param handle GuiObject Drag handle.
 --- @param options resizeOptions? Resize behavior.
 --- @return resizeController Owned resize controller.
-function module.bind(target: GuiObject, handle: GuiObject, options: resizeOptions?): resizeController
+function module.Bind(target: GuiObject, handle: GuiObject, options: resizeOptions?): resizeController
 	local enabled = true
 	local maximumSize = Vector2.new(math.huge, math.huge)
 	local minimumSize = Vector2.zero
 	local onChanged: ((size: UDim2) -> ())? = nil
 
 	if options then
-		if options.enabled ~= nil then
-			enabled = options.enabled
+		if options.Enabled ~= nil then
+			enabled = options.Enabled
 		end
 
-		if options.maximumSize ~= nil then
-			maximumSize = options.maximumSize
+		if options.MaximumSize ~= nil then
+			maximumSize = options.MaximumSize
 		end
 
-		if options.minimumSize ~= nil then
-			minimumSize = options.minimumSize
+		if options.MinimumSize ~= nil then
+			minimumSize = options.MinimumSize
 		end
 
-		if options.onChanged ~= nil then
-			onChanged = options.onChanged
+		if options.OnChanged ~= nil then
+			onChanged = options.OnChanged
 		end
 	end
 
@@ -336,11 +336,11 @@ function module.bind(target: GuiObject, handle: GuiObject, options: resizeOption
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		delete = delete,
-		disable = disable,
-		enable = enable,
-		isDeleted = getIsDeleted,
-		isEnabled = getIsEnabled,
+		Delete = delete,
+		Disable = disable,
+		Enable = enable,
+		IsDeleted = getIsDeleted,
+		IsEnabled = getIsEnabled,
 	}
 end
 

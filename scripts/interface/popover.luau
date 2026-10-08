@@ -18,14 +18,14 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType popoverPlacement
+--- @reactilyType PopoverPlacement
 export type placement = "Bottom" | "Left" | "Right" | "Top"
 
---- @reactilyType popoverOptions
+--- @reactilyType PopoverOptions
 export type popoverOptions = {
-	clampToViewport: boolean?,
-	offset: number?,
-	placement: placement?,
+	ClampToViewport: boolean?,
+	Offset: number?,
+	Placement: placement?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -105,22 +105,22 @@ end
 --- @param object GuiObject Popover object to position.
 --- @param options popoverOptions? Placement options.
 --- @return UDim2 Applied object Position.
-function module.place(anchor: GuiObject, object: GuiObject, options: popoverOptions?): UDim2
+function module.Place(anchor: GuiObject, object: GuiObject, options: popoverOptions?): UDim2
 	local clampToViewport = true
 	local offset = 8
 	local placementValue: placement = "Bottom"
 
 	if options then
-		if options.clampToViewport ~= nil then
-			clampToViewport = options.clampToViewport
+		if options.ClampToViewport ~= nil then
+			clampToViewport = options.ClampToViewport
 		end
 
-		if options.offset ~= nil then
-			offset = options.offset
+		if options.Offset ~= nil then
+			offset = options.Offset
 		end
 
-		if options.placement ~= nil then
-			placementValue = options.placement
+		if options.Placement ~= nil then
+			placementValue = options.Placement
 		end
 	end
 

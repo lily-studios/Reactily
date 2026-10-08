@@ -40,7 +40,7 @@ end
 --- Returns whether a component has been wrapped with Reactily.memo.
 --- @param componentValue component Component function to inspect.
 --- @return boolean True when the component has memo metadata.
-function module.isMemo(componentValue: component): boolean
+function module.IsMemo(componentValue: component): boolean
 	return comparators[componentValue] ~= nil
 end
 
@@ -51,7 +51,7 @@ end
 --- @param previousProps {[string]: any} Previous props.
 --- @param nextProps {[string]: any} Next props.
 --- @return boolean True when reconciliation should rerender the component.
-function module.shouldUpdate(
+function module.ShouldUpdate(
 	componentValue: component,
 	previousProps: { [string]: any },
 	nextProps: { [string]: any }
@@ -70,7 +70,7 @@ end
 --- @param componentValue T Component function to memoize.
 --- @param comparatorValue comparator? Optional equality function. Defaults to shallow equality.
 --- @return T Stable memoized component wrapper.
-function module.wrap<T>(componentValue: T, comparatorValue: comparator?): T
+function module.Wrap<T>(componentValue: T, comparatorValue: comparator?): T
 	assert(type(componentValue) == "function", "Reactily.memo expects a component function.")
 
 	local source: any = componentValue
@@ -78,7 +78,7 @@ function module.wrap<T>(componentValue: T, comparatorValue: comparator?): T
 		return source(props)
 	end
 
-	comparators[wrapped] = comparatorValue or compare.shallowEqual
+	comparators[wrapped] = comparatorValue or compare.ShallowEqual
 
 	return wrapped
 end

@@ -18,14 +18,14 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType motionOptions
+--- @reactilyType MotionOptions
 export type motionOptions = {
-	delay: number?,
-	direction: Enum.EasingDirection?,
-	duration: number?,
-	repeatCount: number?,
-	reverses: boolean?,
-	style: Enum.EasingStyle?,
+	Delay: number?,
+	Direction: Enum.EasingDirection?,
+	Duration: number?,
+	RepeatCount: number?,
+	Reverses: boolean?,
+	Style: Enum.EasingStyle?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -39,28 +39,28 @@ local function resolve(options: motionOptions?): animationModule.tweenOptions
 	local time = 0.2
 
 	if options then
-		if options.delay ~= nil then
-			delayTime = options.delay
+		if options.Delay ~= nil then
+			delayTime = options.Delay
 		end
 
-		if options.direction ~= nil then
-			easingDirection = options.direction
+		if options.Direction ~= nil then
+			easingDirection = options.Direction
 		end
 
-		if options.duration ~= nil then
-			time = options.duration
+		if options.Duration ~= nil then
+			time = options.Duration
 		end
 
-		if options.repeatCount ~= nil then
-			repeatCount = options.repeatCount
+		if options.RepeatCount ~= nil then
+			repeatCount = options.RepeatCount
 		end
 
-		if options.reverses ~= nil then
-			reverses = options.reverses
+		if options.Reverses ~= nil then
+			reverses = options.Reverses
 		end
 
-		if options.style ~= nil then
-			easingStyle = options.style
+		if options.Style ~= nil then
+			easingStyle = options.Style
 		end
 	end
 
@@ -75,12 +75,12 @@ local function resolve(options: motionOptions?): animationModule.tweenOptions
 	end
 
 	return {
-		delayTime = delayTime,
-		easingDirection = easingDirection,
-		easingStyle = easingStyle,
-		repeatCount = repeatCount,
-		reverses = reverses,
-		time = time,
+		DelayTime = delayTime,
+		EasingDirection = easingDirection,
+		EasingStyle = easingStyle,
+		RepeatCount = repeatCount,
+		Reverses = reverses,
+		Time = time,
 	}
 end
 
@@ -91,8 +91,8 @@ end
 --- @param goals {[string]: any} Roblox property goals.
 --- @param options motionOptions? Motion configuration.
 --- @return animation Owned animation.
-function module.create(instance: Instance, goals: { [string]: any }, options: motionOptions?): animationModule.animation
-	return animationModule.tween(instance, goals, resolve(options))
+function module.Create(instance: Instance, goals: { [string]: any }, options: motionOptions?): animationModule.animation
+	return animationModule.Tween(instance, goals, resolve(options))
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -102,8 +102,8 @@ end
 --- @param goals {[string]: any} Roblox property goals.
 --- @param options motionOptions? Motion configuration.
 --- @return animation Owned running animation.
-function module.play(instance: Instance, goals: { [string]: any }, options: motionOptions?): animationModule.animation
-	return animationModule.play(instance, goals, resolve(options))
+function module.Play(instance: Instance, goals: { [string]: any }, options: motionOptions?): animationModule.animation
+	return animationModule.Play(instance, goals, resolve(options))
 end
 
 --————————————————————————————————————————————————————————————————————--

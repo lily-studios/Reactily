@@ -23,25 +23,25 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType deviceState
+--- @reactilyType DeviceState
 export type deviceState = {
-	hasGamepad: boolean,
-	hasKeyboard: boolean,
-	hasMouse: boolean,
-	hasTouch: boolean,
-	isConsole: boolean,
-	isDesktop: boolean,
-	isMobile: boolean,
-	orientation: "Landscape" | "Portrait",
-	viewportSize: Vector2,
+	HasGamepad: boolean,
+	HasKeyboard: boolean,
+	HasMouse: boolean,
+	HasTouch: boolean,
+	IsConsole: boolean,
+	IsDesktop: boolean,
+	IsMobile: boolean,
+	Orientation: "Landscape" | "Portrait",
+	ViewportSize: Vector2,
 }
 
---- @reactilyType deviceMonitor
+--- @reactilyType DeviceMonitor
 export type deviceMonitor = {
-	delete: () -> boolean,
-	get: () -> deviceState,
-	isDeleted: () -> boolean,
-	subscribe: (callback: (value: deviceState) -> ()) -> signalModule.connection,
+	Delete: () -> boolean,
+	Get: () -> deviceState,
+	IsDeleted: () -> boolean,
+	Subscribe: (callback: (value: deviceState) -> ()) -> signalModule.connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -72,38 +72,38 @@ local function read(): deviceState
 	end
 
 	return {
-		hasGamepad = hasGamepad,
-		hasKeyboard = hasKeyboard,
-		hasMouse = hasMouse,
-		hasTouch = hasTouch,
-		isConsole = isConsole,
-		isDesktop = not isConsole and not isMobile,
-		isMobile = isMobile,
-		orientation = orientation,
-		viewportSize = viewportSize,
+		HasGamepad = hasGamepad,
+		HasKeyboard = hasKeyboard,
+		HasMouse = hasMouse,
+		HasTouch = hasTouch,
+		IsConsole = isConsole,
+		IsDesktop = not isConsole and not isMobile,
+		IsMobile = isMobile,
+		Orientation = orientation,
+		ViewportSize = viewportSize,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 local function statesEqual(first: deviceState, second: deviceState): boolean
-	return first.hasGamepad == second.hasGamepad
-		and first.hasKeyboard == second.hasKeyboard
-		and first.hasMouse == second.hasMouse
-		and first.hasTouch == second.hasTouch
-		and first.isConsole == second.isConsole
-		and first.isDesktop == second.isDesktop
-		and first.isMobile == second.isMobile
-		and first.orientation == second.orientation
-		and first.viewportSize == second.viewportSize
+	return first.HasGamepad == second.HasGamepad
+		and first.HasKeyboard == second.HasKeyboard
+		and first.HasMouse == second.HasMouse
+		and first.HasTouch == second.HasTouch
+		and first.IsConsole == second.IsConsole
+		and first.IsDesktop == second.IsDesktop
+		and first.IsMobile == second.IsMobile
+		and first.Orientation == second.Orientation
+		and first.ViewportSize == second.ViewportSize
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Creates an event-driven monitor for Roblox device and viewport capabilities.
 --- @return deviceMonitor Owned device monitor.
-function module.create(): deviceMonitor
-	local changed = signalModule.new()
+function module.Create(): deviceMonitor
+	local changed = signalModule.New()
 	local connections: { RBXScriptConnection } = {}
 	local isDeleted = false
 	local cameraConnection: RBXScriptConnection? = nil
@@ -120,7 +120,7 @@ function module.create(): deviceMonitor
 		end
 
 		value = nextValue
-		changed.fire(nextValue)
+		changed.Fire(nextValue)
 	end
 
 	local function connectCamera()
@@ -165,22 +165,22 @@ function module.create(): deviceMonitor
 			cameraConnection = nil
 		end
 
-		changed.delete()
+		changed.Delete()
 		return true
 	end
 
 	return {
-		delete = delete,
-		get = function(): deviceState
+		Delete = delete,
+		Get = function(): deviceState
 			assert(not isDeleted, "Reactily device monitor is deleted.")
 			return value
 		end,
-		isDeleted = function(): boolean
+		IsDeleted = function(): boolean
 			return isDeleted
 		end,
-		subscribe = function(callback: (value: deviceState) -> ()): signalModule.connection
+		Subscribe = function(callback: (value: deviceState) -> ()): signalModule.connection
 			assert(not isDeleted, "Reactily device monitor is deleted.")
-			return changed.connect(callback)
+			return changed.Connect(callback)
 		end,
 	}
 end

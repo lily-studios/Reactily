@@ -19,13 +19,13 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType modalOptions
+--- @reactilyType ModalOptions
 export type modalOptions = {
 	BackgroundColor3: Color3?,
 	BackgroundTransparency: number?,
-	closeOnBackground: boolean?,
+	CloseOnBackground: boolean?,
 	Name: string?,
-	onClose: (() -> ())?,
+	OnClose: (() -> ())?,
 	ZIndex: number?,
 }
 
@@ -35,7 +35,7 @@ export type modalOptions = {
 --- @param options modalOptions? Overlay options.
 --- @param children {any} Modal content.
 --- @return element Modal overlay element.
-function module.create(options: modalOptions?, children: { any }): elementModule.element
+function module.Create(options: modalOptions?, children: { any }): elementModule.element
 	local backgroundColor3 = Color3.new(0, 0, 0)
 	local backgroundTransparency = 0.4
 	local closeOnBackground = true
@@ -52,16 +52,16 @@ function module.create(options: modalOptions?, children: { any }): elementModule
 			backgroundTransparency = options.BackgroundTransparency
 		end
 
-		if options.closeOnBackground ~= nil then
-			closeOnBackground = options.closeOnBackground
+		if options.CloseOnBackground ~= nil then
+			closeOnBackground = options.CloseOnBackground
 		end
 
 		if options.Name ~= nil then
 			name = options.Name
 		end
 
-		if options.onClose ~= nil then
-			onClose = options.onClose
+		if options.OnClose ~= nil then
+			onClose = options.OnClose
 		end
 
 		if options.ZIndex ~= nil then
@@ -86,7 +86,7 @@ function module.create(options: modalOptions?, children: { any }): elementModule
 		end
 	end
 
-	return elementModule.createTextButton(props, children)
+	return elementModule.CreateTextButton(props, children)
 end
 
 --————————————————————————————————————————————————————————————————————--

@@ -19,32 +19,32 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type range = {
-	first: number,
-	last: number,
-	offset: number,
-	totalSize: number,
+	First: number,
+	Last: number,
+	Offset: number,
+	TotalSize: number,
 }
 
---- @reactilyType virtualListRenderOptions
+--- @reactilyType VirtualListRenderOptions
 export type renderOptions<T> = {
 	CanvasPosition: Vector2?,
-	itemSize: number,
-	items: { T },
+	ItemSize: number,
+	Items: { T },
 	Name: string?,
-	overscan: number?,
-	renderItem: (item: T, index: number) -> elementModule.element,
+	Overscan: number?,
+	RenderItem: (item: T, index: number) -> elementModule.element,
 	ScrollBarThickness: number?,
 	Size: UDim2?,
-	viewportSize: number,
+	ViewportSize: number,
 }
 
 export type virtualList = {
-	delete: () -> boolean,
-	getRange: () -> range,
-	isDeleted: () -> boolean,
-	setItemCount: (itemCount: number) -> boolean,
-	setScrollOffset: (scrollOffset: number) -> boolean,
-	setViewportSize: (viewportSize: number) -> boolean,
+	Delete: () -> boolean,
+	GetRange: () -> range,
+	IsDeleted: () -> boolean,
+	SetItemCount: (itemCount: number) -> boolean,
+	SetScrollOffset: (scrollOffset: number) -> boolean,
+	SetViewportSize: (viewportSize: number) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -56,7 +56,7 @@ export type virtualList = {
 --- @param viewportSize number Visible viewport size.
 --- @param overscan number? Extra items rendered before and after the viewport.
 --- @return range Calculated visible range.
-function module.resolve(
+function module.Resolve(
 	itemCount: number,
 	itemSize: number,
 	scrollOffset: number,
@@ -69,10 +69,10 @@ function module.resolve(
 
 	if itemCount == 0 then
 		return {
-			first = 0,
-			last = 0,
-			offset = 0,
-			totalSize = 0,
+			First = 0,
+			Last = 0,
+			Offset = 0,
+			TotalSize = 0,
 		}
 	end
 
@@ -85,10 +85,10 @@ function module.resolve(
 	last = math.clamp(last, first, itemCount)
 
 	return {
-		first = first,
-		last = last,
-		offset = (first - 1) * itemSize,
-		totalSize = itemCount * itemSize,
+		First = first,
+		Last = last,
+		Offset = (first - 1) * itemSize,
+		TotalSize = itemCount * itemSize,
 	}
 end
 
@@ -100,7 +100,7 @@ end
 --- @param viewportSize number Initial viewport size.
 --- @param overscan number? Extra item count outside the viewport.
 --- @return virtualList New virtual-list controller.
-function module.new(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): virtualList
+function module.New(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): virtualList
 	local count = itemCount
 	local isDeleted = false
 	local offset = 0
@@ -108,7 +108,7 @@ function module.new(itemCount: number, itemSize: number, viewportSize: number, o
 
 	local function getRange(): range
 		assert(not isDeleted, "Reactily virtual list is deleted.")
-		return module.resolve(count, itemSize, offset, viewport, overscan)
+		return module.Resolve(count, itemSize, offset, viewport, overscan)
 	end
 
 	local function setItemCount(nextCount: number): boolean
@@ -144,20 +144,20 @@ function module.new(itemCount: number, itemSize: number, viewportSize: number, o
 	end
 
 	return {
-		delete = function(): boolean
+		Delete = function(): boolean
 			if isDeleted then
 				return false
 			end
 			isDeleted = true
 			return true
 		end,
-		getRange = getRange,
-		isDeleted = function(): boolean
+		GetRange = getRange,
+		IsDeleted = function(): boolean
 			return isDeleted
 		end,
-		setItemCount = setItemCount,
-		setScrollOffset = setScrollOffset,
-		setViewportSize = setViewportSize,
+		SetItemCount = setItemCount,
+		SetScrollOffset = setScrollOffset,
+		SetViewportSize = setViewportSize,
 	}
 end
 
@@ -167,14 +167,14 @@ end
 --- @param items {T} Complete item collection.
 --- @param rangeValue range Resolved range.
 --- @return {T} Visible item slice.
-function module.slice<T>(items: { T }, rangeValue: range): { T }
-	if rangeValue.first == 0 then
+function module.Slice<T>(items: { T }, rangeValue: range): { T }
+	if rangeValue.First == 0 then
 		return {}
 	end
 
-	local output: { T } = table.create(rangeValue.last - rangeValue.first + 1)
+	local output: { T } = table.create(rangeValue.Last - rangeValue.First + 1)
 
-	for index = rangeValue.first, rangeValue.last do
+	for index = rangeValue.First, rangeValue.Last do
 		output[#output + 1] = items[index]
 	end
 
@@ -186,31 +186,31 @@ end
 --- Creates a virtualized vertical ScrollingFrame element for a fixed-size item list.
 --- @param options renderOptions<T> Virtual-list render options.
 --- @return element Virtualized ScrollingFrame element.
-function module.render<T>(options: renderOptions<T>): elementModule.element
+function module.Render<T>(options: renderOptions<T>): elementModule.element
 	local canvasPosition = options.CanvasPosition or Vector2.zero
 	local rangeValue =
-		module.resolve(#options.items, options.itemSize, canvasPosition.Y, options.viewportSize, options.overscan)
+		module.Resolve(#options.Items, options.ItemSize, canvasPosition.Y, options.ViewportSize, options.Overscan)
 	local children: { any } = {}
 
-	if rangeValue.first ~= 0 then
-		for index = rangeValue.first, rangeValue.last do
-			local item = options.items[index]
-			children[#children + 1] = elementModule.createFrame({
+	if rangeValue.First ~= 0 then
+		for index = rangeValue.First, rangeValue.Last do
+			local item = options.Items[index]
+			children[#children + 1] = elementModule.CreateFrame({
 				BackgroundTransparency = 1,
 				LayoutOrder = index,
 				Name = `VirtualItem_{index}`,
-				Position = UDim2.fromOffset(0, (index - 1) * options.itemSize),
-				Size = UDim2.new(1, 0, 0, options.itemSize),
+				Position = UDim2.fromOffset(0, (index - 1) * options.ItemSize),
+				Size = UDim2.new(1, 0, 0, options.ItemSize),
 			}, {
-				options.renderItem(item, index),
+				options.RenderItem(item, index),
 			})
 		end
 	end
 
-	return elementModule.createScrollingFrame({
+	return elementModule.CreateScrollingFrame({
 		BackgroundTransparency = 1,
 		CanvasPosition = canvasPosition,
-		CanvasSize = UDim2.fromOffset(0, rangeValue.totalSize),
+		CanvasSize = UDim2.fromOffset(0, rangeValue.TotalSize),
 		Name = options.Name or "VirtualList",
 		ScrollBarThickness = options.ScrollBarThickness or 8,
 		ScrollingDirection = Enum.ScrollingDirection.Y,

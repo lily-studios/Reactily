@@ -26,30 +26,30 @@ local renderTaskKey = "render"
 --————————————————————————————————————————————————————————————————————--
 
 export type root = {
-	batch: (callback: () -> ()) -> (),
-	delete: () -> boolean,
-	flush: () -> (),
-	getElement: () -> elementModule.element?,
-	getParent: () -> Instance,
-	inspect: () -> reconciler.nodeSnapshot?,
-	isDeleted: () -> boolean,
-	isSuspended: () -> boolean,
+	Batch: (callback: () -> ()) -> (),
+	Delete: () -> boolean,
+	Flush: () -> (),
+	GetElement: () -> elementModule.element?,
+	GetParent: () -> Instance,
+	Inspect: () -> reconciler.nodeSnapshot?,
+	IsDeleted: () -> boolean,
+	IsSuspended: () -> boolean,
 	render: (elementValue: elementModule.element?) -> (),
-	resume: () -> boolean,
-	suspend: () -> boolean,
+	Resume: () -> boolean,
+	Suspend: () -> boolean,
 }
 
 type rootContext = {
-	batchDepth: number,
-	currentElement: elementModule.element?,
-	currentNode: reconciler.runtimeNode?,
-	isDeleted: boolean,
-	isRendering: boolean,
-	isSuspended: boolean,
-	lastRenderReason: string,
-	needsRender: boolean,
-	parent: Instance,
-	renderQueued: boolean,
+	BatchDepth: number,
+	CurrentElement: elementModule.element?,
+	CurrentNode: reconciler.runtimeNode?,
+	IsDeleted: boolean,
+	IsRendering: boolean,
+	IsSuspended: boolean,
+	LastRenderReason: string,
+	NeedsRender: boolean,
+	Parent: Instance,
+	RenderQueued: boolean,
 	scheduler: schedulerModule.scheduler,
 }
 
@@ -58,21 +58,21 @@ type rootContext = {
 --- Creates a Reactily rendering root.
 --- @param parent Instance Roblox parent that receives rendered hosts.
 --- @return root New owned Reactily root.
-function module.new(parent: Instance): root
+function module.New(parent: Instance): root
 	assert(typeof(parent) == "Instance", "Reactily root parent must be an Instance.")
 
 	local context: rootContext = {
-		batchDepth = 0,
-		currentElement = nil,
-		currentNode = nil,
-		isDeleted = false,
-		isRendering = false,
-		isSuspended = false,
-		lastRenderReason = "initial render",
-		needsRender = false,
-		parent = parent,
-		renderQueued = false,
-		scheduler = schedulerModule.new(),
+		BatchDepth = 0,
+		CurrentElement = nil,
+		CurrentNode = nil,
+		IsDeleted = false,
+		IsRendering = false,
+		IsSuspended = false,
+		LastRenderReason = "initial render",
+		NeedsRender = false,
+		Parent = parent,
+		RenderQueued = false,
+		scheduler = schedulerModule.New(),
 	}
 
 	local onGlobalBatchFinished: () -> ()
@@ -84,100 +84,96 @@ function module.new(parent: Instance): root
 	end
 
 	requestRender = function(reason: string?)
-		if context.isDeleted then
+		if context.IsDeleted then
 			return
 		end
 
-		context.needsRender = true
+		context.NeedsRender = true
 
 		if reason then
-			context.lastRenderReason = reason
+			context.LastRenderReason = reason
 		end
 
-		if context.isSuspended then
+		if context.IsSuspended then
 			return
 		end
-		if context.batchDepth > 0 then
-			return
-		end
-
-		if batching.isBatching() then
-			batching.queue(onGlobalBatchFinished)
+		if context.BatchDepth > 0 then
 			return
 		end
 
-		context.renderQueued = true
+		if batching.IsBatching() then
+			batching.Queue(onGlobalBatchFinished)
+			return
+		end
 
-		context.scheduler.enqueueKeyedPriority(
-			renderTaskKey,
-			schedulerModule.getCurrentPriority(),
-			function()
-				renderNow()
-			end
-		)
+		context.RenderQueued = true
+
+		context.scheduler.EnqueueKeyedPriority(renderTaskKey, schedulerModule.GetCurrentPriority(), function()
+			renderNow()
+		end)
 	end
 
 	renderNow = function()
-		if context.isDeleted then
+		if context.IsDeleted then
 			return
 		end
-		if context.isSuspended then
+		if context.IsSuspended then
 			return
 		end
 
-		if context.isRendering then
+		if context.IsRendering then
 			requestRender("render requested while rendering")
 			return
 		end
 
-		context.renderQueued = false
-		context.needsRender = false
-		context.isRendering = true
+		context.RenderQueued = false
+		context.NeedsRender = false
+		context.IsRendering = true
 
-		local reason = context.lastRenderReason
+		local reason = context.LastRenderReason
 
 		local success, failure = pcall(function(): boolean
-			context.currentNode = reconciler.reconcile(context.parent, context.currentNode, context.currentElement, {
-				renderReason = reason,
-				requestRender = requestRender,
+			context.CurrentNode = reconciler.Reconcile(context.Parent, context.CurrentNode, context.CurrentElement, {
+				RenderReason = reason,
+				RequestRender = requestRender,
 			})
 
 			return true
 		end)
 
-		context.isRendering = false
+		context.IsRendering = false
 
 		if not success then
-			reconciler.delete(context.currentNode)
-			context.currentNode = nil
-			context.needsRender = true
+			reconciler.Delete(context.CurrentNode)
+			context.CurrentNode = nil
+			context.NeedsRender = true
 			error(failure, 0)
 		end
 
-		if context.needsRender then
-			requestRender(context.lastRenderReason)
+		if context.NeedsRender then
+			requestRender(context.LastRenderReason)
 		end
 	end
 
 	local function batch(callback: () -> ())
-		assert(not context.isDeleted, "Reactily root is deleted.")
+		assert(not context.IsDeleted, "Reactily root is deleted.")
 
-		context.batchDepth += 1
+		context.BatchDepth += 1
 
 		local success, failure = pcall(function(): boolean
 			callback()
 			return true
 		end)
 
-		context.batchDepth -= 1
+		context.BatchDepth -= 1
 
-		if context.batchDepth == 0 and context.needsRender and not context.isSuspended then
-			context.scheduler.cancelKey(renderTaskKey)
-			context.renderQueued = false
+		if context.BatchDepth == 0 and context.NeedsRender and not context.IsSuspended then
+			context.scheduler.CancelKey(renderTaskKey)
+			context.RenderQueued = false
 
-			local priorityValue = schedulerModule.getCurrentPriority()
+			local priorityValue = schedulerModule.GetCurrentPriority()
 			if priorityValue >= schedulerModule.Priority.Transition then
-				requestRender(context.lastRenderReason)
+				requestRender(context.LastRenderReason)
 			else
 				renderNow()
 			end
@@ -191,82 +187,82 @@ function module.new(parent: Instance): root
 	end
 
 	local function delete(): boolean
-		if context.isDeleted then
+		if context.IsDeleted then
 			return false
 		end
 
-		context.isDeleted = true
-		context.needsRender = false
-		context.renderQueued = false
+		context.IsDeleted = true
+		context.NeedsRender = false
+		context.RenderQueued = false
 
-		context.scheduler.delete()
-		reconciler.delete(context.currentNode)
+		context.scheduler.Delete()
+		reconciler.Delete(context.CurrentNode)
 
-		context.currentElement = nil
-		context.currentNode = nil
+		context.CurrentElement = nil
+		context.CurrentNode = nil
 
 		return true
 	end
 
 	local function flush()
-		if context.isDeleted then
+		if context.IsDeleted then
 			return
 		end
 
-		context.scheduler.flush()
+		context.scheduler.Flush()
 	end
 
 	local function getElement(): elementModule.element?
-		return context.currentElement
+		return context.CurrentElement
 	end
 
 	local function getParent(): Instance
-		return context.parent
+		return context.Parent
 	end
 
 	local function inspect(): reconciler.nodeSnapshot?
-		if context.isDeleted then
+		if context.IsDeleted then
 			return nil
 		end
 
-		return reconciler.inspect(context.currentNode)
+		return reconciler.Inspect(context.CurrentNode)
 	end
 
 	local function getIsDeleted(): boolean
-		return context.isDeleted
+		return context.IsDeleted
 	end
 
 	local function getIsSuspended(): boolean
-		return context.isSuspended
+		return context.IsSuspended
 	end
 
 	local function render(elementValue: elementModule.element?)
-		assert(not context.isDeleted, "Reactily root is deleted.")
+		assert(not context.IsDeleted, "Reactily root is deleted.")
 
-		if context.currentElement == elementValue and not context.needsRender then
+		if context.CurrentElement == elementValue and not context.NeedsRender then
 			return
 		end
 
-		context.currentElement = elementValue
-		context.needsRender = true
-		context.lastRenderReason = "root element changed"
+		context.CurrentElement = elementValue
+		context.NeedsRender = true
+		context.LastRenderReason = "root element changed"
 
-		if context.isSuspended then
+		if context.IsSuspended then
 			return
 		end
-		if context.batchDepth > 0 then
-			return
-		end
-
-		if batching.isBatching() then
-			batching.queue(onGlobalBatchFinished)
+		if context.BatchDepth > 0 then
 			return
 		end
 
-		context.scheduler.cancelKey(renderTaskKey)
-		context.renderQueued = false
+		if batching.IsBatching() then
+			batching.Queue(onGlobalBatchFinished)
+			return
+		end
 
-		local priorityValue = schedulerModule.getCurrentPriority()
+		context.scheduler.CancelKey(renderTaskKey)
+		context.RenderQueued = false
+
+		local priorityValue = schedulerModule.GetCurrentPriority()
 		if priorityValue >= schedulerModule.Priority.Transition then
 			requestRender("root element changed")
 			return
@@ -276,16 +272,16 @@ function module.new(parent: Instance): root
 	end
 
 	local function resume(): boolean
-		if context.isDeleted then
+		if context.IsDeleted then
 			return false
 		end
-		if not context.isSuspended then
+		if not context.IsSuspended then
 			return false
 		end
 
-		context.isSuspended = false
+		context.IsSuspended = false
 
-		if context.needsRender then
+		if context.NeedsRender then
 			renderNow()
 		end
 
@@ -293,33 +289,33 @@ function module.new(parent: Instance): root
 	end
 
 	local function suspend(): boolean
-		if context.isDeleted then
+		if context.IsDeleted then
 			return false
 		end
-		if context.isSuspended then
+		if context.IsSuspended then
 			return false
 		end
 
-		context.isSuspended = true
-		context.scheduler.cancelKey(renderTaskKey)
+		context.IsSuspended = true
+		context.scheduler.CancelKey(renderTaskKey)
 
-		context.renderQueued = false
+		context.RenderQueued = false
 
 		return true
 	end
 
 	return {
-		batch = batch,
-		delete = delete,
-		flush = flush,
-		getElement = getElement,
-		getParent = getParent,
-		inspect = inspect,
-		isDeleted = getIsDeleted,
-		isSuspended = getIsSuspended,
+		Batch = batch,
+		Delete = delete,
+		Flush = flush,
+		GetElement = getElement,
+		GetParent = getParent,
+		Inspect = inspect,
+		IsDeleted = getIsDeleted,
+		IsSuspended = getIsSuspended,
 		render = render,
-		resume = resume,
-		suspend = suspend,
+		Resume = resume,
+		Suspend = suspend,
 	}
 end
 

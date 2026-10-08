@@ -48,20 +48,20 @@ type effectCallback = (() -> ()) | (() -> cleanup?)
 --- @field kind string Hook type, used to validate call order.
 --- @field value any State, memo value, or ref held by the slot.
 type hookSlot = {
-   callback: any,
-   cleanup: cleanup?,
-   dependencies: dependencyList?,
-   isInitialized: boolean,
-   kind: string,
-   value: any,
+	callback: any,
+	cleanup: cleanup?,
+	dependencies: dependencyList?,
+	IsInitialized: boolean,
+	Kind: string,
+	Value: any,
 }
 
 --- Effect scheduled for an insertion, layout, or normal effect phase.
 --- @field callback effectCallback Effect to execute.
 --- @field slot hookSlot Slot receiving the resulting cleanup.
 type pendingEffect = {
-   callback: effectCallback,
-   slot: hookSlot,
+	callback: effectCallback,
+	slot: hookSlot,
 }
 
 --- Saved hook state used to roll back a failed component render.
@@ -72,12 +72,12 @@ type pendingEffect = {
 --- @field slot hookSlot Original slot being restored.
 --- @field value any Value saved before rendering.
 type hookSnapshot = {
-   callback: any,
-   cleanup: cleanup?,
-   dependencies: dependencyList?,
-   isInitialized: boolean,
-   slot: hookSlot,
-   value: any,
+	callback: any,
+	cleanup: cleanup?,
+	dependencies: dependencyList?,
+	IsInitialized: boolean,
+	slot: hookSlot,
+	Value: any,
 }
 
 --- Lifecycle and hook storage owned by one mounted component.
@@ -93,17 +93,17 @@ type hookSnapshot = {
 --- @field renderedHookCount number Hook count from the last completed render.
 --- @field requestRender function Callback for requesting another root render.
 export type componentContext = {
-   hookIndex: number,
-   hooks: { hookSlot },
-   isDeleted: boolean,
-   isEffectsPaused: boolean,
-   isRendered: boolean,
-   needsRender: boolean,
-   pendingEffects: { pendingEffect },
-   pendingInsertionEffects: { pendingEffect },
-   pendingLayoutEffects: { pendingEffect },
-   renderedHookCount: number,
-   requestRender: (reason: string?) -> (),
+	HookIndex: number,
+	Hooks: { hookSlot },
+	IsDeleted: boolean,
+	IsEffectsPaused: boolean,
+	IsRendered: boolean,
+	NeedsRender: boolean,
+	PendingEffects: { pendingEffect },
+	PendingInsertionEffects: { pendingEffect },
+	PendingLayoutEffects: { pendingEffect },
+	RenderedHookCount: number,
+	RequestRender: (reason: string?) -> (),
 }
 
 --- Options for state that supports controlled and uncontrolled usage.
@@ -111,9 +111,9 @@ export type componentContext = {
 --- @field onChanged function? Optional callback invoked after a value change.
 --- @field value T? Controlled value, when supplied.
 export type controllableStateOptions<T> = {
-   defaultValue: T,
-   onChanged: ((value: T) -> ())?,
-   value: T?,
+	DefaultValue: T,
+	OnChanged: ((value: T) -> ())?,
+	Value: T?,
 }
 
 --- Callbacks returned by useCounter for manipulating the current count.
@@ -122,15 +122,15 @@ export type controllableStateOptions<T> = {
 --- @field reset function Restores the initial count.
 --- @field set function Assigns the count to the supplied number.
 export type counterControls = {
-   decrement: (amount: number?) -> (),
-   increment: (amount: number?) -> (),
-   reset: () -> (),
-   set: (value: number) -> (),
+	Decrement: (amount: number?) -> (),
+	Increment: (amount: number?) -> (),
+	Reset: () -> (),
+	Set: (value: number) -> (),
 }
 --- Dispatch callback used by reducer-driven state.
 export type reducerDispatch<A> = (action: A) -> ()
 --- Mutable reference whose current value persists across renders.
-export type ref<T> = { current: T }
+export type ref<T> = { Current: T }
 
 --- Object ref or callback ref that accepts an optional value.
 export type refTarget<T> = ref<T?> | ((value: T?) -> ())
@@ -146,11 +146,11 @@ local nextHookId = 0
 local renderSnapshots: { [componentContext]: { hookSnapshot } } = {}
 
 do
-   local weakRenderSnapshots: any = renderSnapshots
+	local weakRenderSnapshots: any = renderSnapshots
 
-   setmetatable(weakRenderSnapshots, {
-      __mode = "k",
-   })
+	setmetatable(weakRenderSnapshots, {
+		__mode = "k",
+	})
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -158,10 +158,10 @@ end
 --- @reactilyExport
 --- Creates a mutable React-style ref for Roblox Instances or other values.
 --- @return ref<T?> Mutable ref whose current value starts as nil.
-function module.createRef<T>(): ref<T?>
-   return {
-      current = nil,
-   }
+function module.CreateRef<T>(): ref<T?>
+	return {
+		Current = nil,
+	}
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -170,7 +170,7 @@ end
 --- @param ... any Values to store as dependencies.
 --- @return dependencyList Captured dependencies in argument order.
 local function createDependencies(...: any): dependencyList
-   return { ... }
+	return { ... }
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -180,22 +180,22 @@ end
 --- @param current dependencyList? Dependencies supplied by the current render.
 --- @return boolean Whether the effect or memo should update.
 local function dependenciesChanged(previous: dependencyList?, current: dependencyList?): boolean
-   if previous == nil then
-      return true
-   end
-   if current == nil then
-      return true
-   end
-   if #previous ~= #current then
-      return true
-   end
-   for index, value in current do
-      if previous[index] == value then
-         continue
-      end
-      return true
-   end
-   return false
+	if previous == nil then
+		return true
+	end
+	if current == nil then
+		return true
+	end
+	if #previous ~= #current then
+		return true
+	end
+	for index, value in current do
+		if previous[index] == value then
+			continue
+		end
+		return true
+	end
+	return false
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -203,10 +203,10 @@ end
 --- Returns the component context currently rendering and verifies it is valid.
 --- @return componentContext Active component context.
 local function getContext(): componentContext
-   local context = currentContext
-   assert(context, "Reactily hook called outside a component render.")
-   assert(not context.isDeleted, "Reactily component context is deleted.")
-   return context
+	local context = currentContext
+	assert(context, "Reactily hook called outside a component render.")
+	assert(not context.IsDeleted, "Reactily component context is deleted.")
+	return context
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -216,22 +216,22 @@ end
 --- @param kind string Hook kind used to enforce consistent hook ordering.
 --- @return hookSlot Existing or newly allocated hook slot.
 local function getSlot(context: componentContext, kind: string): hookSlot
-   context.hookIndex += 1
-   local existingSlot = context.hooks[context.hookIndex]
-   if existingSlot then
-      assert(existingSlot.kind == kind, `Reactily hook order changed from "{existingSlot.kind}" to "{kind}".`)
-      return existingSlot
-   end
-   local slot: hookSlot = {
-      callback = nil,
-      cleanup = nil,
-      dependencies = nil,
-      isInitialized = false,
-      kind = kind,
-      value = nil,
-   }
-   context.hooks[context.hookIndex] = slot
-   return slot
+	context.HookIndex += 1
+	local existingSlot = context.Hooks[context.HookIndex]
+	if existingSlot then
+		assert(existingSlot.Kind == kind, `Reactily hook order changed from "{existingSlot.Kind}" to "{kind}".`)
+		return existingSlot
+	end
+	local slot: hookSlot = {
+		callback = nil,
+		cleanup = nil,
+		dependencies = nil,
+		IsInitialized = false,
+		Kind = kind,
+		Value = nil,
+	}
+	context.Hooks[context.HookIndex] = slot
+	return slot
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -239,14 +239,14 @@ end
 --- Executes an effect cleanup and reports failures without interrupting cleanup.
 --- @param callback cleanup Cleanup function to execute.
 local function runCleanup(callback: cleanup)
-   local success, failure = pcall(function(): boolean
-      callback()
-      return true
-   end)
-   if success then
-      return
-   end
-   warn(`Reactily effect cleanup failed: {failure}`)
+	local success, failure = pcall(function(): boolean
+		callback()
+		return true
+	end)
+	if success then
+		return
+	end
+	warn(`Reactily effect cleanup failed: {failure}`)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -256,10 +256,10 @@ end
 --- @param nextValue T | function Replacement value or functional updater.
 --- @return T Resolved next state value.
 local function resolveStateValue<T>(previous: T, nextValue: T | ((previous: T) -> T)): T
-   if type(nextValue) == "function" then
-      return (nextValue :: (previous: T) -> T)(previous)
-   end
-   return nextValue :: T
+	if type(nextValue) == "function" then
+		return (nextValue :: (previous: T) -> T)(previous)
+	end
+	return nextValue :: T
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -270,24 +270,24 @@ end
 --- @param dependencies dependencyList? Dependency values for the effect.
 --- @param queue {pendingEffect} Pending-effect queue to append to.
 local function queueEffect(
-   slot: hookSlot,
-   callback: effectCallback,
-   dependencies: dependencyList?,
-   queue: { pendingEffect }
+	slot: hookSlot,
+	callback: effectCallback,
+	dependencies: dependencyList?,
+	queue: { pendingEffect }
 )
-   if slot.isInitialized and not dependenciesChanged(slot.dependencies, dependencies) then
-      return
-   end
-   slot.isInitialized = true
-   slot.callback = callback
-   slot.dependencies = nil
-   if dependencies then
-      slot.dependencies = table.clone(dependencies)
-   end
-   queue[#queue + 1] = {
-      callback = callback,
-      slot = slot,
-   }
+	if slot.IsInitialized and not dependenciesChanged(slot.dependencies, dependencies) then
+		return
+	end
+	slot.IsInitialized = true
+	slot.callback = callback
+	slot.dependencies = nil
+	if dependencies then
+		slot.dependencies = table.clone(dependencies)
+	end
+	queue[#queue + 1] = {
+		callback = callback,
+		slot = slot,
+	}
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -296,38 +296,48 @@ end
 --- @param context componentContext Component context owning the effects.
 --- @param queueName string Name of the effect queue to flush.
 local function flushEffectQueue(
-   context: componentContext,
-   queueName: "pendingEffects" | "pendingInsertionEffects" | "pendingLayoutEffects"
+	context: componentContext,
+	queueName: "PendingEffects" | "PendingInsertionEffects" | "PendingLayoutEffects"
 )
-   if context.isDeleted or context.isEffectsPaused then
-      return
-   end
-   local queue = context[queueName]
-   if #queue == 0 then
-      return
-   end
-   context[queueName] = {}
-   for _, effect in queue do
-      if effect.slot.cleanup then
-         runCleanup(effect.slot.cleanup)
-         effect.slot.cleanup = nil
-      end
-      local cleanupValue: any = nil
-      local success, failure = pcall(function(): boolean
-         cleanupValue = (effect.callback :: any)()
-         return true
-      end)
-      if success then
-         if cleanupValue ~= nil and type(cleanupValue) ~= "function" then
-            warn("Reactily effect callback must return a cleanup function or nil.")
-            continue
-         end
-         effect.slot.cleanup = cleanupValue :: cleanup?
-         continue
-      end
-      warn(`Reactily effect failed: {failure}`)
-   end
-   table.clear(queue)
+	if context.IsDeleted or context.IsEffectsPaused then
+		return
+	end
+	local queue: { pendingEffect }
+	if queueName == "PendingEffects" then
+		queue = context.PendingEffects
+		context.PendingEffects = {}
+	elseif queueName == "PendingInsertionEffects" then
+		queue = context.PendingInsertionEffects
+		context.PendingInsertionEffects = {}
+	else
+		queue = context.PendingLayoutEffects
+		context.PendingLayoutEffects = {}
+	end
+
+	if #queue == 0 then
+		return
+	end
+	for _, effect in queue do
+		if effect.slot.cleanup then
+			runCleanup(effect.slot.cleanup)
+			effect.slot.cleanup = nil
+		end
+		local cleanupValue: any = nil
+		local success, failure = pcall(function(): boolean
+			cleanupValue = (effect.callback :: any)()
+			return true
+		end)
+		if success then
+			if cleanupValue ~= nil and type(cleanupValue) ~= "function" then
+				warn("Reactily effect callback must return a cleanup function or nil.")
+				continue
+			end
+			effect.slot.cleanup = cleanupValue :: cleanup?
+			continue
+		end
+		warn(`Reactily effect failed: {failure}`)
+	end
+	table.clear(queue)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -336,44 +346,44 @@ end
 --- @param target refTarget<T>? Ref receiving the value, when provided.
 --- @param value T? Value to expose, or nil when releasing the ref.
 local function setRefTarget<T>(target: refTarget<T>?, value: T?)
-   if not target then
-      return
-   end
-   if type(target) == "function" then
-      (target :: (T?) -> ())(value)
-      return
-   end
-   (target :: ref<T?>).current = value
+	if not target then
+		return
+	end
+	if type(target) == "function" then
+		(target :: (T?) -> ())(value)
+		return
+	end
+	(target :: ref<T?>).Current = value
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Begins a component render using the provided hook context.
 --- @param context componentContext Component context entering the render phase.
-function module.beginRender(context: componentContext)
-   assert(not context.isDeleted, "Reactily component context is deleted.")
-   assert(currentContext == nil, "Reactily component renders cannot overlap.")
+function module.BeginRender(context: componentContext)
+	assert(not context.IsDeleted, "Reactily component context is deleted.")
+	assert(currentContext == nil, "Reactily component renders cannot overlap.")
 
-   local snapshot: { hookSnapshot } = table.create(#context.hooks)
-   for _, slot in context.hooks do
-      local dependencies: dependencyList? = nil
-      if slot.dependencies then
-         dependencies = table.clone(slot.dependencies)
-      end
+	local snapshot: { hookSnapshot } = table.create(#context.Hooks)
+	for _, slot in context.Hooks do
+		local dependencies: dependencyList? = nil
+		if slot.dependencies then
+			dependencies = table.clone(slot.dependencies)
+		end
 
-      snapshot[#snapshot + 1] = {
-         callback = slot.callback,
-         cleanup = slot.cleanup,
-         dependencies = dependencies,
-         isInitialized = slot.isInitialized,
-         slot = slot,
-         value = slot.value,
-      }
-   end
+		snapshot[#snapshot + 1] = {
+			callback = slot.callback,
+			cleanup = slot.cleanup,
+			dependencies = dependencies,
+			IsInitialized = slot.IsInitialized,
+			slot = slot,
+			Value = slot.Value,
+		}
+	end
 
-   context.hookIndex = 0
-   renderSnapshots[context] = snapshot
-   currentContext = context
+	context.HookIndex = 0
+	renderSnapshots[context] = snapshot
+	currentContext = context
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -381,26 +391,26 @@ end
 --- Deletes a component context and releases its owned hook resources.
 --- @param context componentContext Component context to delete.
 --- @return boolean Whether the context was deleted.
-function module.deleteContext(context: componentContext): boolean
-   if context.isDeleted then
-      return false
-   end
-   context.isDeleted = true
-   for _, slot in context.hooks do
-      if slot.cleanup then
-         runCleanup(slot.cleanup)
-         slot.cleanup = nil
-      end
-      slot.callback = nil
-      slot.dependencies = nil
-      slot.value = nil
-   end
-   table.clear(context.hooks)
-   table.clear(context.pendingEffects)
-   table.clear(context.pendingInsertionEffects)
-   table.clear(context.pendingLayoutEffects)
-   renderSnapshots[context] = nil
-   return true
+function module.DeleteContext(context: componentContext): boolean
+	if context.IsDeleted then
+		return false
+	end
+	context.IsDeleted = true
+	for _, slot in context.Hooks do
+		if slot.cleanup then
+			runCleanup(slot.cleanup)
+			slot.cleanup = nil
+		end
+		slot.callback = nil
+		slot.dependencies = nil
+		slot.Value = nil
+	end
+	table.clear(context.Hooks)
+	table.clear(context.PendingEffects)
+	table.clear(context.PendingInsertionEffects)
+	table.clear(context.PendingLayoutEffects)
+	renderSnapshots[context] = nil
+	return true
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -408,63 +418,63 @@ end
 --- Completes the active component render.
 --- @param context componentContext Component context completing the render.
 --- @param didComplete boolean Whether the render completed successfully.
-function module.endRender(context: componentContext, didComplete: boolean)
-   assert(currentContext == context, "Reactily render context does not match the active component.")
-   currentContext = nil
+function module.EndRender(context: componentContext, didComplete: boolean)
+	assert(currentContext == context, "Reactily render context does not match the active component.")
+	currentContext = nil
 
-   local snapshot = renderSnapshots[context]
+	local snapshot = renderSnapshots[context]
 
-   --- Restores saved hook slots and removes effects after an unsuccessful render.
-   local function rollback()
-      table.clear(context.pendingEffects)
-      table.clear(context.pendingInsertionEffects)
-      table.clear(context.pendingLayoutEffects)
+	--- Restores saved hook slots and removes effects after an unsuccessful render.
+	local function rollback()
+		table.clear(context.PendingEffects)
+		table.clear(context.PendingInsertionEffects)
+		table.clear(context.PendingLayoutEffects)
 
-      if not context.isRendered then
-         table.clear(context.hooks)
-         return
-      end
+		if not context.IsRendered then
+			table.clear(context.Hooks)
+			return
+		end
 
-      if snapshot then
-         for _, saved in snapshot do
-            local slot = saved.slot
-            slot.callback = saved.callback
-            slot.cleanup = saved.cleanup
-            slot.dependencies = saved.dependencies
-            slot.isInitialized = saved.isInitialized
-            slot.value = saved.value
-         end
-      end
+		if snapshot then
+			for _, saved in snapshot do
+				local slot = saved.slot
+				slot.callback = saved.callback
+				slot.cleanup = saved.cleanup
+				slot.dependencies = saved.dependencies
+				slot.IsInitialized = saved.IsInitialized
+				slot.Value = saved.Value
+			end
+		end
 
-      for index = #context.hooks, context.renderedHookCount + 1, -1 do
-         table.remove(context.hooks, index)
-      end
-   end
+		for index = #context.Hooks, context.RenderedHookCount + 1, -1 do
+			table.remove(context.Hooks, index)
+		end
+	end
 
-   if not didComplete then
-      rollback()
-      renderSnapshots[context] = nil
-      return
-   end
+	if not didComplete then
+		rollback()
+		renderSnapshots[context] = nil
+		return
+	end
 
-   if context.isRendered and context.hookIndex ~= context.renderedHookCount then
-      rollback()
-      renderSnapshots[context] = nil
-      error("Reactily hook count changed between renders.", 2)
-   end
+	if context.IsRendered and context.HookIndex ~= context.RenderedHookCount then
+		rollback()
+		renderSnapshots[context] = nil
+		error("Reactily hook count changed between renders.", 2)
+	end
 
-   renderSnapshots[context] = nil
-   context.isRendered = true
-   context.needsRender = false
-   context.renderedHookCount = context.hookIndex
+	renderSnapshots[context] = nil
+	context.IsRendered = true
+	context.NeedsRender = false
+	context.RenderedHookCount = context.HookIndex
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Flushes pending normal effects for a component context.
 --- @param context componentContext Component context containing the effects.
-function module.flushEffects(context: componentContext)
-   flushEffectQueue(context, "pendingEffects")
+function module.FlushEffects(context: componentContext)
+	flushEffectQueue(context, "PendingEffects")
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -472,16 +482,16 @@ end
 --- Flushes pending insertion effects for a component context.
 --- Insertion effects run after host mutation and before layout effects.
 --- @param context componentContext Component context containing insertion effects.
-function module.flushInsertionEffects(context: componentContext)
-   flushEffectQueue(context, "pendingInsertionEffects")
+function module.FlushInsertionEffects(context: componentContext)
+	flushEffectQueue(context, "PendingInsertionEffects")
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Flushes pending layout effects for a component context.
 --- @param context componentContext Component context containing the layout effects.
-function module.flushLayoutEffects(context: componentContext)
-   flushEffectQueue(context, "pendingLayoutEffects")
+function module.FlushLayoutEffects(context: componentContext)
+	flushEffectQueue(context, "PendingLayoutEffects")
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -490,72 +500,72 @@ end
 --- @param context componentContext Context receiving the queued effect.
 --- @param slot hookSlot Initialized effect slot to requeue.
 local function enqueueStoredEffect(context: componentContext, slot: hookSlot)
-   if not slot.isInitialized or type(slot.callback) ~= "function" then
-      return
-   end
+	if not slot.IsInitialized or type(slot.callback) ~= "function" then
+		return
+	end
 
-   local pending: pendingEffect = {
-      callback = slot.callback :: effectCallback,
-      slot = slot,
-   }
+	local pending: pendingEffect = {
+		callback = slot.callback :: effectCallback,
+		slot = slot,
+	}
 
-   if slot.kind == "insertionEffect" then
-      context.pendingInsertionEffects[#context.pendingInsertionEffects + 1] = pending
-   elseif slot.kind == "layoutEffect" then
-      context.pendingLayoutEffects[#context.pendingLayoutEffects + 1] = pending
-   elseif slot.kind == "effect" then
-      context.pendingEffects[#context.pendingEffects + 1] = pending
-   end
+	if slot.Kind == "insertionEffect" then
+		context.PendingInsertionEffects[#context.PendingInsertionEffects + 1] = pending
+	elseif slot.Kind == "layoutEffect" then
+		context.PendingLayoutEffects[#context.PendingLayoutEffects + 1] = pending
+	elseif slot.Kind == "effect" then
+		context.PendingEffects[#context.PendingEffects + 1] = pending
+	end
 end
 
 --- Pauses component effects while preserving hook state.
 --- Existing cleanups run exactly once and pending effects are held until resume.
 --- @param context componentContext Component context whose effects should pause.
-function module.pauseEffects(context: componentContext)
-   if context.isDeleted or context.isEffectsPaused then
-      return
-   end
+function module.PauseEffects(context: componentContext)
+	if context.IsDeleted or context.IsEffectsPaused then
+		return
+	end
 
-   context.isEffectsPaused = true
-   table.clear(context.pendingEffects)
-   table.clear(context.pendingInsertionEffects)
-   table.clear(context.pendingLayoutEffects)
+	context.IsEffectsPaused = true
+	table.clear(context.PendingEffects)
+	table.clear(context.PendingInsertionEffects)
+	table.clear(context.PendingLayoutEffects)
 
-   for _, slot in context.hooks do
-      if slot.kind ~= "effect" and slot.kind ~= "layoutEffect" and slot.kind ~= "insertionEffect" then
-         continue
-      end
-      if slot.cleanup then
-         runCleanup(slot.cleanup)
-         slot.cleanup = nil
-      end
-   end
+	for _, slot in context.Hooks do
+		if slot.Kind ~= "effect" and slot.Kind ~= "layoutEffect" and slot.Kind ~= "insertionEffect" then
+			continue
+		end
+		if slot.cleanup then
+			runCleanup(slot.cleanup)
+			slot.cleanup = nil
+		end
+	end
 end
 
 --- Resumes a paused component and reruns its active effects in lifecycle order.
 --- @param context componentContext Component context whose effects should resume.
-function module.resumeEffects(context: componentContext)
-   if context.isDeleted or not context.isEffectsPaused then
-      return
-   end
+function module.ResumeEffects(context: componentContext)
+	if context.IsDeleted or not context.IsEffectsPaused then
+		return
+	end
 
-   context.isEffectsPaused = false
-   for _, slot in context.hooks do
-      enqueueStoredEffect(context, slot)
-   end
-   module.flushInsertionEffects(context)
-   module.flushLayoutEffects(context)
-   module.flushEffects(context)
+	context.IsEffectsPaused = false
+	for _, slot in context.Hooks do
+		enqueueStoredEffect(context, slot)
+	end
+	module.FlushInsertionEffects(context)
+	module.FlushLayoutEffects(context)
+	module.FlushEffects(context)
 end
 
 --- Replays active effects for StrictMode development checks.
 --- @param context componentContext Component context whose effects should replay.
-function module.replayEffects(context: componentContext)
-   if context.isDeleted or context.isEffectsPaused then
-      return
-   end
-   module.pauseEffects(context)
-   module.resumeEffects(context)
+function module.ReplayEffects(context: componentContext)
+	if context.IsDeleted or context.IsEffectsPaused then
+		return
+	end
+	module.PauseEffects(context)
+	module.ResumeEffects(context)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -563,20 +573,20 @@ end
 --- Creates a component hook context.
 --- @param requestRender (reason: string?) -> () Callback used to request another render.
 --- @return componentContext Newly created component context.
-function module.newContext(requestRender: (reason: string?) -> ()): componentContext
-   return {
-      hookIndex = 0,
-      hooks = {},
-      isDeleted = false,
-      isEffectsPaused = false,
-      isRendered = false,
-      needsRender = false,
-      pendingEffects = {},
-      pendingInsertionEffects = {},
-      pendingLayoutEffects = {},
-      renderedHookCount = 0,
-      requestRender = requestRender,
-   }
+function module.NewContext(requestRender: (reason: string?) -> ()): componentContext
+	return {
+		HookIndex = 0,
+		Hooks = {},
+		IsDeleted = false,
+		IsEffectsPaused = false,
+		IsRendered = false,
+		NeedsRender = false,
+		PendingEffects = {},
+		PendingInsertionEffects = {},
+		PendingLayoutEffects = {},
+		RenderedHookCount = 0,
+		RequestRender = requestRender,
+	}
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -587,42 +597,42 @@ end
 --- @param defaultValue T Fallback value when the Attribute is missing.
 --- @return T Current value.
 --- @return (value: T) -> () Setter that updates both state and the Attribute.
-function module.useAttribute<T>(instance: Instance, attributeName: string, defaultValue: T): (T, (value: T) -> ())
-   local initialAttribute = instance:GetAttribute(attributeName)
-   local initialValue = defaultValue
-   if initialAttribute ~= nil then
-      initialValue = initialAttribute :: T
-   end
-   local value, setValue = module.useState(initialValue)
-   module.useEffect(function()
-      local currentAttribute = instance:GetAttribute(attributeName)
-      if currentAttribute == nil then
-         setValue(defaultValue)
-      else
-         setValue(currentAttribute :: T)
-      end
+function module.UseAttribute<T>(instance: Instance, attributeName: string, defaultValue: T): (T, (value: T) -> ())
+	local initialAttribute = instance:GetAttribute(attributeName)
+	local initialValue = defaultValue
+	if initialAttribute ~= nil then
+		initialValue = initialAttribute :: T
+	end
+	local value, setValue = module.UseState(initialValue)
+	module.UseEffect(function()
+		local currentAttribute = instance:GetAttribute(attributeName)
+		if currentAttribute == nil then
+			setValue(defaultValue)
+		else
+			setValue(currentAttribute :: T)
+		end
 
-      local connection = instance:GetAttributeChangedSignal(attributeName):Connect(function()
-         local nextValue = instance:GetAttribute(attributeName)
-         if nextValue == nil then
-            setValue(defaultValue)
-            return
-         end
-         setValue(nextValue :: T)
-      end)
-      return function()
-         connection:Disconnect()
-      end
-   end, createDependencies(instance, attributeName, defaultValue))
-   --- Writes a new Attribute value and synchronizes component state.
-   --- @param nextValue T Value to store in the Roblox Attribute.
-   local function set(nextValue: T)
-      if instance:GetAttribute(attributeName) ~= nextValue then
-         instance:SetAttribute(attributeName, nextValue :: any)
-      end
-      setValue(nextValue)
-   end
-   return value, set
+		local connection = instance:GetAttributeChangedSignal(attributeName):Connect(function()
+			local nextValue = instance:GetAttribute(attributeName)
+			if nextValue == nil then
+				setValue(defaultValue)
+				return
+			end
+			setValue(nextValue :: T)
+		end)
+		return function()
+			connection:Disconnect()
+		end
+	end, createDependencies(instance, attributeName, defaultValue))
+	--- Writes a new Attribute value and synchronizes component state.
+	--- @param nextValue T Value to store in the Roblox Attribute.
+	local function set(nextValue: T)
+		if instance:GetAttribute(attributeName) ~= nextValue then
+			instance:SetAttribute(attributeName, nextValue :: any)
+		end
+		setValue(nextValue)
+	end
+	return value, set
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -633,24 +643,24 @@ end
 --- @return () -> () Enable callback.
 --- @return () -> () Disable callback.
 --- @return () -> () Toggle callback.
-function module.useBoolean(initialValue: boolean?): (boolean, () -> (), () -> (), () -> ())
-   local defaultValue = initialValue or false
-   local value, setValue = module.useState(defaultValue)
-   --- Sets the boolean hook state to false.
-   local function disable()
-      setValue(false)
-   end
-   --- Sets the boolean hook state to true.
-   local function enable()
-      setValue(true)
-   end
-   --- Inverts the current boolean hook state.
-   local function toggle()
-      setValue(function(previous: boolean): boolean
-         return not previous
-      end)
-   end
-   return value, enable, disable, toggle
+function module.UseBoolean(initialValue: boolean?): (boolean, () -> (), () -> (), () -> ())
+	local defaultValue = initialValue or false
+	local value, setValue = module.UseState(defaultValue)
+	--- Sets the boolean hook state to false.
+	local function disable()
+		setValue(false)
+	end
+	--- Sets the boolean hook state to true.
+	local function enable()
+		setValue(true)
+	end
+	--- Inverts the current boolean hook state.
+	local function toggle()
+		setValue(function(previous: boolean): boolean
+			return not previous
+		end)
+	end
+	return value, enable, disable, toggle
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -658,16 +668,16 @@ end
 --- Creates and owns a Reactily binding for the component lifetime.
 --- @param initialValue T Initial binding value.
 --- @return binding<T> Stable binding deleted automatically on unmount.
-function module.useBinding<T>(initialValue: T): bindingModule.binding<T>
-   local value = module.useMemo(function(): bindingModule.binding<T>
-      return bindingModule.new(initialValue)
-   end, {})
-   module.useEffect(function()
-      return function()
-         value.delete()
-      end
-   end, createDependencies(value))
-   return value
+function module.UseBinding<T>(initialValue: T): bindingModule.binding<T>
+	local value = module.UseMemo(function(): bindingModule.binding<T>
+		return bindingModule.New(initialValue)
+	end, {})
+	module.UseEffect(function()
+		return function()
+			value.Delete()
+		end
+	end, createDependencies(value))
+	return value
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -676,10 +686,10 @@ end
 --- @param callback T Callback value to preserve.
 --- @param dependencies {any}? Values controlling when the callback changes.
 --- @return T Stable callback value.
-function module.useCallback<T>(callback: T, dependencies: dependencyList?): T
-   return module.useMemo(function(): T
-      return callback
-   end, dependencies)
+function module.UseCallback<T>(callback: T, dependencies: dependencyList?): T
+	return module.UseMemo(function(): T
+		return callback
+	end, dependencies)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -688,28 +698,28 @@ end
 --- @param options controllableStateOptions<T> Controlled value, default value, and change callback.
 --- @return T Current resolved value.
 --- @return stateSetter<T> Setter that updates internal state when uncontrolled and always notifies onChanged.
-function module.useControllableState<T>(options: controllableStateOptions<T>): (T, stateSetter<T>)
-   local internalValue, setInternalValue = module.useState(options.defaultValue)
-   local controlled = options.value ~= nil
-   local value = internalValue
-   if controlled then
-      value = options.value :: T
-   end
-   --- Applies a controlled or uncontrolled state update.
-   --- @param nextValue T | function Direct value or updater function.
-   local function setValue(nextValue: T | ((previous: T) -> T))
-      local resolved = resolveStateValue(value, nextValue)
-      if resolved == value then
-         return
-      end
-      if not controlled then
-         setInternalValue(resolved)
-      end
-      if options.onChanged then
-         options.onChanged(resolved)
-      end
-   end
-   return value, setValue
+function module.UseControllableState<T>(options: controllableStateOptions<T>): (T, stateSetter<T>)
+	local internalValue, setInternalValue = module.UseState(options.DefaultValue)
+	local controlled = options.Value ~= nil
+	local value = internalValue
+	if controlled then
+		value = options.Value :: T
+	end
+	--- Applies a controlled or uncontrolled state update.
+	--- @param nextValue T | function Direct value or updater function.
+	local function setValue(nextValue: T | ((previous: T) -> T))
+		local resolved = resolveStateValue(value, nextValue)
+		if resolved == value then
+			return
+		end
+		if not controlled then
+			setInternalValue(resolved)
+		end
+		if options.OnChanged then
+			options.OnChanged(resolved)
+		end
+	end
+	return value, setValue
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -718,30 +728,30 @@ end
 --- @param initialValue number? Initial counter value. Defaults to zero.
 --- @return number Current counter value.
 --- @return counterControls Counter controls.
-function module.useCounter(initialValue: number?): (number, counterControls)
-   local defaultValue = initialValue or 0
-   local value, setValue = module.useState(defaultValue)
-   local controls: counterControls = {
-      decrement = function(amount: number?)
-         local delta = amount or 1
-         setValue(function(previous: number): number
-            return previous - delta
-         end)
-      end,
-      increment = function(amount: number?)
-         local delta = amount or 1
-         setValue(function(previous: number): number
-            return previous + delta
-         end)
-      end,
-      reset = function()
-         setValue(defaultValue)
-      end,
-      set = function(nextValue: number)
-         setValue(nextValue)
-      end,
-   }
-   return value, controls
+function module.UseCounter(initialValue: number?): (number, counterControls)
+	local defaultValue = initialValue or 0
+	local value, setValue = module.UseState(defaultValue)
+	local controls: counterControls = {
+		Decrement = function(amount: number?)
+			local delta = amount or 1
+			setValue(function(previous: number): number
+				return previous - delta
+			end)
+		end,
+		Increment = function(amount: number?)
+			local delta = amount or 1
+			setValue(function(previous: number): number
+				return previous + delta
+			end)
+		end,
+		Reset = function()
+			setValue(defaultValue)
+		end,
+		Set = function(nextValue: number)
+			setValue(nextValue)
+		end,
+	}
+	return value, controls
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -750,27 +760,27 @@ end
 --- @param value T Current value.
 --- @param delaySeconds number Delay before the value updates.
 --- @return T Current debounced value.
-function module.useDebouncedValue<T>(value: T, delaySeconds: number): T
-   assert(delaySeconds >= 0, "Reactily debounce delay must be non-negative.")
-   local debounced, setDebounced = module.useState(value)
-   local generation = module.useRef(0)
-   module.useEffect(function()
-      generation.current += 1
-      local currentGeneration = generation.current
-      local thread = task.delay(delaySeconds, function()
-         if generation.current ~= currentGeneration then
-            return
-         end
-         setDebounced(value)
-      end)
-      return function()
-         if coroutine.status(thread) == "dead" then
-            return
-         end
-         task.cancel(thread)
-      end
-   end, createDependencies(value, delaySeconds))
-   return debounced
+function module.UseDebouncedValue<T>(value: T, delaySeconds: number): T
+	assert(delaySeconds >= 0, "Reactily debounce delay must be non-negative.")
+	local debounced, setDebounced = module.UseState(value)
+	local generation = module.UseRef(0)
+	module.UseEffect(function()
+		generation.Current += 1
+		local currentGeneration = generation.Current
+		local thread = task.delay(delaySeconds, function()
+			if generation.Current ~= currentGeneration then
+				return
+			end
+			setDebounced(value)
+		end)
+		return function()
+			if coroutine.status(thread) == "dead" then
+				return
+			end
+			task.cancel(thread)
+		end
+	end, createDependencies(value, delaySeconds))
+	return debounced
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -778,25 +788,25 @@ end
 --- Returns a deferred copy of a changing value using one-shot scheduling.
 --- @param value T Current value.
 --- @return T Deferred value from the previous completed transition.
-function module.useDeferredValue<T>(value: T): T
-   local deferred, setDeferred = module.useState(value)
-   local generation = module.useRef(0)
+function module.UseDeferredValue<T>(value: T): T
+	local deferred, setDeferred = module.UseState(value)
+	local generation = module.UseRef(0)
 
-   module.useEffect(function()
-      generation.current += 1
-      local currentGeneration = generation.current
+	module.UseEffect(function()
+		generation.Current += 1
+		local currentGeneration = generation.Current
 
-      transitionModule.start(function()
-         if generation.current ~= currentGeneration then
-            return
-         end
-         setDeferred(value)
-      end, nil)
+		transitionModule.Start(function()
+			if generation.Current ~= currentGeneration then
+				return
+			end
+			setDeferred(value)
+		end, nil)
 
-      return nil
-   end, createDependencies(value))
+		return nil
+	end, createDependencies(value))
 
-   return deferred
+	return deferred
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -804,10 +814,10 @@ end
 --- Queues an effect after the component completes rendering.
 --- @param callback () -> cleanup? Effect callback with optional cleanup.
 --- @param dependencies {any}? Values controlling when the effect reruns.
-function module.useEffect(callback: effectCallback, dependencies: dependencyList?)
-   local context = getContext()
-   local slot = getSlot(context, "effect")
-   queueEffect(slot, callback, dependencies, context.pendingEffects)
+function module.UseEffect(callback: effectCallback, dependencies: dependencyList?)
+	local context = getContext()
+	local slot = getSlot(context, "effect")
+	queueEffect(slot, callback, dependencies, context.PendingEffects)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -816,10 +826,10 @@ end
 --- Use this for framework-level host registration rather than ordinary UI side effects.
 --- @param callback () -> cleanup? Insertion callback with optional cleanup.
 --- @param dependencies {any}? Values controlling when the effect reruns.
-function module.useInsertionEffect(callback: effectCallback, dependencies: dependencyList?)
-   local context = getContext()
-   local slot = getSlot(context, "insertionEffect")
-   queueEffect(slot, callback, dependencies, context.pendingInsertionEffects)
+function module.UseInsertionEffect(callback: effectCallback, dependencies: dependencyList?)
+	local context = getContext()
+	local slot = getSlot(context, "insertionEffect")
+	queueEffect(slot, callback, dependencies, context.PendingInsertionEffects)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -828,13 +838,13 @@ end
 --- @param callback T Current callback implementation.
 --- @return T Stable callback identity.
 local function useStableEvent<T>(callback: T): T
-   assert(type(callback) == "function", "Reactily effect-event callback must be a function.")
-   local latest = module.useLatest(callback)
-   return module.useMemo(function(): T
-      return (function(...: any)
-         return (latest.current :: any)(...)
-      end) :: any
-   end, {})
+	assert(type(callback) == "function", "Reactily effect-event callback must be a function.")
+	local latest = module.UseLatest(callback)
+	return module.UseMemo(function(): T
+		return (function(...: any)
+			return (latest.Current :: any)(...)
+		end) :: any
+	end, {})
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -844,16 +854,16 @@ end
 --- @param getSnapshot () -> T Current snapshot reader.
 --- @return T Current external snapshot.
 local function useExternalSnapshot<T>(subscribe: (callback: () -> ()) -> () -> (), getSnapshot: () -> T): T
-   local value, setValue = module.useState(getSnapshot())
-   module.useEffect(function()
-      --- Reads the current external snapshot into component state.
-      local function update()
-         setValue(getSnapshot())
-      end
-      update()
-      return subscribe(update)
-   end, createDependencies(subscribe, getSnapshot))
-   return value
+	local value, setValue = module.UseState(getSnapshot())
+	module.UseEffect(function()
+		--- Reads the current external snapshot into component state.
+		local function update()
+			setValue(getSnapshot())
+		end
+		update()
+		return subscribe(update)
+	end, createDependencies(subscribe, getSnapshot))
+	return value
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -861,22 +871,22 @@ end
 --- Returns focus state for a GuiObject.
 --- @param object GuiObject GUI object to observe.
 --- @return boolean Whether the object currently owns selection focus.
-function module.useFocus(object: GuiObject): boolean
-   local focused, setFocused = module.useState(guiService.SelectedObject == object)
-   module.useEffect(function()
-      setFocused(guiService.SelectedObject == object)
-      local gained = object.SelectionGained:Connect(function()
-         setFocused(true)
-      end)
-      local lost = object.SelectionLost:Connect(function()
-         setFocused(false)
-      end)
-      return function()
-         gained:Disconnect()
-         lost:Disconnect()
-      end
-   end, createDependencies(object))
-   return focused
+function module.UseFocus(object: GuiObject): boolean
+	local focused, setFocused = module.UseState(guiService.SelectedObject == object)
+	module.UseEffect(function()
+		setFocused(guiService.SelectedObject == object)
+		local gained = object.SelectionGained:Connect(function()
+			setFocused(true)
+		end)
+		local lost = object.SelectionLost:Connect(function()
+			setFocused(false)
+		end)
+		return function()
+			gained:Disconnect()
+			lost:Disconnect()
+		end
+	end, createDependencies(object))
+	return focused
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -884,21 +894,21 @@ end
 --- Returns hover state for a GuiObject.
 --- @param object GuiObject GUI object to observe.
 --- @return boolean Whether the pointer is currently hovering the object.
-function module.useHover(object: GuiObject): boolean
-   local hovered, setHovered = module.useState(false)
-   module.useEffect(function()
-      local entered = object.MouseEnter:Connect(function()
-         setHovered(true)
-      end)
-      local left = object.MouseLeave:Connect(function()
-         setHovered(false)
-      end)
-      return function()
-         entered:Disconnect()
-         left:Disconnect()
-      end
-   end, createDependencies(object))
-   return hovered
+function module.UseHover(object: GuiObject): boolean
+	local hovered, setHovered = module.UseState(false)
+	module.UseEffect(function()
+		local entered = object.MouseEnter:Connect(function()
+			setHovered(true)
+		end)
+		local left = object.MouseLeave:Connect(function()
+			setHovered(false)
+		end)
+		return function()
+			entered:Disconnect()
+			left:Disconnect()
+		end
+	end, createDependencies(object))
+	return hovered
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -907,25 +917,25 @@ end
 --- @param target refTarget<T>? Target ref object or callback.
 --- @param factory () -> T Factory producing the exposed handle.
 --- @param dependencies {any}? Values controlling when the handle is recreated.
-function module.useImperativeHandle<T>(target: refTarget<T>?, factory: () -> T, dependencies: dependencyList?)
-   module.useLayoutEffect(function()
-      local value = factory()
-      setRefTarget(target, value)
-      return function()
-         setRefTarget(target, nil)
-      end
-   end, dependencies)
+function module.UseImperativeHandle<T>(target: refTarget<T>?, factory: () -> T, dependencies: dependencyList?)
+	module.UseLayoutEffect(function()
+		local value = factory()
+		setRefTarget(target, value)
+		return function()
+			setRefTarget(target, nil)
+		end
+	end, dependencies)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Returns a stable component-local identifier.
 --- @return string Stable Reactily identifier.
-function module.useId(): string
-   return module.useMemo(function(): string
-      nextHookId += 1
-      return `reactily-{nextHookId}`
-   end, {})
+function module.UseId(): string
+	return module.UseMemo(function(): string
+		nextHookId += 1
+		return `reactily-{nextHookId}`
+	end, {})
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -933,10 +943,10 @@ end
 --- Queues an effect for the layout phase before normal effects.
 --- @param callback () -> cleanup? Layout effect callback.
 --- @param dependencies {any}? Values controlling when the effect reruns.
-function module.useLayoutEffect(callback: effectCallback, dependencies: dependencyList?)
-   local context = getContext()
-   local slot = getSlot(context, "layoutEffect")
-   queueEffect(slot, callback, dependencies, context.pendingLayoutEffects)
+function module.UseLayoutEffect(callback: effectCallback, dependencies: dependencyList?)
+	local context = getContext()
+	local slot = getSlot(context, "layoutEffect")
+	queueEffect(slot, callback, dependencies, context.PendingLayoutEffects)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -944,18 +954,18 @@ end
 --- Returns a stable ref whose current field is refreshed every render.
 --- @param value T Current value.
 --- @return ref<T> Stable latest-value ref.
-function module.useLatest<T>(value: T): ref<T>
-   local latest = module.useRef(value)
-   latest.current = value
-   return latest
+function module.UseLatest<T>(value: T): ref<T>
+	local latest = module.UseRef(value)
+	latest.Current = value
+	return latest
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Runs an effect once when the component mounts.
 --- @param callback () -> cleanup? Mount callback with optional cleanup.
-function module.useMount(callback: effectCallback)
-   module.useEffect(callback, {})
+function module.UseMount(callback: effectCallback)
+	module.UseEffect(callback, {})
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -964,22 +974,22 @@ end
 --- @param factory () -> T Factory used to create the value.
 --- @param dependencies {any}? Values controlling when the value is recalculated.
 --- @return T Memoized value.
-function module.useMemo<T>(factory: () -> T, dependencies: dependencyList?): T
-   local context = getContext()
-   local slot = getSlot(context, "memo")
-   local shouldResolve = not slot.isInitialized
-   if slot.isInitialized then
-      shouldResolve = dependenciesChanged(slot.dependencies, dependencies)
-   end
-   if shouldResolve then
-      slot.isInitialized = true
-      slot.value = factory()
-      slot.dependencies = nil
-      if dependencies then
-         slot.dependencies = table.clone(dependencies)
-      end
-   end
-   return slot.value :: T
+function module.UseMemo<T>(factory: () -> T, dependencies: dependencyList?): T
+	local context = getContext()
+	local slot = getSlot(context, "memo")
+	local shouldResolve = not slot.IsInitialized
+	if slot.IsInitialized then
+		shouldResolve = dependenciesChanged(slot.dependencies, dependencies)
+	end
+	if shouldResolve then
+		slot.IsInitialized = true
+		slot.Value = factory()
+		slot.dependencies = nil
+		if dependencies then
+			slot.dependencies = table.clone(dependencies)
+		end
+	end
+	return slot.Value :: T
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -987,43 +997,43 @@ end
 --- Registers a delete-capable object for automatic component cleanup.
 --- @param value T Object exposing a dot-call delete() method.
 --- @return T Same object for fluent ownership setup.
-function module.useOwned<T>(value: T): T
-   module.useEffect(function()
-      return function()
-         local candidate = value :: any
-         if typeof(candidate) == "RBXScriptConnection" then
-            if candidate.Connected then
-               candidate:Disconnect()
-            end
-            return
-         end
-         if type(candidate) == "thread" then
-            if coroutine.status(candidate) ~= "dead" then
-               task.cancel(candidate)
-            end
-            return
-         end
-         if type(candidate) == "function" then
-            candidate()
-            return
-         end
-         if type(candidate) ~= "table" then
-            return
-         end
-         if type(candidate.delete) == "function" then
-            candidate.delete()
-            return
-         end
-         if type(candidate.disconnect) == "function" then
-            candidate.disconnect()
-            return
-         end
-         if type(candidate.cancel) == "function" then
-            candidate.cancel()
-         end
-      end
-   end, createDependencies(value))
-   return value
+function module.UseOwned<T>(value: T): T
+	module.UseEffect(function()
+		return function()
+			local candidate = value :: any
+			if typeof(candidate) == "RBXScriptConnection" then
+				if candidate.Connected then
+					candidate:Disconnect()
+				end
+				return
+			end
+			if type(candidate) == "thread" then
+				if coroutine.status(candidate) ~= "dead" then
+					task.cancel(candidate)
+				end
+				return
+			end
+			if type(candidate) == "function" then
+				candidate()
+				return
+			end
+			if type(candidate) ~= "table" then
+				return
+			end
+			if type(candidate.Delete) == "function" then
+				candidate.Delete()
+				return
+			end
+			if type(candidate.Disconnect) == "function" then
+				candidate.Disconnect()
+				return
+			end
+			if type(candidate.Cancel) == "function" then
+				candidate.Cancel()
+			end
+		end
+	end, createDependencies(value))
+	return value
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1031,33 +1041,33 @@ end
 --- Returns pressed state for a GuiButton or GuiObject input surface.
 --- @param object GuiObject GUI object to observe.
 --- @return boolean Whether a primary pointer press is active.
-function module.usePressed(object: GuiObject): boolean
-   local pressed, setPressed = module.useState(false)
-   module.useEffect(function()
-      local began = object.InputBegan:Connect(function(input: InputObject)
-         if
-            input.UserInputType ~= Enum.UserInputType.MouseButton1
-            and input.UserInputType ~= Enum.UserInputType.Touch
-         then
-            return
-         end
-         setPressed(true)
-      end)
-      local ended = object.InputEnded:Connect(function(input: InputObject)
-         if
-            input.UserInputType ~= Enum.UserInputType.MouseButton1
-            and input.UserInputType ~= Enum.UserInputType.Touch
-         then
-            return
-         end
-         setPressed(false)
-      end)
-      return function()
-         began:Disconnect()
-         ended:Disconnect()
-      end
-   end, createDependencies(object))
-   return pressed
+function module.UsePressed(object: GuiObject): boolean
+	local pressed, setPressed = module.UseState(false)
+	module.UseEffect(function()
+		local began = object.InputBegan:Connect(function(input: InputObject)
+			if
+				input.UserInputType ~= Enum.UserInputType.MouseButton1
+				and input.UserInputType ~= Enum.UserInputType.Touch
+			then
+				return
+			end
+			setPressed(true)
+		end)
+		local ended = object.InputEnded:Connect(function(input: InputObject)
+			if
+				input.UserInputType ~= Enum.UserInputType.MouseButton1
+				and input.UserInputType ~= Enum.UserInputType.Touch
+			then
+				return
+			end
+			setPressed(false)
+		end)
+		return function()
+			began:Disconnect()
+			ended:Disconnect()
+		end
+	end, createDependencies(object))
+	return pressed
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1066,16 +1076,16 @@ end
 --- @param value T Current value.
 --- @param initialValue T? Optional value returned before a previous render exists.
 --- @return T? Previous value or initialValue.
-function module.usePrevious<T>(value: T, initialValue: T?): T?
-   local context = getContext()
-   local slot = getSlot(context, "previous")
-   local previous = initialValue
-   if slot.isInitialized then
-      previous = slot.value :: T
-   end
-   slot.isInitialized = true
-   slot.value = value
-   return previous
+function module.UsePrevious<T>(value: T, initialValue: T?): T?
+	local context = getContext()
+	local slot = getSlot(context, "previous")
+	local previous = initialValue
+	if slot.IsInitialized then
+		previous = slot.Value :: T
+	end
+	slot.IsInitialized = true
+	slot.Value = value
+	return previous
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1085,28 +1095,28 @@ end
 --- @param initialState S Initial reducer state.
 --- @return S Current state.
 --- @return reducerDispatch<A> Dispatch function.
-function module.useReducer<S, A>(reducer: (stateValue: S, action: A) -> S, initialState: S): (S, reducerDispatch<A>)
-   local context = getContext()
-   local slot = getSlot(context, "reducer")
-   if not slot.isInitialized then
-      slot.isInitialized = true
-      slot.value = initialState
-      slot.callback = function(action: A)
-         if context.isDeleted then
-            return
-         end
-         devMode.warnIf(currentContext ~= nil, "Reactily reducer dispatch occurred during component rendering.")
-         local previous = slot.value :: S
-         local nextValue = reducer(previous, action)
-         if previous == nextValue then
-            return
-         end
-         slot.value = nextValue
-         context.needsRender = true
-         context.requestRender("reducer changed")
-      end
-   end
-   return slot.value :: S, slot.callback :: reducerDispatch<A>
+function module.UseReducer<S, A>(reducer: (stateValue: S, action: A) -> S, initialState: S): (S, reducerDispatch<A>)
+	local context = getContext()
+	local slot = getSlot(context, "reducer")
+	if not slot.IsInitialized then
+		slot.IsInitialized = true
+		slot.Value = initialState
+		slot.callback = function(action: A)
+			if context.IsDeleted then
+				return
+			end
+			devMode.WarnIf(currentContext ~= nil, "Reactily reducer dispatch occurred during component rendering.")
+			local previous = slot.Value :: S
+			local nextValue = reducer(previous, action)
+			if previous == nextValue then
+				return
+			end
+			slot.Value = nextValue
+			context.NeedsRender = true
+			context.RequestRender("reducer changed")
+		end
+	end
+	return slot.Value :: S, slot.callback :: reducerDispatch<A>
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1114,16 +1124,16 @@ end
 --- Creates a mutable ref that persists across component renders.
 --- @param initialValue T Initial ref value.
 --- @return ref<T> Stable mutable ref.
-function module.useRef<T>(initialValue: T): ref<T>
-   local context = getContext()
-   local slot = getSlot(context, "ref")
-   if not slot.isInitialized then
-      slot.isInitialized = true
-      slot.value = {
-         current = initialValue,
-      }
-   end
-   return slot.value :: ref<T>
+function module.UseRef<T>(initialValue: T): ref<T>
+	local context = getContext()
+	local slot = getSlot(context, "ref")
+	if not slot.IsInitialized then
+		slot.IsInitialized = true
+		slot.Value = {
+			Current = initialValue,
+		}
+	end
+	return slot.Value :: ref<T>
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1132,19 +1142,19 @@ end
 --- @param target T Desired spring target.
 --- @param options springOptions? Spring configuration.
 --- @return spring<T> Stable spring controller.
-function module.useSpring<T>(target: T, options: springModule.springOptions?): springModule.spring<T>
-   local springValue = module.useMemo(function(): springModule.spring<T>
-      return springModule.new(target, options)
-   end, {})
-   module.useEffect(function()
-      springValue.setTarget(target)
-   end, createDependencies(target))
-   module.useEffect(function()
-      return function()
-         springValue.delete()
-      end
-   end, createDependencies(springValue))
-   return springValue
+function module.UseSpring<T>(target: T, options: springModule.springOptions?): springModule.spring<T>
+	local springValue = module.UseMemo(function(): springModule.spring<T>
+		return springModule.New(target, options)
+	end, {})
+	module.UseEffect(function()
+		springValue.SetTarget(target)
+	end, createDependencies(target))
+	module.UseEffect(function()
+		return function()
+			springValue.Delete()
+		end
+	end, createDependencies(springValue))
+	return springValue
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1153,28 +1163,28 @@ end
 --- @param initialValue T Initial state value.
 --- @return T Current state value.
 --- @return stateSetter<T> Setter for updating the state.
-function module.useState<T>(initialValue: T): (T, stateSetter<T>)
-   local context = getContext()
-   local slot = getSlot(context, "state")
-   if not slot.isInitialized then
-      slot.isInitialized = true
-      slot.value = initialValue
-      slot.callback = function(nextValue: T | ((previous: T) -> T))
-         if context.isDeleted then
-            return
-         end
-         devMode.warnIf(currentContext ~= nil, "Reactily state update occurred during component rendering.")
-         local previous = slot.value :: T
-         local resolved = resolveStateValue(previous, nextValue)
-         if previous == resolved then
-            return
-         end
-         slot.value = resolved
-         context.needsRender = true
-         context.requestRender("state changed")
-      end
-   end
-   return slot.value :: T, slot.callback :: stateSetter<T>
+function module.UseState<T>(initialValue: T): (T, stateSetter<T>)
+	local context = getContext()
+	local slot = getSlot(context, "state")
+	if not slot.IsInitialized then
+		slot.IsInitialized = true
+		slot.Value = initialValue
+		slot.callback = function(nextValue: T | ((previous: T) -> T))
+			if context.IsDeleted then
+				return
+			end
+			devMode.WarnIf(currentContext ~= nil, "Reactily state update occurred during component rendering.")
+			local previous = slot.Value :: T
+			local resolved = resolveStateValue(previous, nextValue)
+			if previous == resolved then
+				return
+			end
+			slot.Value = resolved
+			context.NeedsRender = true
+			context.RequestRender("state changed")
+		end
+	end
+	return slot.Value :: T, slot.callback :: stateSetter<T>
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1183,27 +1193,27 @@ end
 --- @param storeValue store<S> Source store.
 --- @param selectorFunction ((state: S) -> R)? Optional selector. Without one, the full state is returned.
 --- @return any Current selected value.
-function module.useStore<S>(storeValue: storeModule.store<S>, selectorFunction: ((state: S) -> any)?): any
-   --- Reads the store state and applies the optional selector.
-   --- @return any Selected store value or the full state.
-   local function selectValue(): any
-      local state = storeValue.get()
-      if not selectorFunction then
-         return state
-      end
-      return selectorFunction(state)
-   end
-   local value, setValue = module.useState(selectValue())
-   module.useEffect(function()
-      setValue(selectValue())
-      local connection = storeValue.subscribe(function()
-         setValue(selectValue())
-      end)
-      return function()
-         connection.disconnect()
-      end
-   end, createDependencies(storeValue, selectorFunction))
-   return value
+function module.UseStore<S>(storeValue: storeModule.store<S>, selectorFunction: ((state: S) -> any)?): any
+	--- Reads the store state and applies the optional selector.
+	--- @return any Selected store value or the full state.
+	local function selectValue(): any
+		local state = storeValue.Get()
+		if not selectorFunction then
+			return state
+		end
+		return selectorFunction(state)
+	end
+	local value, setValue = module.UseState(selectValue())
+	module.UseEffect(function()
+		setValue(selectValue())
+		local connection = storeValue.Subscribe(function()
+			setValue(selectValue())
+		end)
+		return function()
+			connection.Disconnect()
+		end
+	end, createDependencies(storeValue, selectorFunction))
+	return value
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1214,28 +1224,28 @@ end
 --- @param options tweenOptions Tween settings.
 --- @param dependencies {any}? Values controlling when the tween restarts.
 --- @return animation? Most recently created animation after the layout effect runs.
-function module.useTween(
-   instance: Instance,
-   goals: { [string]: any },
-   options: animationModule.tweenOptions,
-   dependencies: dependencyList?
+function module.UseTween(
+	instance: Instance,
+	goals: { [string]: any },
+	options: animationModule.tweenOptions,
+	dependencies: dependencyList?
 ): animationModule.animation?
-   local animationRef = module.useRef(nil :: animationModule.animation?)
-   module.useLayoutEffect(function()
-      if animationRef.current then
-         animationRef.current.delete()
-      end
-      local animationValue = animationModule.play(instance, goals, options)
-      animationRef.current = animationValue
-      return function()
-         if animationRef.current ~= animationValue then
-            return
-         end
-         animationValue.delete()
-         animationRef.current = nil
-      end
-   end, dependencies)
-   return animationRef.current
+	local animationRef = module.UseRef(nil :: animationModule.animation?)
+	module.UseLayoutEffect(function()
+		if animationRef.Current then
+			animationRef.Current.Delete()
+		end
+		local animationValue = animationModule.Play(instance, goals, options)
+		animationRef.Current = animationValue
+		return function()
+			if animationRef.Current ~= animationValue then
+				return
+			end
+			animationValue.Delete()
+			animationRef.Current = nil
+		end
+	end, dependencies)
+	return animationRef.Current
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1245,18 +1255,18 @@ end
 --- @return boolean Current value.
 --- @return () -> () Toggle callback.
 --- @return (value: boolean) -> () Setter for assigning the value.
-function module.useToggle(initialValue: boolean?): (boolean, () -> (), (value: boolean) -> ())
-   local value, enable, disable, toggle = module.useBoolean(initialValue)
-   --- Assigns boolean state using enable and disable controls.
-   --- @param nextValue boolean Desired toggle state.
-   local function set(nextValue: boolean)
-      if nextValue then
-         enable()
-         return
-      end
-      disable()
-   end
-   return value, toggle, set
+function module.UseToggle(initialValue: boolean?): (boolean, () -> (), (value: boolean) -> ())
+	local value, enable, disable, toggle = module.UseBoolean(initialValue)
+	--- Assigns boolean state using enable and disable controls.
+	--- @param nextValue boolean Desired toggle state.
+	local function set(nextValue: boolean)
+		if nextValue then
+			enable()
+			return
+		end
+		disable()
+	end
+	return value, toggle, set
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1264,23 +1274,23 @@ end
 --- Creates a low-priority transition starter and pending state.
 --- @return boolean Whether one or more transitions are pending.
 --- @return transitionStarter Function used to start transition work.
-function module.useTransition(): (boolean, transitionStarter)
-   local pending, setPending = module.useState(false)
-   local pendingCount = module.useRef(0)
-   --- Begins tracked low-priority transition work for the component.
-   --- @param callback () -> () Transition action to execute.
-   local function start(callback: () -> ())
-      pendingCount.current += 1
-      setPending(true)
-      transitionModule.start(callback, function()
-         pendingCount.current = math.max(pendingCount.current - 1, 0)
-         if pendingCount.current > 0 then
-            return
-         end
-         setPending(false)
-      end)
-   end
-   return pending, start
+function module.UseTransition(): (boolean, transitionStarter)
+	local pending, setPending = module.UseState(false)
+	local pendingCount = module.UseRef(0)
+	--- Begins tracked low-priority transition work for the component.
+	--- @param callback () -> () Transition action to execute.
+	local function start(callback: () -> ())
+		pendingCount.Current += 1
+		setPending(true)
+		transitionModule.Start(callback, function()
+			pendingCount.Current = math.max(pendingCount.Current - 1, 0)
+			if pendingCount.Current > 0 then
+				return
+			end
+			setPending(false)
+		end)
+	end
+	return pending, start
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1288,28 +1298,28 @@ end
 --- Runs an effect only after the initial completed render.
 --- @param callback () -> cleanup? Update effect callback.
 --- @param dependencies {any}? Values controlling when the effect reruns.
-function module.useUpdateEffect(callback: effectCallback, dependencies: dependencyList?)
-   local mounted = module.useRef(false)
-   module.useEffect(function()
-      if not mounted.current then
-         mounted.current = true
-         return nil
-      end
-      return (callback :: any)()
-   end, dependencies)
+function module.UseUpdateEffect(callback: effectCallback, dependencies: dependencyList?)
+	local mounted = module.UseRef(false)
+	module.UseEffect(function()
+		if not mounted.Current then
+			mounted.Current = true
+			return nil
+		end
+		return (callback :: any)()
+	end, dependencies)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Registers cleanup that runs only when the component unmounts.
 --- @param callback () -> () Unmount callback.
-function module.useUnmount(callback: () -> ())
-   local latest = module.useLatest(callback)
-   module.useEffect(function()
-      return function()
-         latest.current()
-      end
-   end, {})
+function module.UseUnmount(callback: () -> ())
+	local latest = module.UseLatest(callback)
+	module.UseEffect(function()
+		return function()
+			latest.Current()
+		end
+	end, {})
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1317,9 +1327,9 @@ end
 --- Reads the current value from a Reactily context.
 --- @param contextValue context<T> Context returned by Reactily.createContext.
 --- @return T Current provider value or the context default.
-function module.useContext<T>(contextValue: contextModule.context<T>): T
-   getContext()
-   return contextModule.get(contextValue)
+function module.UseContext<T>(contextValue: contextModule.context<T>): T
+	getContext()
+	return contextModule.Get(contextValue)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1328,17 +1338,17 @@ end
 --- Stores a development-only debug value in the current hook slot.
 --- @param value T Debug value.
 --- @param formatter ((value: T) -> any)? Optional formatter.
-function module.useDebugValue<T>(value: T, formatter: ((value: T) -> any)?)
-   local context = getContext()
-   local slot = getSlot(context, "debugValue")
-   slot.isInitialized = true
+function module.UseDebugValue<T>(value: T, formatter: ((value: T) -> any)?)
+	local context = getContext()
+	local slot = getSlot(context, "debugValue")
+	slot.IsInitialized = true
 
-   if formatter then
-      slot.value = formatter(value)
-      return
-   end
+	if formatter then
+		slot.Value = formatter(value)
+		return
+	end
 
-   slot.value = value
+	slot.Value = value
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1346,20 +1356,20 @@ end
 --- @reactilyExport
 --- Returns the current Roblox camera and updates when Workspace.CurrentCamera changes.
 --- @return Camera? Current camera.
-function module.useCurrentCamera(): Camera?
-   local camera, setCamera = module.useState(workspaceService.CurrentCamera)
+function module.UseCurrentCamera(): Camera?
+	local camera, setCamera = module.UseState(workspaceService.CurrentCamera)
 
-   module.useEffect(function()
-      local connection = workspaceService:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
-         setCamera(workspaceService.CurrentCamera)
-      end)
+	module.UseEffect(function()
+		local connection = workspaceService:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+			setCamera(workspaceService.CurrentCamera)
+		end)
 
-      return function()
-         connection:Disconnect()
-      end
-   end, {})
+		return function()
+			connection:Disconnect()
+		end
+	end, {})
 
-   return camera
+	return camera
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1367,24 +1377,24 @@ end
 --- @reactilyExport
 --- Returns reactive Roblox device and viewport information.
 --- @return deviceState Current device state.
-function module.useDevice(): deviceModule.deviceState
-   local monitor = module.useMemo(function(): deviceModule.deviceMonitor
-      return deviceModule.create()
-   end, {})
-   local value, setValue = module.useState(monitor.get())
+function module.UseDevice(): deviceModule.deviceState
+	local monitor = module.UseMemo(function(): deviceModule.deviceMonitor
+		return deviceModule.Create()
+	end, {})
+	local value, setValue = module.UseState(monitor.Get())
 
-   module.useEffect(function()
-      local connection = monitor.subscribe(function(nextValue: deviceModule.deviceState)
-         setValue(nextValue)
-      end)
+	module.UseEffect(function()
+		local connection = monitor.Subscribe(function(nextValue: deviceModule.deviceState)
+			setValue(nextValue)
+		end)
 
-      return function()
-         connection.disconnect()
-         monitor.delete()
-      end
-   end, createDependencies(monitor))
+		return function()
+			connection.Disconnect()
+			monitor.Delete()
+		end
+	end, createDependencies(monitor))
 
-   return value
+	return value
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1392,8 +1402,8 @@ end
 --- @reactilyExport
 --- Returns the local Roblox Player when available.
 --- @return Player? Local player.
-function module.useLocalPlayer(): Player?
-   return players.LocalPlayer
+function module.UseLocalPlayer(): Player?
+	return players.LocalPlayer
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1402,42 +1412,42 @@ end
 --- Observes AbsolutePosition and AbsoluteSize for a GuiObject.
 --- @param object GuiObject Object to measure.
 --- @return {AbsolutePosition: Vector2, AbsoluteSize: Vector2} Current bounds.
-function module.useMeasure(object: GuiObject): { AbsolutePosition: Vector2, AbsoluteSize: Vector2 }
-   local value, setValue = module.useState({
-      AbsolutePosition = object.AbsolutePosition,
-      AbsoluteSize = object.AbsoluteSize,
-   })
+function module.UseMeasure(object: GuiObject): { AbsolutePosition: Vector2, AbsoluteSize: Vector2 }
+	local value, setValue = module.UseState({
+		AbsolutePosition = object.AbsolutePosition,
+		AbsoluteSize = object.AbsoluteSize,
+	})
 
-   module.useEffect(function()
-      --- Refreshes the GUI object's measured position and size.
-      local function update()
-         local nextValue = {
-            AbsolutePosition = object.AbsolutePosition,
-            AbsoluteSize = object.AbsoluteSize,
-         }
+	module.UseEffect(function()
+		--- Refreshes the GUI object's measured position and size.
+		local function update()
+			local nextValue = {
+				AbsolutePosition = object.AbsolutePosition,
+				AbsoluteSize = object.AbsoluteSize,
+			}
 
-         setValue(function(previous)
-            if
-               previous.AbsolutePosition == nextValue.AbsolutePosition
-               and previous.AbsoluteSize == nextValue.AbsoluteSize
-            then
-               return previous
-            end
+			setValue(function(previous)
+				if
+					previous.AbsolutePosition == nextValue.AbsolutePosition
+					and previous.AbsoluteSize == nextValue.AbsoluteSize
+				then
+					return previous
+				end
 
-            return nextValue
-         end)
-      end
+				return nextValue
+			end)
+		end
 
-      local positionConnection = object:GetPropertyChangedSignal("AbsolutePosition"):Connect(update)
-      local sizeConnection = object:GetPropertyChangedSignal("AbsoluteSize"):Connect(update)
+		local positionConnection = object:GetPropertyChangedSignal("AbsolutePosition"):Connect(update)
+		local sizeConnection = object:GetPropertyChangedSignal("AbsoluteSize"):Connect(update)
 
-      return function()
-         positionConnection:Disconnect()
-         sizeConnection:Disconnect()
-      end
-   end, createDependencies(object))
+		return function()
+			positionConnection:Disconnect()
+			sizeConnection:Disconnect()
+		end
+	end, createDependencies(object))
 
-   return value
+	return value
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1448,49 +1458,49 @@ end
 --- @param reducer ((current: T, action: A) -> T)? Optional optimistic reducer.
 --- @return T Current optimistic value.
 --- @return (action: A) -> () Optimistic dispatcher.
-function module.useOptimistic<T, A>(value: T, reducer: ((current: T, action: A) -> T)?): (T, (action: A) -> ())
-   local optimistic, setOptimistic = module.useState(value)
-   local baseRef = module.useRef(value)
-   local registeredTransitions = module.useRef({} :: { [number]: boolean })
+function module.UseOptimistic<T, A>(value: T, reducer: ((current: T, action: A) -> T)?): (T, (action: A) -> ())
+	local optimistic, setOptimistic = module.UseState(value)
+	local baseRef = module.UseRef(value)
+	local registeredTransitions = module.UseRef({} :: { [number]: boolean })
 
-   baseRef.current = value
+	baseRef.Current = value
 
-   module.useLayoutEffect(function()
-      if transitionModule.isActive() then
-         return nil
-      end
-      setOptimistic(value)
-      return nil
-   end, createDependencies(value))
+	module.UseLayoutEffect(function()
+		if transitionModule.IsActive() then
+			return nil
+		end
+		setOptimistic(value)
+		return nil
+	end, createDependencies(value))
 
-   --- Applies an optimistic update and schedules restoration after its transition.
-   --- @param action A Optimistic action or replacement value.
-   local function dispatch(action: A)
-      if not transitionModule.isActive() then
-         devMode.warnIf(true, "Reactily optimistic updates should run inside startTransition or an Action.")
-      end
+	--- Applies an optimistic update and schedules restoration after its transition.
+	--- @param action A Optimistic action or replacement value.
+	local function dispatch(action: A)
+		if not transitionModule.IsActive() then
+			devMode.WarnIf(true, "Reactily optimistic updates should run inside startTransition or an Action.")
+		end
 
-      if reducer then
-         setOptimistic(function(current: T): T
-            return reducer(current, action)
-         end)
-      else
-         setOptimistic(action :: any)
-      end
+		if reducer then
+			setOptimistic(function(current: T): T
+				return reducer(current, action)
+			end)
+		else
+			setOptimistic(action :: any)
+		end
 
-      local transitionId = transitionModule.getCurrentId()
-      if not transitionId or registeredTransitions.current[transitionId] then
-         return
-      end
+		local transitionId = transitionModule.GetCurrentId()
+		if not transitionId or registeredTransitions.Current[transitionId] then
+			return
+		end
 
-      registeredTransitions.current[transitionId] = true
-      transitionModule.onCurrentFinished(function()
-         registeredTransitions.current[transitionId] = nil
-         setOptimistic(baseRef.current)
-      end)
-   end
+		registeredTransitions.Current[transitionId] = true
+		transitionModule.OnCurrentFinished(function()
+			registeredTransitions.Current[transitionId] = nil
+			setOptimistic(baseRef.Current)
+		end)
+	end
 
-   return optimistic, dispatch
+	return optimistic, dispatch
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1500,23 +1510,23 @@ end
 --- @param instance Instance Roblox instance.
 --- @param propertyName string Roblox property name.
 --- @return T Current property value.
-function module.useProperty<T>(instance: Instance, propertyName: string): T
-   local target = instance :: any
-   local value, setValue = module.useState(target[propertyName] :: T)
+function module.UseProperty<T>(instance: Instance, propertyName: string): T
+	local target = instance :: any
+	local value, setValue = module.UseState(target[propertyName] :: T)
 
-   module.useEffect(function()
-      setValue(target[propertyName] :: T)
+	module.UseEffect(function()
+		setValue(target[propertyName] :: T)
 
-      local connection = instance:GetPropertyChangedSignal(propertyName):Connect(function()
-         setValue(target[propertyName] :: T)
-      end)
+		local connection = instance:GetPropertyChangedSignal(propertyName):Connect(function()
+			setValue(target[propertyName] :: T)
+		end)
 
-      return function()
-         connection:Disconnect()
-      end
-   end, createDependencies(instance, propertyName))
+		return function()
+			connection:Disconnect()
+		end
+	end, createDependencies(instance, propertyName))
 
-   return value
+	return value
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1525,15 +1535,15 @@ end
 --- Creates a component-owned keyboard shortcut.
 --- @param options shortcutOptions Shortcut configuration.
 --- @param callback () -> () Shortcut callback.
-function module.useShortcut(options: shortcutModule.shortcutOptions, callback: () -> ())
-   local stableCallback = useStableEvent(callback)
+function module.UseShortcut(options: shortcutModule.shortcutOptions, callback: () -> ())
+	local stableCallback = useStableEvent(callback)
 
-   module.useEffect(function()
-      local shortcut = shortcutModule.create(options, stableCallback)
-      return function()
-         shortcut.delete()
-      end
-   end, createDependencies(options.key, options.allowProcessed, options.enabled, options.modifiers))
+	module.UseEffect(function()
+		local shortcut = shortcutModule.Create(options, stableCallback)
+		return function()
+			shortcut.Delete()
+		end
+	end, createDependencies(options.Key, options.AllowProcessed, options.Enabled, options.Modifiers))
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1543,8 +1553,8 @@ end
 --- @param subscribe (callback: () -> ()) -> () -> () Subscription factory.
 --- @param getSnapshot () -> T Current snapshot getter.
 --- @return T Current external-store snapshot.
-function module.useSyncExternalStore<T>(subscribe: (callback: () -> ()) -> () -> (), getSnapshot: () -> T): T
-   return useExternalSnapshot(subscribe, getSnapshot)
+function module.UseSyncExternalStore<T>(subscribe: (callback: () -> ()) -> () -> (), getSnapshot: () -> T): T
+	return useExternalSnapshot(subscribe, getSnapshot)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1554,32 +1564,32 @@ end
 --- @param instance Instance Instance to observe.
 --- @param tag string CollectionService tag.
 --- @return boolean Whether the tag is present.
-function module.useTag(instance: Instance, tag: string): boolean
-   local tagged, setTagged = module.useState(collectionService:HasTag(instance, tag))
+function module.UseTag(instance: Instance, tag: string): boolean
+	local tagged, setTagged = module.UseState(collectionService:HasTag(instance, tag))
 
-   module.useEffect(function()
-      setTagged(collectionService:HasTag(instance, tag))
+	module.UseEffect(function()
+		setTagged(collectionService:HasTag(instance, tag))
 
-      local addedConnection = collectionService:GetInstanceAddedSignal(tag):Connect(function(added: Instance)
-         if added ~= instance then
-            return
-         end
-         setTagged(true)
-      end)
-      local removedConnection = collectionService:GetInstanceRemovedSignal(tag):Connect(function(removed: Instance)
-         if removed ~= instance then
-            return
-         end
-         setTagged(false)
-      end)
+		local addedConnection = collectionService:GetInstanceAddedSignal(tag):Connect(function(added: Instance)
+			if added ~= instance then
+				return
+			end
+			setTagged(true)
+		end)
+		local removedConnection = collectionService:GetInstanceRemovedSignal(tag):Connect(function(removed: Instance)
+			if removed ~= instance then
+				return
+			end
+			setTagged(false)
+		end)
 
-      return function()
-         addedConnection:Disconnect()
-         removedConnection:Disconnect()
-      end
-   end, createDependencies(instance, tag))
+		return function()
+			addedConnection:Disconnect()
+			removedConnection:Disconnect()
+		end
+	end, createDependencies(instance, tag))
 
-   return tagged
+	return tagged
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1591,55 +1601,52 @@ end
 --- @return S Current action state.
 --- @return (payload: P) -> () Dispatch function.
 --- @return boolean Whether dispatched transition work is pending.
-function module.useActionState<S, P>(
-   action: (state: S, payload: P) -> S,
-   initialState: S
-): (S, (payload: P) -> (), boolean)
-   local state, setState = module.useState(initialState)
-   local pending, setPending = module.useState(false)
-   local stateRef = module.useRef(state)
-   local queueRef = module.useRef({} :: { P })
-   local runningRef = module.useRef(false)
-   local failure, setFailure = module.useState(nil :: any)
-   local stableAction = useStableEvent(action)
+function module.UseActionState<S, P>(action: (state: S, payload: P) -> S, initialState: S): (S, (payload: P) -> (), boolean)
+	local state, setState = module.UseState(initialState)
+	local pending, setPending = module.UseState(false)
+	local stateRef = module.UseRef(state)
+	local queueRef = module.UseRef({} :: { P })
+	local runningRef = module.UseRef(false)
+	local failure, setFailure = module.UseState(nil :: any)
+	local stableAction = useStableEvent(action)
 
-   stateRef.current = state
+	stateRef.Current = state
 
-   if failure ~= nil then
-      error(failure, 0)
-   end
+	if failure ~= nil then
+		error(failure, 0)
+	end
 
-   local dispatch = useStableEvent(function(payload: P)
-      queueRef.current[#queueRef.current + 1] = payload
-      setPending(true)
+	local dispatch = useStableEvent(function(payload: P)
+		queueRef.Current[#queueRef.Current + 1] = payload
+		setPending(true)
 
-      if runningRef.current then
-         return
-      end
+		if runningRef.Current then
+			return
+		end
 
-      runningRef.current = true
-      transitionModule.start(function()
-         while #queueRef.current > 0 do
-            local nextPayload = table.remove(queueRef.current, 1) :: P
-            local success, result = pcall(stableAction, stateRef.current, nextPayload)
+		runningRef.Current = true
+		transitionModule.Start(function()
+			while #queueRef.Current > 0 do
+				local nextPayload = table.remove(queueRef.Current, 1) :: P
+				local success, result = pcall(stableAction, stateRef.Current, nextPayload)
 
-            if not success then
-               table.clear(queueRef.current)
-               setFailure(result)
-               break
-            end
+				if not success then
+					table.clear(queueRef.Current)
+					setFailure(result)
+					break
+				end
 
-            local nextState = result :: S
-            stateRef.current = nextState
-            setState(nextState)
-         end
-      end, function()
-         runningRef.current = false
-         setPending(false)
-      end)
-   end)
+				local nextState = result :: S
+				stateRef.Current = nextState
+				setState(nextState)
+			end
+		end, function()
+			runningRef.Current = false
+			setPending(false)
+		end)
+	end)
 
-   return state, dispatch, pending
+	return state, dispatch, pending
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -1648,8 +1655,8 @@ end
 --- Creates a stable React-style effect-event callback that sees current state.
 --- @param callback T Current callback implementation.
 --- @return T Stable callback identity.
-function module.useEffectEvent<T>(callback: T): T
-   return useStableEvent(callback)
+function module.UseEffectEvent<T>(callback: T): T
+	return useStableEvent(callback)
 end
 
 --————————————————————————————————————————————————————————————————————--

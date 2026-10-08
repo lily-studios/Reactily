@@ -15,13 +15,13 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type objectPool<T> = {
-	acquire: () -> T,
-	clear: () -> (),
-	delete: () -> boolean,
-	getAvailableCount: () -> number,
-	getCreatedCount: () -> number,
-	isDeleted: () -> boolean,
-	release: (object: T) -> boolean,
+	Acquire: () -> T,
+	Clear: () -> (),
+	Delete: () -> boolean,
+	GetAvailableCount: () -> number,
+	GetCreatedCount: () -> number,
+	IsDeleted: () -> boolean,
+	Release: (object: T) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -30,8 +30,8 @@ export type objectPool<T> = {
 --- @param className string Roblox class name used to create new Instances.
 --- @param maximumSize number Maximum number of released Instances retained by the pool.
 --- @return objectPool<Instance> New Instance object pool.
-function module.instance(className: string, maximumSize: number): objectPool<Instance>
-	return module.new(function(): Instance
+function module.Instance(className: string, maximumSize: number): objectPool<Instance>
+	return module.New(function(): Instance
 		return Instance.new(className)
 	end, function(instance: Instance)
 		instance.Parent = nil
@@ -48,7 +48,7 @@ end
 --- @param deleteObject (object: T) -> () Permanently disposes of an object.
 --- @param maximumSize number Maximum number of released objects retained by the pool.
 --- @return objectPool<T> New object pool.
-function module.new<T>(
+function module.New<T>(
 	createObject: () -> T,
 	resetObject: (object: T) -> (),
 	deleteObject: (object: T) -> (),
@@ -148,13 +148,13 @@ function module.new<T>(
 	end
 
 	return {
-		acquire = acquire,
-		clear = clear,
-		delete = delete,
-		getAvailableCount = getAvailableCount,
-		getCreatedCount = getCreatedCount,
-		isDeleted = getIsDeleted,
-		release = release,
+		Acquire = acquire,
+		Clear = clear,
+		Delete = delete,
+		GetAvailableCount = getAvailableCount,
+		GetCreatedCount = getCreatedCount,
+		IsDeleted = getIsDeleted,
+		Release = release,
 	}
 end
 

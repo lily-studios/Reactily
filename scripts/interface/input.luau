@@ -18,24 +18,24 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType inputOptions
+--- @reactilyType InputOptions
 export type inputOptions = {
-	allowProcessed: boolean?,
-	enabled: boolean?,
+	AllowProcessed: boolean?,
+	Enabled: boolean?,
 }
 
---- @reactilyType keyOptions
+--- @reactilyType KeyOptions
 export type keyOptions = inputOptions & {
-	modifiers: { Enum.KeyCode }?,
+	Modifiers: { Enum.KeyCode }?,
 }
 
---- @reactilyType inputBinding
+--- @reactilyType InputBinding
 export type inputBinding = {
-	delete: () -> boolean,
-	disable: () -> boolean,
-	enable: () -> boolean,
-	isDeleted: () -> boolean,
-	isEnabled: () -> boolean,
+	Delete: () -> boolean,
+	Disable: () -> boolean,
+	Enable: () -> boolean,
+	IsDeleted: () -> boolean,
+	IsEnabled: () -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -63,7 +63,7 @@ end
 --- @param callback (input: InputObject) -> () Callback for matching input.
 --- @param options inputOptions? Binding options.
 --- @return inputBinding Owned input binding.
-function module.bind(
+function module.Bind(
 	predicate: (input: InputObject) -> boolean,
 	callback: (input: InputObject) -> (),
 	options: inputOptions?
@@ -72,8 +72,8 @@ function module.bind(
 	local enabled = true
 
 	if options then
-		allowProcessed = options.allowProcessed == true
-		enabled = options.enabled ~= false
+		allowProcessed = options.AllowProcessed == true
+		enabled = options.Enabled ~= false
 	end
 
 	local isDeleted = false
@@ -169,11 +169,11 @@ function module.bind(
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		delete = delete,
-		disable = disable,
-		enable = enable,
-		isDeleted = getIsDeleted,
-		isEnabled = getIsEnabled,
+		Delete = delete,
+		Disable = disable,
+		Enable = enable,
+		IsDeleted = getIsDeleted,
+		IsEnabled = getIsEnabled,
 	}
 end
 
@@ -184,16 +184,16 @@ end
 --- @param callback (input: InputObject) -> () Callback for the key.
 --- @param options keyOptions? Key binding options.
 --- @return inputBinding Owned input binding.
-function module.bindKey(keyCode: Enum.KeyCode, callback: (input: InputObject) -> (), options: keyOptions?): inputBinding
+function module.BindKey(keyCode: Enum.KeyCode, callback: (input: InputObject) -> (), options: keyOptions?): inputBinding
 	local modifiers: { Enum.KeyCode }? = nil
 	local bindOptions: inputOptions? = nil
 
 	if options then
-		modifiers = options.modifiers
+		modifiers = options.Modifiers
 
 		bindOptions = {
-			allowProcessed = options.allowProcessed,
-			enabled = options.enabled,
+			AllowProcessed = options.AllowProcessed,
+			Enabled = options.Enabled,
 		}
 	end
 
@@ -205,7 +205,7 @@ function module.bindKey(keyCode: Enum.KeyCode, callback: (input: InputObject) ->
 		return modifiersPressed(modifiers)
 	end
 
-	return module.bind(matchesKey, callback, bindOptions)
+	return module.Bind(matchesKey, callback, bindOptions)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -215,7 +215,7 @@ end
 --- @param callback (input: InputObject) -> () Callback for the input.
 --- @param options inputOptions? Binding options.
 --- @return inputBinding Owned input binding.
-function module.bindType(
+function module.BindType(
 	inputType: Enum.UserInputType,
 	callback: (input: InputObject) -> (),
 	options: inputOptions?
@@ -224,7 +224,7 @@ function module.bindType(
 		return input.UserInputType == inputType
 	end
 
-	return module.bind(matchesInputType, callback, options)
+	return module.Bind(matchesInputType, callback, options)
 end
 
 --————————————————————————————————————————————————————————————————————--

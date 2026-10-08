@@ -18,7 +18,7 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType layerDefinition
+--- @reactilyType LayerDefinition
 export type layerDefinition = {
 	DisplayOrder: number,
 	IgnoreGuiInset: boolean?,
@@ -26,13 +26,13 @@ export type layerDefinition = {
 	ZIndexBehavior: Enum.ZIndexBehavior?,
 }
 
---- @reactilyType layerManager
+--- @reactilyType LayerManager
 export type layerManager = {
-	delete: () -> boolean,
-	get: (name: string) -> ScreenGui?,
-	getOrCreate: (name: string, definition: layerDefinition?) -> ScreenGui,
-	isDeleted: () -> boolean,
-	portal: (name: string, children: { any }, key: string?) -> elementModule.element,
+	Delete: () -> boolean,
+	Get: (name: string) -> ScreenGui?,
+	GetOrCreate: (name: string, definition: layerDefinition?) -> ScreenGui,
+	IsDeleted: () -> boolean,
+	Portal: (name: string, children: { any }, key: string?) -> elementModule.element,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -123,7 +123,7 @@ end
 --- @param parent Instance Parent that receives generated ScreenGui layers.
 --- @param definitions {[string]: layerDefinition}? Initial named layers.
 --- @return layerManager New layer manager.
-function module.create(parent: Instance, definitions: { [string]: layerDefinition }?): layerManager
+function module.Create(parent: Instance, definitions: { [string]: layerDefinition }?): layerManager
 	assert(typeof(parent) == "Instance", "Reactily layer parent must be an Instance.")
 
 	local configuredDefinitions = copyDefinitions(definitions)
@@ -193,7 +193,7 @@ function module.create(parent: Instance, definitions: { [string]: layerDefinitio
 
 		local target = getOrCreate(name, nil)
 
-		return elementModule.createPortal(target, children, key)
+		return elementModule.CreatePortal(target, children, key)
 	end
 
 	--——————————————————————————————————————————————————————————————————--
@@ -230,11 +230,11 @@ function module.create(parent: Instance, definitions: { [string]: layerDefinitio
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		delete = delete,
-		get = get,
-		getOrCreate = getOrCreate,
-		isDeleted = getIsDeleted,
-		portal = portal,
+		Delete = delete,
+		Get = get,
+		GetOrCreate = getOrCreate,
+		IsDeleted = getIsDeleted,
+		Portal = portal,
 	}
 end
 

@@ -33,7 +33,7 @@ export type attributeMap = { [string]: attributeValue }
 
 export type refCallback<T> = (instance: T?) -> ()
 
-export type hostRefTarget<T> = refCallback<T> | { current: T? }
+export type hostRefTarget<T> = refCallback<T> | { Current: T? }
 
 export type hostChangeProps = {
 	["$Reactily.Change.AbsoluteCanvasSize"]: ((value: any) -> ())?,
@@ -203,14 +203,14 @@ export type hostChangeProps = {
 }
 
 export type hostMetadataProps<T> = hostChangeProps & {
-	attributes: attributeMap?,
-	key: string?,
+	Attributes: attributeMap?,
+	Key: string?,
 	Name: string?,
-	ref: hostRefTarget<T>?,
-	tags: { string }?,
-	onPropertyChanged: { [string]: (value: any) -> () }?,
-	onAncestryChanged: ((child: Instance, parent: Instance?) -> ())?,
-	onChanged: ((property: string) -> ())?,
+	Ref: hostRefTarget<T>?,
+	Tags: { string }?,
+	OnPropertyChanged: { [string]: (value: any) -> () }?,
+	OnAncestryChanged: ((child: Instance, parent: Instance?) -> ())?,
+	OnChanged: ((property: string) -> ())?,
 }
 
 export type commonGuiProps<T> = hostMetadataProps<T> & {
@@ -236,13 +236,13 @@ export type commonGuiProps<T> = hostMetadataProps<T> & {
 	SizeConstraint: Enum.SizeConstraint?,
 	Visible: boolean?,
 	ZIndex: number?,
-	onInputBegan: ((input: InputObject) -> ())?,
-	onInputChanged: ((input: InputObject) -> ())?,
-	onInputEnded: ((input: InputObject) -> ())?,
-	onMouseEnter: (() -> ())?,
-	onMouseLeave: (() -> ())?,
-	onSelectionGained: (() -> ())?,
-	onSelectionLost: (() -> ())?,
+	OnInputBegan: ((input: InputObject) -> ())?,
+	OnInputChanged: ((input: InputObject) -> ())?,
+	OnInputEnded: ((input: InputObject) -> ())?,
+	OnMouseEnter: (() -> ())?,
+	OnMouseLeave: (() -> ())?,
+	OnSelectionGained: (() -> ())?,
+	OnSelectionLost: (() -> ())?,
 }
 
 export type textProps = {
@@ -279,13 +279,13 @@ export type imageProps = {
 }
 
 export type buttonEvents = {
-	onActivated: ((input: InputObject, clickCount: number) -> ())?,
-	onMouseButton1Click: (() -> ())?,
-	onMouseButton1Down: ((x: number, y: number) -> ())?,
-	onMouseButton1Up: ((x: number, y: number) -> ())?,
-	onMouseButton2Click: (() -> ())?,
-	onMouseButton2Down: ((x: number, y: number) -> ())?,
-	onMouseButton2Up: ((x: number, y: number) -> ())?,
+	OnActivated: ((input: InputObject, clickCount: number) -> ())?,
+	OnMouseButton1Click: (() -> ())?,
+	OnMouseButton1Down: ((x: number, y: number) -> ())?,
+	OnMouseButton1Up: ((x: number, y: number) -> ())?,
+	OnMouseButton2Click: (() -> ())?,
+	OnMouseButton2Down: ((x: number, y: number) -> ())?,
+	OnMouseButton2Up: ((x: number, y: number) -> ())?,
 }
 
 export type billboardGuiProps = hostMetadataProps<BillboardGui> & {
@@ -381,8 +381,8 @@ export type textBoxProps = commonGuiProps<TextBox> & textProps & {
 	SelectionStart: number?,
 	ShowNativeInput: boolean?,
 	TextEditable: boolean?,
-	onFocused: (() -> ())?,
-	onFocusLost: ((enterPressed: boolean, input: InputObject?) -> ())?,
+	OnFocused: (() -> ())?,
+	OnFocusLost: ((enterPressed: boolean, input: InputObject?) -> ())?,
 }
 
 export type textButtonProps = commonGuiProps<TextButton> & textProps & buttonEvents & {
@@ -498,98 +498,98 @@ export type genericProps = {
 	[string]: any,
 }
 
-export type fragmentRefTarget = ((value: any?) -> ()) | { current: any? }
+export type fragmentRefTarget = ((value: any?) -> ()) | { Current: any? }
 export type activityMode = "visible" | "hidden"
 export type profilerOnRender = (id: string, phase: "mount" | "update", duration: number, reason: string) -> ()
 export type viewTransitionConfig = {
-	duration: number?,
-	easingDirection: Enum.EasingDirection?,
-	easingStyle: Enum.EasingStyle?,
-	enterFrom: { [string]: any }?,
+	Duration: number?,
+	EasingDirection: Enum.EasingDirection?,
+	EasingStyle: Enum.EasingStyle?,
+	EnterFrom: { [string]: any }?,
 }
 
 export type element =
 	{
-		children: { element },
-		className: string,
-		key: string?,
-		kind: "host",
-		props: genericProps,
+		Children: { element },
+		ClassName: string,
+		Key: string?,
+		Kind: "host",
+		Props: genericProps,
 	}
 	| {
-		children: { element },
+		Children: { element },
 		component: (props: genericProps) -> element?,
-		key: string?,
-		kind: "component",
-		props: genericProps,
+		Key: string?,
+		Kind: "component",
+		Props: genericProps,
 	}
 	| {
-		children: { element },
-		key: string?,
-		kind: "fragment",
-		props: genericProps,
-		refTarget: fragmentRefTarget?,
+		Children: { element },
+		Key: string?,
+		Kind: "fragment",
+		Props: genericProps,
+		RefTarget: fragmentRefTarget?,
 	}
 	| {
-		children: { element },
-		key: string?,
-		kind: "portal",
-		props: genericProps,
+		Children: { element },
+		Key: string?,
+		Kind: "portal",
+		Props: genericProps,
 		target: Instance,
 	}
 	| {
-		children: { element },
-		contextValue: any,
-		key: string?,
-		kind: "provider",
-		props: genericProps,
-		providedValue: any,
+		Children: { element },
+		ContextValue: any,
+		Key: string?,
+		Kind: "provider",
+		Props: genericProps,
+		ProvidedValue: any,
 	}
 	| {
-		children: { element },
-		fallback: element | ((failure: any) -> element),
-		key: string?,
-		kind: "errorBoundary",
-		onError: ((failure: any) -> ())?,
-		props: genericProps,
+		Children: { element },
+		Fallback: element | ((failure: any) -> element),
+		Key: string?,
+		Kind: "errorBoundary",
+		OnError: ((failure: any) -> ())?,
+		Props: genericProps,
 	}
 	| {
-		children: { element },
-		fallback: element,
-		key: string?,
-		kind: "suspense",
-		props: genericProps,
+		Children: { element },
+		Fallback: element,
+		Key: string?,
+		Kind: "suspense",
+		Props: genericProps,
 	}
 	| {
-		children: { element },
-		key: string?,
-		kind: "activity",
-		mode: activityMode,
-		props: genericProps,
+		Children: { element },
+		Key: string?,
+		Kind: "activity",
+		Mode: activityMode,
+		Props: genericProps,
 	}
 	| {
-		children: { element },
-		id: string,
-		key: string?,
-		kind: "profiler",
-		onRender: profilerOnRender?,
-		props: genericProps,
+		Children: { element },
+		Id: string,
+		Key: string?,
+		Kind: "profiler",
+		OnRender: profilerOnRender?,
+		Props: genericProps,
 	}
 	| {
-		children: { element },
-		key: string?,
-		kind: "strictMode",
-		props: genericProps,
+		Children: { element },
+		Key: string?,
+		Kind: "strictMode",
+		Props: genericProps,
 	}
 	| {
-		children: { element },
-		config: viewTransitionConfig?,
-		key: string?,
-		kind: "viewTransition",
-		onEnter: (() -> ())?,
-		onExit: (() -> ())?,
-		onUpdate: (() -> ())?,
-		props: genericProps,
+		Children: { element },
+		Config: viewTransitionConfig?,
+		Key: string?,
+		Kind: "viewTransition",
+		OnEnter: (() -> ())?,
+		OnExit: (() -> ())?,
+		OnUpdate: (() -> ())?,
+		Props: genericProps,
 	}
 
 export type component<P> = (props: P) -> element?
@@ -614,7 +614,7 @@ local function appendChildren(output: { element }, children: { any })
 			continue
 		end
 
-		if type(child) == "table" and type(child.kind) == "string" then
+		if type(child) == "table" and type(child.Kind) == "string" then
 			output[#output + 1] = child :: element
 			continue
 		end
@@ -659,11 +659,11 @@ local function getKey(props: genericProps?): string?
 		return nil
 	end
 
-	if type(props.key) ~= "string" then
+	if type(props.Key) ~= "string" then
 		return nil
 	end
 
-	return props.key
+	return props.Key
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -672,14 +672,14 @@ local function host(className: string, props: genericProps?, children: { element
 	local genericPropsValue = copyProps(props)
 	local key = getKey(genericPropsValue)
 
-	genericPropsValue.key = nil
+	genericPropsValue.Key = nil
 
 	return {
-		children = copyChildren(children),
-		className = className,
-		key = key,
-		kind = "host",
-		props = genericPropsValue,
+		Children = copyChildren(children),
+		ClassName = className,
+		Key = key,
+		Kind = "host",
+		Props = genericPropsValue,
 	}
 end
 
@@ -689,7 +689,7 @@ end
 --- @param props billboardGuiProps? BillboardGui properties.
 --- @param children {element}? Child elements.
 --- @return element BillboardGui element.
-function module.createBillboardGui(props: billboardGuiProps?, children: { element }?): element
+function module.CreateBillboardGui(props: billboardGuiProps?, children: { element }?): element
 	return host("BillboardGui", props :: any, children)
 end
 
@@ -699,7 +699,7 @@ end
 --- @param props canvasGroupProps? CanvasGroup properties.
 --- @param children {element}? Child elements.
 --- @return element CanvasGroup element.
-function module.createCanvasGroup(props: canvasGroupProps?, children: { element }?): element
+function module.CreateCanvasGroup(props: canvasGroupProps?, children: { element }?): element
 	return host("CanvasGroup", props :: any, children)
 end
 
@@ -711,15 +711,15 @@ end
 --- @param children {element}? Child elements exposed to the component element.
 --- @param key string? Stable reconciliation key.
 --- @return element Component element.
-function module.createComponent<P>(componentValue: component<P>, props: P, children: { element }?, key: string?): element
+function module.CreateComponent<P>(componentValue: component<P>, props: P, children: { element }?, key: string?): element
 	local genericPropsValue = copyProps(props)
 
 	return {
-		children = copyChildren(children),
+		Children = copyChildren(children),
 		component = componentValue :: any,
-		key = key,
-		kind = "component",
-		props = genericPropsValue,
+		Key = key,
+		Kind = "component",
+		Props = genericPropsValue,
 	}
 end
 
@@ -730,22 +730,22 @@ end
 --- @param props P? Element or component properties.
 --- @param ... any Child elements; nested child arrays are flattened by Reactily.
 --- @return element Reactily element.
-function module.createElement<P>(elementType: string | component<P> | fragmentMarker, props: P?, ...: any): element
+function module.CreateElement<P>(elementType: string | component<P> | fragmentMarker, props: P?, ...: any): element
 	local genericPropsValue = copyProps(props)
 	local children = { ... }
 
 	if elementType == fragmentMarker then
-		local refTarget = genericPropsValue.ref
-		genericPropsValue.ref = nil
-		return module.createFragment(children, getKey(genericPropsValue), refTarget)
+		local refTarget = genericPropsValue.Ref
+		genericPropsValue.Ref = nil
+		return module.CreateFragment(children, getKey(genericPropsValue), refTarget)
 	end
 
 	if type(elementType) == "function" then
 		local key = getKey(genericPropsValue)
 
-		genericPropsValue.key = nil
+		genericPropsValue.Key = nil
 
-		return module.createComponent(elementType :: component<any>, genericPropsValue, children :: any, key)
+		return module.CreateComponent(elementType :: component<any>, genericPropsValue, children :: any, key)
 	end
 
 	assert(type(elementType) == "string", "Reactily element type must be a Roblox class, component, or Fragment.")
@@ -761,13 +761,13 @@ end
 --- @param children {any} Child elements or nested child arrays.
 --- @param key string? Stable reconciliation key.
 --- @return element Fragment element.
-function module.createFragment(children: { any }, key: string?, refTarget: fragmentRefTarget?): element
+function module.CreateFragment(children: { any }, key: string?, refTarget: fragmentRefTarget?): element
 	return {
-		children = copyChildren(children),
-		key = key,
-		kind = "fragment",
-		props = {},
-		refTarget = refTarget,
+		Children = copyChildren(children),
+		Key = key,
+		Kind = "fragment",
+		Props = {},
+		RefTarget = refTarget,
 	}
 end
 
@@ -777,7 +777,7 @@ end
 --- @param props frameProps? Frame properties.
 --- @param children {element}? Child elements.
 --- @return element Frame element.
-function module.createFrame(props: frameProps?, children: { element }?): element
+function module.CreateFrame(props: frameProps?, children: { element }?): element
 	return host("Frame", props :: any, children)
 end
 
@@ -787,7 +787,7 @@ end
 --- @param props imageButtonProps? ImageButton properties.
 --- @param children {element}? Child elements.
 --- @return element ImageButton element.
-function module.createImageButton(props: imageButtonProps?, children: { element }?): element
+function module.CreateImageButton(props: imageButtonProps?, children: { element }?): element
 	return host("ImageButton", props :: any, children)
 end
 
@@ -797,7 +797,7 @@ end
 --- @param props imageLabelProps? ImageLabel properties.
 --- @param children {element}? Child elements.
 --- @return element ImageLabel element.
-function module.createImageLabel(props: imageLabelProps?, children: { element }?): element
+function module.CreateImageLabel(props: imageLabelProps?, children: { element }?): element
 	return host("ImageLabel", props :: any, children)
 end
 
@@ -808,12 +808,12 @@ end
 --- @param children {any} Child elements or nested child arrays.
 --- @param key string? Stable reconciliation key.
 --- @return element Portal element.
-function module.createPortal(target: Instance, children: { any }, key: string?): element
+function module.CreatePortal(target: Instance, children: { any }, key: string?): element
 	return {
-		children = copyChildren(children),
-		key = key,
-		kind = "portal",
-		props = {},
+		Children = copyChildren(children),
+		Key = key,
+		Kind = "portal",
+		Props = {},
 		target = target,
 	}
 end
@@ -824,7 +824,7 @@ end
 --- @param props screenGuiProps? ScreenGui properties.
 --- @param children {element}? Child elements.
 --- @return element ScreenGui element.
-function module.createScreenGui(props: screenGuiProps?, children: { element }?): element
+function module.CreateScreenGui(props: screenGuiProps?, children: { element }?): element
 	return host("ScreenGui", props :: any, children)
 end
 
@@ -834,7 +834,7 @@ end
 --- @param props scrollingFrameProps? ScrollingFrame properties.
 --- @param children {element}? Child elements.
 --- @return element ScrollingFrame element.
-function module.createScrollingFrame(props: scrollingFrameProps?, children: { element }?): element
+function module.CreateScrollingFrame(props: scrollingFrameProps?, children: { element }?): element
 	return host("ScrollingFrame", props :: any, children)
 end
 
@@ -844,7 +844,7 @@ end
 --- @param props surfaceGuiProps? SurfaceGui properties.
 --- @param children {element}? Child elements.
 --- @return element SurfaceGui element.
-function module.createSurfaceGui(props: surfaceGuiProps?, children: { element }?): element
+function module.CreateSurfaceGui(props: surfaceGuiProps?, children: { element }?): element
 	return host("SurfaceGui", props :: any, children)
 end
 
@@ -854,7 +854,7 @@ end
 --- @param props textBoxProps? TextBox properties.
 --- @param children {element}? Child elements.
 --- @return element TextBox element.
-function module.createTextBox(props: textBoxProps?, children: { element }?): element
+function module.CreateTextBox(props: textBoxProps?, children: { element }?): element
 	return host("TextBox", props :: any, children)
 end
 
@@ -864,7 +864,7 @@ end
 --- @param props textButtonProps? TextButton properties.
 --- @param children {element}? Child elements.
 --- @return element TextButton element.
-function module.createTextButton(props: textButtonProps?, children: { element }?): element
+function module.CreateTextButton(props: textButtonProps?, children: { element }?): element
 	return host("TextButton", props :: any, children)
 end
 
@@ -874,7 +874,7 @@ end
 --- @param props textLabelProps? TextLabel properties.
 --- @param children {element}? Child elements.
 --- @return element TextLabel element.
-function module.createTextLabel(props: textLabelProps?, children: { element }?): element
+function module.CreateTextLabel(props: textLabelProps?, children: { element }?): element
 	return host("TextLabel", props :: any, children)
 end
 
@@ -883,7 +883,7 @@ end
 --- Creates a UIAspectRatioConstraint host element.
 --- @param props uiAspectRatioConstraintProps? UIAspectRatioConstraint properties.
 --- @return element UIAspectRatioConstraint element.
-function module.createUIAspectRatioConstraint(props: uiAspectRatioConstraintProps?): element
+function module.CreateUIAspectRatioConstraint(props: uiAspectRatioConstraintProps?): element
 	return host("UIAspectRatioConstraint", props :: any, nil)
 end
 
@@ -892,7 +892,7 @@ end
 --- Creates a UICorner host element.
 --- @param props uiCornerProps? UICorner properties.
 --- @return element UICorner element.
-function module.createUICorner(props: uiCornerProps?): element
+function module.CreateUICorner(props: uiCornerProps?): element
 	return host("UICorner", props :: any, nil)
 end
 
@@ -901,7 +901,7 @@ end
 --- Creates a UIGradient host element.
 --- @param props uiGradientProps? UIGradient properties.
 --- @return element UIGradient element.
-function module.createUIGradient(props: uiGradientProps?): element
+function module.CreateUIGradient(props: uiGradientProps?): element
 	return host("UIGradient", props :: any, nil)
 end
 
@@ -910,7 +910,7 @@ end
 --- Creates a UIGridLayout host element.
 --- @param props uiGridLayoutProps? UIGridLayout properties.
 --- @return element UIGridLayout element.
-function module.createUIGridLayout(props: uiGridLayoutProps?): element
+function module.CreateUIGridLayout(props: uiGridLayoutProps?): element
 	return host("UIGridLayout", props :: any, nil)
 end
 
@@ -919,7 +919,7 @@ end
 --- Creates a UIListLayout host element.
 --- @param props uiListLayoutProps? UIListLayout properties.
 --- @return element UIListLayout element.
-function module.createUIListLayout(props: uiListLayoutProps?): element
+function module.CreateUIListLayout(props: uiListLayoutProps?): element
 	return host("UIListLayout", props :: any, nil)
 end
 
@@ -928,7 +928,7 @@ end
 --- Creates a UIPadding host element.
 --- @param props uiPaddingProps? UIPadding properties.
 --- @return element UIPadding element.
-function module.createUIPadding(props: uiPaddingProps?): element
+function module.CreateUIPadding(props: uiPaddingProps?): element
 	return host("UIPadding", props :: any, nil)
 end
 
@@ -937,7 +937,7 @@ end
 --- Creates a UIPageLayout host element.
 --- @param props uiPageLayoutProps? UIPageLayout properties.
 --- @return element UIPageLayout element.
-function module.createUIPageLayout(props: uiPageLayoutProps?): element
+function module.CreateUIPageLayout(props: uiPageLayoutProps?): element
 	return host("UIPageLayout", props :: any, nil)
 end
 
@@ -946,7 +946,7 @@ end
 --- Creates a UIScale host element.
 --- @param props uiScaleProps? UIScale properties.
 --- @return element UIScale element.
-function module.createUIScale(props: uiScaleProps?): element
+function module.CreateUIScale(props: uiScaleProps?): element
 	return host("UIScale", props :: any, nil)
 end
 
@@ -955,7 +955,7 @@ end
 --- Creates a UISizeConstraint host element.
 --- @param props uiSizeConstraintProps? UISizeConstraint properties.
 --- @return element UISizeConstraint element.
-function module.createUISizeConstraint(props: uiSizeConstraintProps?): element
+function module.CreateUISizeConstraint(props: uiSizeConstraintProps?): element
 	return host("UISizeConstraint", props :: any, nil)
 end
 
@@ -964,7 +964,7 @@ end
 --- Creates a UIStroke host element.
 --- @param props uiStrokeProps? UIStroke properties.
 --- @return element UIStroke element.
-function module.createUIStroke(props: uiStrokeProps?): element
+function module.CreateUIStroke(props: uiStrokeProps?): element
 	return host("UIStroke", props :: any, nil)
 end
 
@@ -973,7 +973,7 @@ end
 --- Creates a UITextSizeConstraint host element.
 --- @param props uiTextSizeConstraintProps? UITextSizeConstraint properties.
 --- @return element UITextSizeConstraint element.
-function module.createUITextSizeConstraint(props: uiTextSizeConstraintProps?): element
+function module.CreateUITextSizeConstraint(props: uiTextSizeConstraintProps?): element
 	return host("UITextSizeConstraint", props :: any, nil)
 end
 
@@ -983,7 +983,7 @@ end
 --- @param props videoFrameProps? VideoFrame properties.
 --- @param children {element}? Child elements.
 --- @return element VideoFrame element.
-function module.createVideoFrame(props: videoFrameProps?, children: { element }?): element
+function module.CreateVideoFrame(props: videoFrameProps?, children: { element }?): element
 	return host("VideoFrame", props :: any, children)
 end
 
@@ -993,7 +993,7 @@ end
 --- @param props viewportFrameProps? ViewportFrame properties.
 --- @param children {element}? Child elements.
 --- @return element ViewportFrame element.
-function module.createViewportFrame(props: viewportFrameProps?, children: { element }?): element
+function module.CreateViewportFrame(props: viewportFrameProps?, children: { element }?): element
 	return host("ViewportFrame", props :: any, children)
 end
 
@@ -1005,14 +1005,14 @@ end
 --- @param children {any} Descendant elements or nested child arrays.
 --- @param key string? Stable reconciliation key.
 --- @return element Context-provider element.
-function module.createContextProvider(contextValue: any, providedValue: any, children: { any }, key: string?): element
+function module.CreateContextProvider(contextValue: any, providedValue: any, children: { any }, key: string?): element
 	return {
-		children = copyChildren(children),
-		contextValue = contextValue,
-		key = key,
-		kind = "provider",
-		props = {},
-		providedValue = providedValue,
+		Children = copyChildren(children),
+		ContextValue = contextValue,
+		Key = key,
+		Kind = "provider",
+		Props = {},
+		ProvidedValue = providedValue,
 	}
 end
 
@@ -1024,19 +1024,19 @@ end
 --- @param onError ((failure: any) -> ())? Optional error callback.
 --- @param key string? Stable reconciliation key.
 --- @return element Error-boundary element.
-function module.createErrorBoundary(
+function module.CreateErrorBoundary(
 	fallback: element | ((failure: any) -> element),
 	child: element,
 	onError: ((failure: any) -> ())?,
 	key: string?
 ): element
 	return {
-		children = { child },
-		fallback = fallback,
-		key = key,
-		kind = "errorBoundary",
-		onError = onError,
-		props = {},
+		Children = { child },
+		Fallback = fallback,
+		Key = key,
+		Kind = "errorBoundary",
+		OnError = onError,
+		Props = {},
 	}
 end
 
@@ -1047,13 +1047,13 @@ end
 --- @param child element Child subtree that may suspend.
 --- @param key string? Stable reconciliation key.
 --- @return element Suspense element.
-function module.createSuspense(fallback: element, child: element, key: string?): element
+function module.CreateSuspense(fallback: element, child: element, key: string?): element
 	return {
-		children = { child },
-		fallback = fallback,
-		key = key,
-		kind = "suspense",
-		props = {},
+		Children = { child },
+		Fallback = fallback,
+		Key = key,
+		Kind = "suspense",
+		Props = {},
 	}
 end
 
@@ -1061,14 +1061,14 @@ end
 
 --- Creates an Activity boundary that can hide UI while preserving subtree state.
 --- @reactilyExport
-function module.createActivity(mode: activityMode, children: { any }, key: string?): element
+function module.CreateActivity(mode: activityMode, children: { any }, key: string?): element
 	assert(mode == "visible" or mode == "hidden", "Reactily Activity mode must be visible or hidden.")
 	return {
-		children = copyChildren(children),
-		key = key,
-		kind = "activity",
-		mode = mode,
-		props = {},
+		Children = copyChildren(children),
+		Key = key,
+		Kind = "activity",
+		Mode = mode,
+		Props = {},
 	}
 end
 
@@ -1076,20 +1076,15 @@ end
 
 --- Creates a programmatic profiler boundary around one child.
 --- @reactilyExport
-function module.createProfiler(
-	id: string,
-	child: element,
-	onRender: profilerOnRender?,
-	key: string?
-): element
+function module.CreateProfiler(id: string, child: element, onRender: profilerOnRender?, key: string?): element
 	assert(id ~= "", "Reactily Profiler id must not be empty.")
 	return {
-		children = { child },
-		id = id,
-		key = key,
-		kind = "profiler",
-		onRender = onRender,
-		props = {},
+		Children = { child },
+		Id = id,
+		Key = key,
+		Kind = "profiler",
+		OnRender = onRender,
+		Props = {},
 	}
 end
 
@@ -1097,12 +1092,12 @@ end
 
 --- Creates a StrictMode development boundary.
 --- @reactilyExport
-function module.createStrictMode(children: { any }, key: string?): element
+function module.CreateStrictMode(children: { any }, key: string?): element
 	return {
-		children = copyChildren(children),
-		key = key,
-		kind = "strictMode",
-		props = {},
+		Children = copyChildren(children),
+		Key = key,
+		Kind = "strictMode",
+		Props = {},
 	}
 end
 
@@ -1110,7 +1105,7 @@ end
 
 --- Creates a Roblox-native ViewTransition boundary around one child.
 --- @reactilyExport
-function module.createViewTransition(
+function module.CreateViewTransition(
 	child: element,
 	config: viewTransitionConfig?,
 	onEnter: (() -> ())?,
@@ -1119,14 +1114,14 @@ function module.createViewTransition(
 	key: string?
 ): element
 	return {
-		children = { child },
-		config = config,
-		key = key,
-		kind = "viewTransition",
-		onEnter = onEnter,
-		onExit = onExit,
-		onUpdate = onUpdate,
-		props = {},
+		Children = { child },
+		Config = config,
+		Key = key,
+		Kind = "viewTransition",
+		OnEnter = onEnter,
+		OnExit = onExit,
+		OnUpdate = onUpdate,
+		Props = {},
 	}
 end
 
@@ -1138,10 +1133,10 @@ end
 --- @param props genericProps? Props to merge over the existing props.
 --- @param children {any}? Replacement children. Existing children are preserved when omitted.
 --- @return element Cloned Reactily element.
-function module.cloneElement(elementValue: element, props: genericProps?, children: { any }?): element
+function module.CloneElement(elementValue: element, props: genericProps?, children: { any }?): element
 	local output: any = table.clone(elementValue :: any)
-	local nextProps = table.clone(elementValue.props)
-	local nextKey = elementValue.key
+	local nextProps = table.clone(elementValue.Props)
+	local nextKey = elementValue.Key
 
 	if props then
 		local providedKey = getKey(props)
@@ -1151,7 +1146,7 @@ function module.cloneElement(elementValue: element, props: genericProps?, childr
 		end
 
 		for propName, value in props do
-			if propName == "key" then
+			if propName == "Key" then
 				continue
 			end
 
@@ -1159,13 +1154,13 @@ function module.cloneElement(elementValue: element, props: genericProps?, childr
 		end
 	end
 
-	nextProps.key = nil
+	nextProps.Key = nil
 
-	output.key = nextKey
-	output.props = nextProps
+	output.Key = nextKey
+	output.Props = nextProps
 
 	if children then
-		output.children = copyChildren(children)
+		output.Children = copyChildren(children)
 	end
 
 	return output :: element
@@ -1177,12 +1172,12 @@ end
 --- Returns whether a value is a Reactily element.
 --- @param value any Value to inspect.
 --- @return boolean True when the value has a valid Reactily element kind.
-function module.isValidElement(value: any): boolean
+function module.IsValidElement(value: any): boolean
 	if type(value) ~= "table" then
 		return false
 	end
 
-	local kind = value.kind
+	local kind = value.Kind
 
 	return kind == "host"
 		or kind == "component"
@@ -1202,7 +1197,7 @@ end
 --- Flattens nested Reactily child arrays and removes false/nil entries.
 --- @param children {any} Child values to normalize.
 --- @return {element} Flat ordered element array.
-function module.flattenChildren(children: { any }): { element }
+function module.FlattenChildren(children: { any }): { element }
 	return copyChildren(children)
 end
 
@@ -1212,12 +1207,12 @@ end
 --- @param elementValue element Element to clone.
 --- @param key string Stable key.
 --- @return element Keyed element clone.
-function module.key(elementValue: element, key: string): element
+function module.Key(elementValue: element, key: string): element
 	assert(key ~= "", "Reactily element key cannot be empty.")
 
 	local output: any = table.clone(elementValue :: any)
 
-	output.key = key
+	output.Key = key
 
 	return output
 end

@@ -18,30 +18,30 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType commonOptions
+--- @reactilyType CommonOptions
 export type commonOptions = {
 	AnchorPoint: Vector2?,
 	AutomaticSize: Enum.AutomaticSize?,
 	BackgroundTransparency: number?,
 	LayoutOrder: number?,
 	Name: string?,
-	padding: number?,
+	Padding: number?,
 	Position: UDim2?,
 	Size: UDim2?,
 	ZIndex: number?,
 }
 
---- @reactilyType listOptions
+--- @reactilyType ListOptions
 export type listOptions = {
 	AnchorPoint: Vector2?,
 	AutomaticSize: Enum.AutomaticSize?,
 	BackgroundTransparency: number?,
 	FillDirection: Enum.FillDirection?,
-	gap: number?,
+	Gap: number?,
 	HorizontalAlignment: Enum.HorizontalAlignment?,
 	LayoutOrder: number?,
 	Name: string?,
-	padding: number?,
+	Padding: number?,
 	Position: UDim2?,
 	Size: UDim2?,
 	SortOrder: Enum.SortOrder?,
@@ -50,7 +50,7 @@ export type listOptions = {
 	ZIndex: number?,
 }
 
---- @reactilyType gridOptions
+--- @reactilyType GridOptions
 export type gridOptions = {
 	AnchorPoint: Vector2?,
 	AutomaticSize: Enum.AutomaticSize?,
@@ -62,7 +62,7 @@ export type gridOptions = {
 	HorizontalAlignment: Enum.HorizontalAlignment?,
 	LayoutOrder: number?,
 	Name: string?,
-	padding: number?,
+	Padding: number?,
 	Position: UDim2?,
 	Size: UDim2?,
 	SortOrder: Enum.SortOrder?,
@@ -109,7 +109,7 @@ local function createPadding(padding: number?): elementModule.element?
 
 	local value = UDim.new(0, padding)
 
-	return elementModule.createUIPadding({
+	return elementModule.CreateUIPadding({
 		PaddingBottom = value,
 		PaddingLeft = value,
 		PaddingRight = value,
@@ -200,11 +200,11 @@ local function resolveGap(options: listOptions?): number
 		return 0
 	end
 
-	if options.gap == nil then
+	if options.Gap == nil then
 		return 0
 	end
 
-	return options.gap
+	return options.Gap
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -217,7 +217,7 @@ local function createList(
 ): elementModule.element
 	local gap = resolveGap(options)
 
-	local layout = elementModule.createUIListLayout({
+	local layout = elementModule.CreateUIListLayout({
 		FillDirection = resolveFillDirection(options, fillDirectionOverride),
 		HorizontalAlignment = resolveHorizontalAlignment(options),
 		Padding = UDim.new(0, gap),
@@ -233,7 +233,7 @@ local function createList(
 	local paddingValue: number? = nil
 
 	if options then
-		paddingValue = options.padding
+		paddingValue = options.Padding
 	end
 
 	local padding = createPadding(paddingValue)
@@ -244,7 +244,7 @@ local function createList(
 
 	appendChildren(outputChildren, children)
 
-	return elementModule.createFrame(createFrameProps(options), outputChildren)
+	return elementModule.CreateFrame(createFrameProps(options), outputChildren)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -253,7 +253,7 @@ end
 --- @param options listOptions? Layout options.
 --- @param children {any} Child elements.
 --- @return element Layout element.
-function module.horizontal(options: listOptions?, children: { any }): elementModule.element
+function module.Horizontal(options: listOptions?, children: { any }): elementModule.element
 	return createList(options, children, Enum.FillDirection.Horizontal, nil)
 end
 
@@ -263,7 +263,7 @@ end
 --- @param options listOptions? Layout options.
 --- @param children {any} Child elements.
 --- @return element Layout element.
-function module.vertical(options: listOptions?, children: { any }): elementModule.element
+function module.Vertical(options: listOptions?, children: { any }): elementModule.element
 	return createList(options, children, Enum.FillDirection.Vertical, nil)
 end
 
@@ -273,7 +273,7 @@ end
 --- @param options listOptions? Layout options.
 --- @param children {any} Child elements.
 --- @return element Layout element.
-function module.wrap(options: listOptions?, children: { any }): elementModule.element
+function module.Wrap(options: listOptions?, children: { any }): elementModule.element
 	return createList(options, children, nil, true)
 end
 
@@ -283,7 +283,7 @@ end
 --- @param options gridOptions Grid options.
 --- @param children {any} Child elements.
 --- @return element Grid element.
-function module.grid(options: gridOptions, children: { any }): elementModule.element
+function module.Grid(options: gridOptions, children: { any }): elementModule.element
 	local cellPadding = options.CellPadding
 
 	if cellPadding == nil then
@@ -326,7 +326,7 @@ function module.grid(options: gridOptions, children: { any }): elementModule.ele
 		verticalAlignment = Enum.VerticalAlignment.Top
 	end
 
-	local layout = elementModule.createUIGridLayout({
+	local layout = elementModule.CreateUIGridLayout({
 		CellPadding = cellPadding,
 		CellSize = options.CellSize,
 		FillDirection = fillDirection,
@@ -341,7 +341,7 @@ function module.grid(options: gridOptions, children: { any }): elementModule.ele
 		layout,
 	}
 
-	local padding = createPadding(options.padding)
+	local padding = createPadding(options.Padding)
 
 	if padding then
 		outputChildren[#outputChildren + 1] = padding
@@ -349,7 +349,7 @@ function module.grid(options: gridOptions, children: { any }): elementModule.ele
 
 	appendChildren(outputChildren, children)
 
-	return elementModule.createFrame(createFrameProps(options), outputChildren)
+	return elementModule.CreateFrame(createFrameProps(options), outputChildren)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -358,8 +358,8 @@ end
 --- @param options commonOptions? Container options.
 --- @param children {any} Child elements.
 --- @return element Stack element.
-function module.stack(options: commonOptions?, children: { any }): elementModule.element
-	return elementModule.createFrame(createFrameProps(options), children)
+function module.Stack(options: commonOptions?, children: { any }): elementModule.element
+	return elementModule.CreateFrame(createFrameProps(options), children)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -368,8 +368,8 @@ end
 --- @param options commonOptions? Container options.
 --- @param children {any} Child elements.
 --- @return element Centered element.
-function module.center(options: commonOptions?, children: { any }): elementModule.element
-	local layout = elementModule.createUIListLayout({
+function module.Center(options: commonOptions?, children: { any }): elementModule.element
+	local layout = elementModule.CreateUIListLayout({
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		VerticalAlignment = Enum.VerticalAlignment.Center,
@@ -382,7 +382,7 @@ function module.center(options: commonOptions?, children: { any }): elementModul
 	local paddingValue: number? = nil
 
 	if options then
-		paddingValue = options.padding
+		paddingValue = options.Padding
 	end
 
 	local padding = createPadding(paddingValue)
@@ -393,7 +393,7 @@ function module.center(options: commonOptions?, children: { any }): elementModul
 
 	appendChildren(outputChildren, children)
 
-	return elementModule.createFrame(createFrameProps(options), outputChildren)
+	return elementModule.CreateFrame(createFrameProps(options), outputChildren)
 end
 
 --————————————————————————————————————————————————————————————————————--

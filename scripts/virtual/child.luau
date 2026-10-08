@@ -21,8 +21,8 @@ local module = {}
 --- Counts normalized Reactily children.
 --- @param children {any} Child elements or nested child arrays.
 --- @return number Normalized child count.
-function module.count(children: { any }): number
-	return #elementModule.flattenChildren(children)
+function module.Count(children: { any }): number
+	return #elementModule.FlattenChildren(children)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -30,8 +30,8 @@ end
 --- Invokes a callback for every normalized child.
 --- @param children {any} Child elements or nested child arrays.
 --- @param callback (child: element, index: number) -> () Callback for each child.
-function module.forEach(children: { any }, callback: (child: elementModule.element, index: number) -> ())
-	local normalized = elementModule.flattenChildren(children)
+function module.ForEach(children: { any }, callback: (child: elementModule.element, index: number) -> ())
+	local normalized = elementModule.FlattenChildren(children)
 
 	for index, child in normalized do
 		callback(child, index)
@@ -44,18 +44,18 @@ end
 --- @param children {any} Child elements or nested child arrays.
 --- @param callback (child: element, index: number) -> any Mapping callback.
 --- @return {element} Normalized mapped children.
-function module.map(
+function module.Map(
 	children: { any },
 	callback: (child: elementModule.element, index: number) -> any
 ): { elementModule.element }
-	local normalized = elementModule.flattenChildren(children)
+	local normalized = elementModule.FlattenChildren(children)
 	local mapped: { any } = table.create(#normalized)
 
 	for index, child in normalized do
 		mapped[index] = callback(child, index)
 	end
 
-	return elementModule.flattenChildren(mapped)
+	return elementModule.FlattenChildren(mapped)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -63,8 +63,8 @@ end
 --- Returns the only normalized child and errors when the count differs from one.
 --- @param children {any} Child elements or nested child arrays.
 --- @return element The only child.
-function module.only(children: { any }): elementModule.element
-	local normalized = elementModule.flattenChildren(children)
+function module.Only(children: { any }): elementModule.element
+	local normalized = elementModule.FlattenChildren(children)
 
 	assert(#normalized == 1, `Reactily.Children.only expected one child, received {#normalized}.`)
 
@@ -76,8 +76,8 @@ end
 --- Flattens nested children into a new ordered array.
 --- @param children {any} Child elements or nested child arrays.
 --- @return {element} Normalized children.
-function module.toArray(children: { any }): { elementModule.element }
-	return elementModule.flattenChildren(children)
+function module.ToArray(children: { any }): { elementModule.element }
+	return elementModule.FlattenChildren(children)
 end
 
 --————————————————————————————————————————————————————————————————————--

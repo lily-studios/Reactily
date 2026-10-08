@@ -1,4 +1,3 @@
-
 --[[
   Reactily · Lily Studios
 
@@ -24,8 +23,8 @@ local module = {}
 --- @field children {any}? Child elements rendered inside StrictMode.
 --- @field key string? Optional reconciliation key.
 export type strictModeProps = {
-    children: { any }?,
-    key: string?,
+	Children: { any }?,
+	Key: string?,
 }
 
 --- Properties for the Suspense component.
@@ -33,9 +32,9 @@ export type strictModeProps = {
 --- @field children {any}? Child elements managed by Suspense.
 --- @field key string? Optional reconciliation key.
 export type suspenseProps = {
-    fallback: elementModule.element,
-    children: { any }?,
-    key: string?,
+	Fallback: elementModule.element,
+	Children: { any }?,
+	Key: string?,
 }
 
 --- Properties for the ErrorBoundary component.
@@ -44,10 +43,10 @@ export type suspenseProps = {
 --- @field children {any}? Child elements protected by the error boundary.
 --- @field key string? Optional reconciliation key.
 export type errorBoundaryProps = {
-    fallback: elementModule.element | ((failure: any) -> elementModule.element),
-    onError: ((failure: any) -> ())?,
-    children: { any }?,
-    key: string?,
+	Fallback: elementModule.element | ((failure: any) -> elementModule.element),
+	OnError: ((failure: any) -> ())?,
+	Children: { any }?,
+	Key: string?,
 }
 
 --- Properties for the Activity component.
@@ -55,9 +54,9 @@ export type errorBoundaryProps = {
 --- @field key string? Optional reconciliation key.
 --- @field mode activityMode? Visibility mode for the subtree.
 export type activityProps = {
-    children: { any }?,
-    key: string?,
-    mode: elementModule.activityMode?,
+	Children: { any }?,
+	Key: string?,
+	Mode: elementModule.activityMode?,
 }
 
 --- Properties for the Profiler component.
@@ -66,10 +65,10 @@ export type activityProps = {
 --- @field key string? Optional reconciliation key.
 --- @field onRender profilerOnRender? Callback invoked after rendering.
 export type profilerProps = {
-    children: { any }?,
-    id: string,
-    key: string?,
-    onRender: elementModule.profilerOnRender?,
+	Children: { any }?,
+	Id: string,
+	Key: string?,
+	OnRender: elementModule.profilerOnRender?,
 }
 
 --- Properties for the ViewTransition component.
@@ -80,12 +79,12 @@ export type profilerProps = {
 --- @field onExit function? Callback invoked when the transition exits.
 --- @field onUpdate function? Callback invoked when the transition updates.
 export type viewTransitionProps = {
-    children: { any }?,
-    config: elementModule.viewTransitionConfig?,
-    key: string?,
-    onEnter: (() -> ())?,
-    onExit: (() -> ())?,
-    onUpdate: (() -> ())?,
+	Children: { any }?,
+	Config: elementModule.viewTransitionConfig?,
+	Key: string?,
+	OnEnter: (() -> ())?,
+	OnExit: (() -> ())?,
+	OnUpdate: (() -> ())?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -94,7 +93,7 @@ export type viewTransitionProps = {
 --- @param props strictModeProps StrictMode component properties.
 --- @return element Created StrictMode element.
 function module.StrictMode(props: strictModeProps): elementModule.element
-    return elementModule.createStrictMode(props.children or {}, props.key)
+	return elementModule.CreateStrictMode(props.Children or {}, props.Key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -103,8 +102,8 @@ end
 --- @param props suspenseProps Suspense component properties.
 --- @return element Created Suspense element.
 function module.Suspense(props: suspenseProps): elementModule.element
-    local child = childrenModule.only(props.children or {})
-    return elementModule.createSuspense(props.fallback, child, props.key)
+	local child = childrenModule.Only(props.Children or {})
+	return elementModule.CreateSuspense(props.Fallback, child, props.Key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -113,8 +112,8 @@ end
 --- @param props errorBoundaryProps ErrorBoundary component properties.
 --- @return element Created error-boundary element.
 function module.ErrorBoundary(props: errorBoundaryProps): elementModule.element
-    local child = childrenModule.only(props.children or {})
-    return elementModule.createErrorBoundary(props.fallback, child, props.onError, props.key)
+	local child = childrenModule.Only(props.Children or {})
+	return elementModule.CreateErrorBoundary(props.Fallback, child, props.OnError, props.Key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -123,7 +122,7 @@ end
 --- @param props activityProps Activity component properties.
 --- @return element Created Activity element.
 function module.Activity(props: activityProps): elementModule.element
-    return elementModule.createActivity(props.mode or "visible", props.children or {}, props.key)
+	return elementModule.CreateActivity(props.Mode or "visible", props.Children or {}, props.Key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -132,8 +131,8 @@ end
 --- @param props profilerProps Profiler component properties.
 --- @return element Created Profiler element.
 function module.Profiler(props: profilerProps): elementModule.element
-    local child = childrenModule.only(props.children or {})
-    return elementModule.createProfiler(props.id, child, props.onRender, props.key)
+	local child = childrenModule.Only(props.Children or {})
+	return elementModule.CreateProfiler(props.Id, child, props.OnRender, props.Key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -142,15 +141,15 @@ end
 --- @param props viewTransitionProps ViewTransition component properties.
 --- @return element Created ViewTransition element.
 function module.ViewTransition(props: viewTransitionProps): elementModule.element
-    local child = childrenModule.only(props.children or {})
-    return elementModule.createViewTransition(
-        child,
-        props.config,
-        props.onEnter,
-        props.onExit,
-        props.onUpdate,
-        props.key
-    )
+	local child = childrenModule.Only(props.Children or {})
+	return elementModule.CreateViewTransition(
+		child,
+		props.Config,
+		props.OnEnter,
+		props.OnExit,
+		props.OnUpdate,
+		props.Key
+	)
 end
 
 --————————————————————————————————————————————————————————————————————--

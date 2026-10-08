@@ -16,16 +16,16 @@ local module = {}
 
 export type context<T> = {
 	__reactilyContext: true,
-	defaultValue: T,
-	id: number,
+	DefaultValue: T,
+	Id: number,
 }
 
 type contextStackValue = {
-	value: any,
+	Value: any,
 }
 
 type contextRecord = {
-	stack: { contextStackValue },
+	Stack: { contextStackValue },
 }
 
 type contextRecords = {
@@ -50,20 +50,20 @@ end
 --- Returns the current value for a context, or its default outside a provider.
 --- @param contextValue context<T> Context to read.
 --- @return T Current context value.
-function module.get<T>(contextValue: context<T>): T
+function module.Get<T>(contextValue: context<T>): T
 	local record = records[contextValue]
 
 	if not record then
-		return contextValue.defaultValue
+		return contextValue.DefaultValue
 	end
 
-	local entry = record.stack[#record.stack]
+	local entry = record.Stack[#record.Stack]
 
 	if not entry then
-		return contextValue.defaultValue
+		return contextValue.DefaultValue
 	end
 
-	return entry.value :: T
+	return entry.Value :: T
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -71,17 +71,17 @@ end
 --- Creates a typed Reactily context with a fallback value.
 --- @param defaultValue T Value returned when no provider is active.
 --- @return context<T> New context descriptor.
-function module.new<T>(defaultValue: T): context<T>
+function module.New<T>(defaultValue: T): context<T>
 	nextContextId += 1
 
 	local contextValue: context<T> = {
 		__reactilyContext = true,
-		defaultValue = defaultValue,
-		id = nextContextId,
+		DefaultValue = defaultValue,
+		Id = nextContextId,
 	}
 
 	records[contextValue] = {
-		stack = {},
+		Stack = {},
 	}
 
 	return contextValue
@@ -91,13 +91,13 @@ end
 
 --- Removes the most recently pushed provider value.
 --- @param contextValue context<T> Context whose provider scope is ending.
-function module.pop<T>(contextValue: context<T>)
+function module.Pop<T>(contextValue: context<T>)
 	local record = records[contextValue]
 
 	assert(record, "Reactily context is not registered.")
-	assert(#record.stack > 0, "Reactily context provider stack is empty.")
+	assert(#record.Stack > 0, "Reactily context provider stack is empty.")
 
-	record.stack[#record.stack] = nil
+	record.Stack[#record.Stack] = nil
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -105,13 +105,13 @@ end
 --- Pushes a provider value for the duration of descendant reconciliation.
 --- @param contextValue context<T> Context being provided.
 --- @param value T Value visible to descendants.
-function module.push<T>(contextValue: context<T>, value: T)
+function module.Push<T>(contextValue: context<T>, value: T)
 	local record = records[contextValue]
 
 	assert(record, "Reactily context is not registered.")
 
-	record.stack[#record.stack + 1] = {
-		value = value,
+	record.Stack[#record.Stack + 1] = {
+		Value = value,
 	}
 end
 

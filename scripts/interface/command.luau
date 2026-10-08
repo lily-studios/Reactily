@@ -18,28 +18,28 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType command
+--- @reactilyType Command
 export type command = {
-	canExecute: (() -> boolean)?,
-	execute: (...any) -> (),
+	CanExecute: (() -> boolean)?,
+	Execute: (...any) -> (),
 }
 
---- @reactilyType commandRegistry
+--- @reactilyType CommandRegistry
 export type commandRegistry = {
-	bindKey: (name: string, keyCode: Enum.KeyCode, modifiers: { Enum.KeyCode }?) -> inputModule.inputBinding,
-	delete: () -> boolean,
-	execute: (name: string, ...any) -> boolean,
-	has: (name: string) -> boolean,
-	isDeleted: () -> boolean,
-	register: (name: string, commandValue: command) -> boolean,
-	remove: (name: string) -> boolean,
+	BindKey: (name: string, keyCode: Enum.KeyCode, modifiers: { Enum.KeyCode }?) -> inputModule.inputBinding,
+	Delete: () -> boolean,
+	Execute: (name: string, ...any) -> boolean,
+	Has: (name: string) -> boolean,
+	IsDeleted: () -> boolean,
+	Register: (name: string, commandValue: command) -> boolean,
+	Remove: (name: string) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Creates a command registry that can share actions across buttons, menus, and shortcuts.
 --- @return commandRegistry Owned command registry.
-function module.create(): commandRegistry
+function module.Create(): commandRegistry
 	local bindings: { inputModule.inputBinding } = {}
 	local commands: { [string]: command } = {}
 	local isDeleted = false
@@ -50,11 +50,11 @@ function module.create(): commandRegistry
 		if not commandValue then
 			return false
 		end
-		if commandValue.canExecute and not commandValue.canExecute() then
+		if commandValue.CanExecute and not commandValue.CanExecute() then
 			return false
 		end
 
-		commandValue.execute(...)
+		commandValue.Execute(...)
 		return true
 	end
 
@@ -78,10 +78,10 @@ function module.create(): commandRegistry
 
 	local function bindKey(name: string, keyCode: Enum.KeyCode, modifiers: { Enum.KeyCode }?): inputModule.inputBinding
 		assert(not isDeleted, "Reactily command registry is deleted.")
-		local binding = inputModule.bindKey(keyCode, function()
+		local binding = inputModule.BindKey(keyCode, function()
 			execute(name)
 		end, {
-			modifiers = modifiers,
+			Modifiers = modifiers,
 		})
 		bindings[#bindings + 1] = binding
 		return binding
@@ -94,7 +94,7 @@ function module.create(): commandRegistry
 
 		isDeleted = true
 		for _, binding in bindings do
-			binding.delete()
+			binding.Delete()
 		end
 		table.clear(bindings)
 		table.clear(commands)
@@ -102,17 +102,17 @@ function module.create(): commandRegistry
 	end
 
 	return {
-		bindKey = bindKey,
-		delete = delete,
-		execute = execute,
-		has = function(name: string): boolean
+		BindKey = bindKey,
+		Delete = delete,
+		Execute = execute,
+		Has = function(name: string): boolean
 			return not isDeleted and commands[name] ~= nil
 		end,
-		isDeleted = function(): boolean
+		IsDeleted = function(): boolean
 			return isDeleted
 		end,
-		register = register,
-		remove = remove,
+		Register = register,
+		Remove = remove,
 	}
 end
 

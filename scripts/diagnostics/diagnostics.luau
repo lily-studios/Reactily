@@ -15,20 +15,20 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type diagnostics = {
-	delete: () -> boolean,
-	get: (name: string) -> number,
-	increment: (name: string, amount: number?) -> number,
-	isDeleted: () -> boolean,
-	reset: (name: string) -> boolean,
-	resetAll: () -> (),
-	snapshot: () -> { [string]: number },
+	Delete: () -> boolean,
+	Get: (name: string) -> number,
+	Increment: (name: string, amount: number?) -> number,
+	IsDeleted: () -> boolean,
+	Reset: (name: string) -> boolean,
+	ResetAll: () -> (),
+	Snapshot: () -> { [string]: number },
 }
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Creates a Reactily diagnostics counter collection.
 --- @return diagnostics New diagnostics object for explicit runtime counters.
-function module.new(): diagnostics
+function module.New(): diagnostics
 	local counters: { [string]: number } = {}
 	local isDeleted = false
 
@@ -96,13 +96,13 @@ function module.new(): diagnostics
 	end
 
 	return {
-		delete = delete,
-		get = get,
-		increment = increment,
-		isDeleted = getIsDeleted,
-		reset = reset,
-		resetAll = resetAll,
-		snapshot = snapshot,
+		Delete = delete,
+		Get = get,
+		Increment = increment,
+		IsDeleted = getIsDeleted,
+		Reset = reset,
+		ResetAll = resetAll,
+		Snapshot = snapshot,
 	}
 end
 

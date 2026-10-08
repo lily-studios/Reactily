@@ -11,10 +11,10 @@ const config = require("./reactily-exports.cjs");
 const SEPARATOR =
   "--————————————————————————————————————————————————————————————————————--";
 
-const FUNCTION_DECLARATION =
-  /^\s*function\s+module\.([A-Za-z_][A-Za-z0-9_]*)(?:\s*<[^>\n]+>)?\s*\(/;
-const FUNCTION_ASSIGNMENT =
-  /^\s*module\.([A-Za-z_][A-Za-z0-9_]*)\s*=\s*function(?:\s*<[^>\n]+>)?\s*\(/;
+// Exported members are discovered from the returned module table. The source
+// spelling is preserved; the public alias spelling comes from the config.
+const IDENTIFIER = "[A-Za-z_][A-Za-z0-9_]*";
+
 const TYPE_DECLARATION =
   /^\s*export\s+type\s+([A-Za-z_][A-Za-z0-9_]*)(\s*<[^>\n]+>)?/;
 
@@ -399,39 +399,66 @@ function collectAnnotations(lines, declarationIndex, pattern, fallbackName) {
 
 function parseModule(sourceRoot, filePath) {
   const key = moduleKey(sourceRoot, filePath);
-  const lines = fs.readFileSync(filePath, "utf8").split(/\r?\n/);
+  const source = fs.readFileSync(filePath, "utf8");
+  const lines = source.split(/\r?\n/);
   const functions = new Map();
   const types = new Map();
 
-  for (let index = 0; index < lines.length; index += 1) {
-    const functionMatch =
-      lines[index].match(FUNCTION_DECLARATION) ??
-      lines[index].match(FUNCTION_ASSIGNMENT);
+  // Most source modules return `module`; other modules return `Module`,
+  // `api`, etc. Do not assume the capitalization of that local identifier.
+  const returns = [
+    ...source.matchAll(
+      /^\s*return\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:--[^\n]*)?$/gm,
+    ),
+  ];
+  const returnedName = returns.length
+    ? returns[returns.length - 1][1]
+    : "module";
+  const exportNames = [...new Set(["module", returnedName])];
+  const memberPatterns = exportNames.map((name) => {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return {
+      declaration: new RegExp(
+        `^\\s*function\\s+${escaped}[.:](${IDENTIFIER})(?:\\s*<[^>\\n]+>)?\\s*\\(`,
+      ),
+      assignment: new RegExp(
+        `^\\s*${escaped}(?:\\.(${IDENTIFIER})|` +
+          `\\[\\s*["'](${IDENTIFIER})["']\\s*\\])\\s*=(?!=)`,
+      ),
+    };
+  });
 
-    if (functionMatch) {
-      const name = functionMatch[1];
-      functions.set(
-        name,
-        collectAnnotations(
-          lines,
-          index,
-          EXPORT_ANNOTATION,
-          name,
-        ),
-      );
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+
+    // Supports: function module.Run(...), function module:Run(...),
+    // module.Run = function(...), module.Run = Run, module["Run"] = Run.
+    let name = null;
+    for (const pattern of memberPatterns) {
+      const direct = line.match(pattern.declaration);
+      const assigned = line.match(pattern.assignment);
+      name = direct?.[1] ?? assigned?.[1] ?? assigned?.[2] ?? null;
+      if (name !== null) {
+        break;
+      }
     }
 
-    const typeMatch = lines[index].match(TYPE_DECLARATION);
-    if (typeMatch) {
-      const name = typeMatch[1];
+    if (name !== null) {
+      const annotations = collectAnnotations(
+        lines,
+        index,
+        EXPORT_ANNOTATION,
+        name,
+      );
+      const existing = functions.get(name) ?? [];
+      functions.set(name, [...new Set([...existing, ...annotations])]);
+    }
 
-      types.set(name, {
-        names: collectAnnotations(
-          lines,
-          index,
-          TYPE_ANNOTATION,
-          name,
-        ),
+    const typeMatch = line.match(TYPE_DECLARATION);
+    if (typeMatch) {
+      const typeName = typeMatch[1];
+      types.set(typeName, {
+        names: collectAnnotations(lines, index, TYPE_ANNOTATION, typeName),
         generic: (typeMatch[2] || "").trim(),
       });
     }
@@ -476,68 +503,150 @@ function uniquePublicNames(names) {
   return [...new Set(names)];
 }
 
+/**
+ * Public Luau type names use PascalCase even when their source declarations
+ * or the export configuration still use camelCase or snake_case.
+ *
+ * The original declaration name is deliberately left unchanged so the
+ * generated alias keeps referring to the correct source module type.
+ *
+ * @param {string} name - Configured or annotated public type name.
+ * @returns {string} Normalized PascalCase public type name.
+ */
+function toPascalCaseType(name) {
+  if (typeof name !== "string" || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+    fail(`Invalid Reactily public type name: ${String(name)}`);
+  }
+
+  const normalized = name
+    .replace(/^_+/, "")
+    .replace(/_+([A-Za-z0-9])/g, (_match, character) =>
+      character.toUpperCase(),
+    )
+    .replace(/^[a-z]/, (character) => character.toUpperCase());
+
+  if (!/^[A-Z][A-Za-z0-9]*$/.test(normalized)) {
+    fail(`Cannot convert Reactily type name to PascalCase: ${name}`);
+  }
+
+  return normalized;
+}
+
+/**
+ * Resolves an exported member against its actual source declaration.
+ * The source is authoritative: comparisons only relax casing and underscores
+ * when the match is unique. This supports PascalCase source migrations (Run
+ * instead of run) without silently mapping to unrelated declarations.
+ *
+ * @param {Map<string, unknown>} source - Parsed declarations.
+ * @param {string} requestedName - Type/function name from export config.
+ * @param {string} kind - Declaration category.
+ * @param {string} moduleKey - Module path used in diagnostics.
+ * @returns {string} The exact name in the source declaration.
+ */
+function resolveDeclarationName(source, requestedName, kind, moduleKey) {
+  // Exact matches always win: a module may expose both `Run` and `run`.
+  if (source.has(requestedName)) {
+    return requestedName;
+  }
+
+  // Accept mixed PascalCase/camelCase/snake_case only when unambiguous.
+  const canonical = requestedName.replace(/_/g, "").toLowerCase();
+  const matches = [...source.keys()].filter(
+    (name) => name.replace(/_/g, "").toLowerCase() === canonical,
+  );
+
+  if (matches.length === 1) {
+    return matches[0];
+  }
+
+  if (matches.length > 1) {
+    fail(
+      `Ambiguous public ${kind} "${requestedName}" in ${moduleKey}: ` +
+        `${matches.join(", ")}. Use the exact source spelling in reactily-exports.cjs.`,
+    );
+  }
+
+  const available = [...source.keys()].sort((a, b) => a.localeCompare(b));
+  fail(
+    `Configured public ${kind} does not exist: ${moduleKey}.${requestedName}` +
+      (available.length ? ` (detected: ${available.join(", ")})` :
+        " (no matching exports detected)"),
+  );
+}
+
 function collectConfiguredExports(modules, mapping, kind) {
   const used = new Map();
   const output = [];
+  const errors = [];
+  const moduleKeys = new Set(modules.map((moduleInfo) => moduleInfo.key));
+
+  for (const key of Object.keys(mapping)) {
+    if (!moduleKeys.has(key)) {
+      errors.push(`Configured ${kind} module is missing: ${key}`);
+    }
+  }
 
   for (const moduleInfo of modules) {
     const explicit = mapping[moduleInfo.key] || {};
     const source =
-      kind === "function"
-        ? moduleInfo.functions
-        : moduleInfo.types;
-
-    const names = new Set([
+      kind === "function" ? moduleInfo.functions : moduleInfo.types;
+    const annotatedNames = [...source]
+      .filter(([, value]) =>
+        kind === "function" ? value.length > 0 : value.names.length > 0,
+      )
+      .map(([name]) => name);
+    const configuredNames = new Set([
       ...Object.keys(explicit),
-      ...Array.from(source)
-        .filter(([, value]) =>
-          kind === "function"
-            ? value.length > 0
-            : value.names.length > 0,
-        )
-        .map(([name]) => name),
+      ...annotatedNames,
     ]);
 
-    for (const name of names) {
-      const declaration = source.get(name);
-
-      if (!declaration) {
-        fail(
-          `Configured public ${kind} does not exist: ` +
-            `${moduleInfo.key}.${name}`,
+    for (const configuredName of configuredNames) {
+      let name;
+      try {
+        name = resolveDeclarationName(
+          source,
+          configuredName,
+          kind,
+          moduleInfo.key,
         );
+      } catch (error) {
+        errors.push(error.message);
+        continue;
       }
 
-      const annotations =
-        kind === "function"
-          ? declaration
-          : declaration.names;
-
+      const declaration = source.get(name);
+      const annotations = kind === "function" ? declaration : declaration.names;
       const publicNames = uniquePublicNames([
-        ...(explicit[name] || []),
+        ...(explicit[configuredName] || []),
         ...annotations,
-      ]);
+      ].map((publicName) =>
+        kind === "type" ? toPascalCaseType(publicName) : publicName,
+      ));
 
       for (const publicName of publicNames) {
         const owner = `${moduleInfo.key}.${name}`;
         const previous = used.get(publicName);
-
-        if (previous && previous !== owner) {
-          fail(
-            `Duplicate public ${kind} "${publicName}": ` +
-              `${previous} and ${owner}`,
-          );
+        if (previous === owner) {
+          continue;
         }
-
+        if (previous !== undefined) {
+          errors.push(
+            `Duplicate public ${kind} "${publicName}": ${previous} and ${owner}`,
+          );
+          continue;
+        }
         used.set(publicName, owner);
-        output.push({
-          publicName,
-          moduleInfo,
-          name,
-          declaration,
-        });
+        output.push({ publicName, moduleInfo, name, declaration });
       }
     }
+  }
+
+  if (errors.length > 0) {
+    fail(
+      `Found ${errors.length} ${kind} export mapping error(s):\n` +
+        errors.map((error) => `  - ${error}`).join("\n"),
+    );
   }
 
   return output.sort((left, right) =>
@@ -594,36 +703,31 @@ function collectCallableNamespaces(moduleMap) {
   return Object.entries(config.callableNamespaces)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([publicName, definition]) => {
-      const namespaceModule = moduleMap.get(
-        definition.namespaceModule,
-      );
-      const componentModule = moduleMap.get(
+      const namespaceModule = moduleMap.get(definition.namespaceModule);
+      const componentModule = moduleMap.get(definition.componentModule);
+      if (!namespaceModule || !componentModule) {
+        fail(`Missing callable namespace dependency for "${publicName}".`);
+      }
+
+      const componentFunction = resolveDeclarationName(
+        componentModule.functions,
+        definition.componentFunction,
+        "function",
         definition.componentModule,
       );
-
-      if (!namespaceModule || !componentModule) {
-        fail(
-          `Missing callable namespace dependency for "${publicName}".`,
-        );
-      }
-
-      if (
-        !componentModule.functions.has(
-          definition.componentFunction,
-        )
-      ) {
-        fail(
-          `Missing component function ` +
-            `${definition.componentModule}.` +
-            `${definition.componentFunction} for "${publicName}".`,
-        );
-      }
-
+      const propsType = resolveDeclarationName(
+        componentModule.types,
+        definition.propsType,
+        "type",
+        definition.componentModule,
+      );
       return {
         publicName,
         definition,
         namespaceModule,
         componentModule,
+        componentFunction,
+        propsType,
       };
     });
 }
@@ -741,15 +845,28 @@ function renderCustomApi(moduleMap) {
     fail("Missing custom API dependencies.");
   }
 
+  const providerName = resolveDeclarationName(
+    element.functions, "createContextProvider", "function", element.key,
+  );
+  const keyName = resolveDeclarationName(
+    element.functions, "key", "function", element.key,
+  );
+  const profilerGetName = resolveDeclarationName(
+    profiler.functions, "get", "function", profiler.key,
+  );
+  const transitionStartName = resolveDeclarationName(
+    transition.functions, "start", "function", transition.key,
+  );
+
   return [
     "--- Creates a provider element for a Reactily context.",
     "function module.createContextProvider<T>(",
-    "\tcontextValue: context<T>,",
+    "\tcontextValue: Context<T>,",
     "\tvalue: T,",
     "\tchild: { any },",
     "\tkey: string?",
-    "): element",
-    `\treturn ${element.varName}.createContextProvider(`,
+    "): Element",
+    `\treturn ${element.varName}.${providerName}(`,
     "\t\tcontextValue,",
     "\t\tvalue,",
     "\t\tchild,",
@@ -759,28 +876,28 @@ function renderCustomApi(moduleMap) {
     SEPARATOR,
     "--- Returns the latest recorded reason a component rendered.",
     "function module.getRenderReason(componentValue: any): string?",
-    `\tlocal profile = ${profiler.varName}.get(componentValue)`,
+    `\tlocal profile = ${profiler.varName}.${profilerGetName}(componentValue)`,
     "",
     "\tif not profile then",
     "\t\treturn nil",
     "\tend",
     "",
-    "\treturn profile.lastReason",
+    "\treturn profile.LastReason",
     "end",
     SEPARATOR,
     "--- Returns a diagnostic snapshot of a mounted Reactily root tree.",
-    "function module.inspectRoot(rootValue: root): any",
-    "\treturn rootValue.inspect()",
+    "function module.inspectRoot(rootValue: Root): any",
+    "\treturn rootValue.Inspect()",
     "end",
     SEPARATOR,
     "--- Returns a clone of an element with a stable key.",
-    "function module.key(elementValue: element, key: string): element",
-    `\treturn ${element.varName}.key(elementValue, key)`,
+    "function module.key(elementValue: Element, key: string): Element",
+    `\treturn ${element.varName}.${keyName}(elementValue, key)`,
     "end",
     SEPARATOR,
     "--- Starts low-priority one-shot transition work.",
     "function module.startTransition(callback: () -> ()): thread",
-    `\treturn ${transition.varName}.start(callback, nil)`,
+    `\treturn ${transition.varName}.${transitionStartName}(callback, nil)`,
     "end",
   ].join("\n");
 }
@@ -892,10 +1009,10 @@ function generate(root, options, generationMetadata) {
         "\t__call = function(",
         "\t\t_self: any,",
         `\t\tprops: ${entry.componentModule.varName}.` +
-          `${definition.propsType}`,
-        "\t): element",
+          `${entry.propsType}`,
+        "\t): Element",
         `\t\treturn ${entry.componentModule.varName}.` +
-          `${definition.componentFunction}(props)`,
+          `${entry.componentFunction}(props)`,
         "\tend,",
         "})",
       ].join("\n");

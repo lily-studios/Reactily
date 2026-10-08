@@ -19,18 +19,18 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type focusGroup = {
-	add: (object: GuiObject) -> boolean,
-	clear: () -> (),
-	delete: () -> boolean,
-	focusFirst: () -> boolean,
-	focusLast: () -> boolean,
-	focusNext: () -> boolean,
-	focusPrevious: () -> boolean,
-	getCurrent: () -> GuiObject?,
-	getItems: () -> { GuiObject },
-	isDeleted: () -> boolean,
-	remove: (object: GuiObject) -> boolean,
-	setWrapAround: (enabled: boolean) -> boolean,
+	Add: (object: GuiObject) -> boolean,
+	Clear: () -> (),
+	Delete: () -> boolean,
+	FocusFirst: () -> boolean,
+	FocusLast: () -> boolean,
+	FocusNext: () -> boolean,
+	FocusPrevious: () -> boolean,
+	GetCurrent: () -> GuiObject?,
+	GetItems: () -> { GuiObject },
+	IsDeleted: () -> boolean,
+	Remove: (object: GuiObject) -> boolean,
+	SetWrapAround: (enabled: boolean) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -52,7 +52,7 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 --- Clears the current Roblox GUI selection.
-function module.clearSelection()
+function module.ClearSelection()
 	guiService.SelectedObject = nil
 end
 
@@ -60,7 +60,7 @@ end
 
 --- Creates a focus group with forward/backward navigation.
 --- @return focusGroup New focus group.
-function module.new(): focusGroup
+function module.New(): focusGroup
 	local isDeleted = false
 	local items: { GuiObject } = {}
 	local wrapAround = true
@@ -211,22 +211,22 @@ function module.new(): focusGroup
 	end
 
 	return {
-		add = add,
-		clear = clear,
-		delete = delete,
-		focusFirst = focusFirst,
-		focusLast = focusLast,
-		focusNext = function(): boolean
+		Add = add,
+		Clear = clear,
+		Delete = delete,
+		FocusFirst = focusFirst,
+		FocusLast = focusLast,
+		FocusNext = function(): boolean
 			return move(1)
 		end,
-		focusPrevious = function(): boolean
+		FocusPrevious = function(): boolean
 			return move(-1)
 		end,
-		getCurrent = getCurrent,
-		getItems = getItems,
-		isDeleted = getIsDeleted,
-		remove = remove,
-		setWrapAround = setWrapAround,
+		GetCurrent = getCurrent,
+		GetItems = getItems,
+		IsDeleted = getIsDeleted,
+		Remove = remove,
+		SetWrapAround = setWrapAround,
 	}
 end
 

@@ -23,20 +23,20 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type springOptions = {
-	damping: number?,
-	epsilon: number?,
-	frequency: number?,
+	Damping: number?,
+	Epsilon: number?,
+	Frequency: number?,
 }
 
 export type spring<T> = {
-	delete: () -> boolean,
-	get: () -> T,
-	getTarget: () -> T,
-	isDeleted: () -> boolean,
-	isSettled: () -> boolean,
-	set: (value: T) -> boolean,
-	setTarget: (value: T) -> boolean,
-	subscribe: (callback: (value: T) -> ()) -> signalModule.connection,
+	Delete: () -> boolean,
+	Get: () -> T,
+	GetTarget: () -> T,
+	IsDeleted: () -> boolean,
+	IsSettled: () -> boolean,
+	Set: (value: T) -> boolean,
+	SetTarget: (value: T) -> boolean,
+	Subscribe: (callback: (value: T) -> ()) -> signalModule.connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -85,23 +85,23 @@ end
 --- @param initialValue T Initial spring value.
 --- @param options springOptions? Frequency, damping, and settle epsilon.
 --- @return spring<T> New spring controller.
-function module.new<T>(initialValue: T, options: springOptions?): spring<T>
+function module.New<T>(initialValue: T, options: springOptions?): spring<T>
 	local settings: springOptions = options or {}
 
 	local damping = 1
 	local epsilon = 0.0001
 	local frequency = 5
 
-	if settings.damping ~= nil then
-		damping = settings.damping
+	if settings.Damping ~= nil then
+		damping = settings.Damping
 	end
 
-	if settings.epsilon ~= nil then
-		epsilon = settings.epsilon
+	if settings.Epsilon ~= nil then
+		epsilon = settings.Epsilon
 	end
 
-	if settings.frequency ~= nil then
-		frequency = settings.frequency
+	if settings.Frequency ~= nil then
+		frequency = settings.Frequency
 	end
 
 	damping = math.max(damping, 0)
@@ -109,7 +109,7 @@ function module.new<T>(initialValue: T, options: springOptions?): spring<T>
 	frequency = math.max(frequency, 0.001)
 
 	local angularFrequency = frequency * math.pi * 2
-	local changed: signalModule.signal<T> = signalModule.new()
+	local changed: signalModule.signal<T> = signalModule.New()
 
 	local connection: RBXScriptConnection? = nil
 	local isDeleted = false
@@ -156,7 +156,7 @@ function module.new<T>(initialValue: T, options: springOptions?): spring<T>
 
 		if nextValue ~= value then
 			value = nextValue
-			changed.fire(value)
+			changed.Fire(value)
 		end
 
 		if not settled() then
@@ -165,7 +165,7 @@ function module.new<T>(initialValue: T, options: springOptions?): spring<T>
 
 		if value ~= target then
 			value = target
-			changed.fire(value)
+			changed.Fire(value)
 		end
 
 		velocity = zeroLike(value)
@@ -192,7 +192,7 @@ function module.new<T>(initialValue: T, options: springOptions?): spring<T>
 		isDeleted = true
 
 		disconnectHeartbeat()
-		changed.delete()
+		changed.Delete()
 
 		return true
 	end
@@ -229,7 +229,7 @@ function module.new<T>(initialValue: T, options: springOptions?): spring<T>
 		velocity = zeroLike(nextValue)
 
 		disconnectHeartbeat()
-		changed.fire(nextValue)
+		changed.Fire(nextValue)
 
 		return true
 	end
@@ -251,18 +251,18 @@ function module.new<T>(initialValue: T, options: springOptions?): spring<T>
 	local function subscribe(callback: (value: T) -> ()): signalModule.connection
 		assert(not isDeleted, "Reactily spring is deleted.")
 
-		return changed.connect(callback)
+		return changed.Connect(callback)
 	end
 
 	return {
-		delete = delete,
-		get = get,
-		getTarget = getTarget,
-		isDeleted = getIsDeleted,
-		isSettled = getIsSettled,
-		set = set,
-		setTarget = setTarget,
-		subscribe = subscribe,
+		Delete = delete,
+		Get = get,
+		GetTarget = getTarget,
+		IsDeleted = getIsDeleted,
+		IsSettled = getIsSettled,
+		Set = set,
+		SetTarget = setTarget,
+		Subscribe = subscribe,
 	}
 end
 

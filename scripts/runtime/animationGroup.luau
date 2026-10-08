@@ -15,18 +15,18 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type playable = {
-	cancel: () -> boolean,
-	delete: () -> boolean,
-	isDeleted: () -> boolean,
-	onCompleted: ((callback: (playbackState: Enum.PlaybackState) -> ()) -> RBXScriptConnection)?,
-	play: () -> (),
+	Cancel: () -> boolean,
+	Delete: () -> boolean,
+	IsDeleted: () -> boolean,
+	OnCompleted: ((callback: (playbackState: Enum.PlaybackState) -> ()) -> RBXScriptConnection)?,
+	Play: () -> (),
 }
 
 export type animationGroup = {
-	cancel: () -> boolean,
-	delete: () -> boolean,
-	isDeleted: () -> boolean,
-	play: () -> (),
+	Cancel: () -> boolean,
+	Delete: () -> boolean,
+	IsDeleted: () -> boolean,
+	Play: () -> (),
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -61,7 +61,7 @@ local function createGroup(animations: { playable }, sequential: boolean): anima
 		disconnectCompletions()
 
 		for _, animation in animations do
-			animation.cancel()
+			animation.Cancel()
 		end
 
 		return true
@@ -76,7 +76,7 @@ local function createGroup(animations: { playable }, sequential: boolean): anima
 		isDeleted = true
 
 		for _, animation in animations do
-			animation.delete()
+			animation.Delete()
 		end
 
 		table.clear(animations)
@@ -104,10 +104,10 @@ local function createGroup(animations: { playable }, sequential: boolean): anima
 		end
 
 		for _, animation in animations do
-			local onCompleted = animation.onCompleted
+			local onCompleted = animation.OnCompleted
 
 			if not onCompleted then
-				animation.play()
+				animation.Play()
 				completeOne()
 				continue
 			end
@@ -117,7 +117,7 @@ local function createGroup(animations: { playable }, sequential: boolean): anima
 			end)
 
 			completionConnections[#completionConnections + 1] = connection
-			animation.play()
+			animation.Play()
 		end
 	end
 
@@ -144,10 +144,10 @@ local function createGroup(animations: { playable }, sequential: boolean): anima
 				return
 			end
 
-			local onCompleted = animation.onCompleted
+			local onCompleted = animation.OnCompleted
 
 			if not onCompleted then
-				animation.play()
+				animation.Play()
 				playNext()
 				return
 			end
@@ -167,7 +167,7 @@ local function createGroup(animations: { playable }, sequential: boolean): anima
 			connectionReference = connection
 			completionConnections[#completionConnections + 1] = connection
 
-			animation.play()
+			animation.Play()
 		end
 
 		playNext()
@@ -194,10 +194,10 @@ local function createGroup(animations: { playable }, sequential: boolean): anima
 	end
 
 	return {
-		cancel = cancel,
-		delete = delete,
-		isDeleted = getIsDeleted,
-		play = play,
+		Cancel = cancel,
+		Delete = delete,
+		IsDeleted = getIsDeleted,
+		Play = play,
 	}
 end
 
@@ -206,7 +206,7 @@ end
 --- Creates a one-shot delay step compatible with Reactily animation sequences.
 --- @param seconds number Delay duration in seconds.
 --- @return playable Delay step.
-function module.delay(seconds: number): playable
+function module.Delay(seconds: number): playable
 	assert(seconds >= 0, "Reactily animation delay must be non-negative.")
 
 	local completed = Instance.new("BindableEvent")
@@ -269,20 +269,20 @@ function module.delay(seconds: number): playable
 	end
 
 	return {
-		cancel = cancel,
-		delete = delete,
+		Cancel = cancel,
+		Delete = delete,
 
-		isDeleted = function(): boolean
+		IsDeleted = function(): boolean
 			return isDeleted
 		end,
 
-		onCompleted = function(callback: (playbackState: Enum.PlaybackState) -> ()): RBXScriptConnection
+		OnCompleted = function(callback: (playbackState: Enum.PlaybackState) -> ()): RBXScriptConnection
 			assert(not isDeleted, "Reactily animation delay is deleted.")
 
 			return completed.Event:Connect(callback)
 		end,
 
-		play = play,
+		Play = play,
 	}
 end
 
@@ -291,7 +291,7 @@ end
 --- Creates a group that starts every animation together.
 --- @param animations {playable} Owned animations to run in parallel.
 --- @return animationGroup Parallel animation group.
-function module.parallel(animations: { playable }): animationGroup
+function module.Parallel(animations: { playable }): animationGroup
 	return createGroup(table.clone(animations), false)
 end
 
@@ -300,7 +300,7 @@ end
 --- Creates a group that plays each animation after the previous one completes.
 --- @param animations {playable} Owned animations to run sequentially.
 --- @return animationGroup Sequential animation group.
-function module.sequence(animations: { playable }): animationGroup
+function module.Sequence(animations: { playable }): animationGroup
 	return createGroup(table.clone(animations), true)
 end
 

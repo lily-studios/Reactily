@@ -15,12 +15,12 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 export type componentProfile = {
-	averageTime: number,
-	lastReason: string,
-	lastTime: number,
-	maximumTime: number,
-	renderCount: number,
-	totalTime: number,
+	AverageTime: number,
+	LastReason: string,
+	LastTime: number,
+	MaximumTime: number,
+	RenderCount: number,
+	TotalTime: number,
 }
 
 type component = (props: any) -> any
@@ -47,7 +47,7 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 --- Clears all collected profiler data.
-function module.clear()
+function module.Clear()
 	if next(profiles) == nil then
 		return
 	end
@@ -59,7 +59,7 @@ end
 
 --- Returns whether component profiling is enabled.
 --- @return boolean Current profiling state.
-function module.isEnabled(): boolean
+function module.IsEnabled(): boolean
 	return enabled
 end
 
@@ -68,7 +68,7 @@ end
 --- Returns a copy of profile data for one component.
 --- @param componentValue component Component function to inspect.
 --- @return componentProfile? Profile data when available.
-function module.get(componentValue: component): componentProfile?
+function module.Get(componentValue: component): componentProfile?
 	local profile = profiles[componentValue]
 	if not profile then
 		return nil
@@ -81,7 +81,7 @@ end
 
 --- Returns all currently collected component profiles.
 --- @return profileMap Independent snapshot of collected profiles.
-function module.snapshot(): profileMap
+function module.Snapshot(): profileMap
 	local output: profileMap = {}
 
 	for componentValue, profile in profiles do
@@ -96,7 +96,7 @@ end
 --- Returns the slowest recorded components ordered by average render time.
 --- @param limit number? Maximum number of entries to return.
 --- @return {slowComponent} Ordered slow-component entries.
-function module.getSlowComponents(limit: number?): { slowComponent }
+function module.GetSlowComponents(limit: number?): { slowComponent }
 	local output: { slowComponent } = {}
 
 	for componentValue, profile in profiles do
@@ -107,7 +107,7 @@ function module.getSlowComponents(limit: number?): { slowComponent }
 	end
 
 	table.sort(output, function(first: slowComponent, second: slowComponent): boolean
-		return first.profile.averageTime > second.profile.averageTime
+		return first.profile.AverageTime > second.profile.AverageTime
 	end)
 
 	if limit == nil then
@@ -129,7 +129,7 @@ end
 --- @param componentValue component Component function that rendered.
 --- @param duration number Render duration in seconds.
 --- @param reason string Human-readable rerender reason.
-function module.record(componentValue: component, duration: number, reason: string)
+function module.Record(componentValue: component, duration: number, reason: string)
 	if not enabled then
 		return
 	end
@@ -138,30 +138,30 @@ function module.record(componentValue: component, duration: number, reason: stri
 
 	if not profile then
 		profile = {
-			averageTime = 0,
-			lastReason = reason,
-			lastTime = duration,
-			maximumTime = duration,
-			renderCount = 0,
-			totalTime = 0,
+			AverageTime = 0,
+			LastReason = reason,
+			LastTime = duration,
+			MaximumTime = duration,
+			RenderCount = 0,
+			TotalTime = 0,
 		}
 
 		profiles[componentValue] = profile
 	end
 
-	profile.renderCount += 1
-	profile.totalTime += duration
-	profile.averageTime = profile.totalTime / profile.renderCount
-	profile.lastReason = reason
-	profile.lastTime = duration
-	profile.maximumTime = math.max(profile.maximumTime, duration)
+	profile.RenderCount += 1
+	profile.TotalTime += duration
+	profile.AverageTime = profile.TotalTime / profile.RenderCount
+	profile.LastReason = reason
+	profile.LastTime = duration
+	profile.MaximumTime = math.max(profile.MaximumTime, duration)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Enables or disables component profiling.
 --- @param value boolean New profiling state.
-function module.setEnabled(value: boolean)
+function module.SetEnabled(value: boolean)
 	if enabled == value then
 		return
 	end

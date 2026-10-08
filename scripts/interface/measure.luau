@@ -18,18 +18,18 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType measureBounds
+--- @reactilyType MeasureBounds
 export type bounds = {
 	AbsolutePosition: Vector2,
 	AbsoluteSize: Vector2,
 }
 
---- @reactilyType measure
+--- @reactilyType Measure
 export type measure = {
-	delete: () -> boolean,
-	get: () -> bounds,
-	isDeleted: () -> boolean,
-	subscribe: (callback: (value: bounds) -> ()) -> signalModule.connection,
+	Delete: () -> boolean,
+	Get: () -> bounds,
+	IsDeleted: () -> boolean,
+	Subscribe: (callback: (value: bounds) -> ()) -> signalModule.connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -46,8 +46,8 @@ end
 --- Observes AbsolutePosition and AbsoluteSize for a GuiObject.
 --- @param object GuiObject Object to measure.
 --- @return measure Owned measurement observer.
-function module.create(object: GuiObject): measure
-	local changed = signalModule.new()
+function module.Create(object: GuiObject): measure
+	local changed = signalModule.New()
 	local isDeleted = false
 	local value = read(object)
 
@@ -62,7 +62,7 @@ function module.create(object: GuiObject): measure
 		end
 
 		value = nextValue
-		changed.fire(nextValue)
+		changed.Fire(nextValue)
 	end
 
 	local positionConnection = object:GetPropertyChangedSignal("AbsolutePosition"):Connect(update)
@@ -76,22 +76,22 @@ function module.create(object: GuiObject): measure
 		isDeleted = true
 		positionConnection:Disconnect()
 		sizeConnection:Disconnect()
-		changed.delete()
+		changed.Delete()
 		return true
 	end
 
 	return {
-		delete = delete,
-		get = function(): bounds
+		Delete = delete,
+		Get = function(): bounds
 			assert(not isDeleted, "Reactily measure is deleted.")
 			return value
 		end,
-		isDeleted = function(): boolean
+		IsDeleted = function(): boolean
 			return isDeleted
 		end,
-		subscribe = function(callback: (value: bounds) -> ()): signalModule.connection
+		Subscribe = function(callback: (value: bounds) -> ()): signalModule.connection
 			assert(not isDeleted, "Reactily measure is deleted.")
-			return changed.connect(callback)
+			return changed.Connect(callback)
 		end,
 	}
 end

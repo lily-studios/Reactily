@@ -10,15 +10,15 @@ local module = {}
 
 local enabled = true
 
-function module.isEnabled(): boolean
+function module.IsEnabled(): boolean
 	return enabled
 end
 
-function module.setEnabled(value: boolean)
+function module.SetEnabled(value: boolean)
 	enabled = value
 end
 
-function module.warn(message: string)
+function module.Warn(message: string)
 	if enabled then
 		warn(`[Reactily StrictMode] {message}`)
 	end

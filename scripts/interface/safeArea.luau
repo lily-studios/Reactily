@@ -22,26 +22,26 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType safeAreaInsets
+--- @reactilyType SafeAreaInsets
 export type insets = {
-	bottom: number,
-	left: number,
-	right: number,
-	top: number,
+	Bottom: number,
+	Left: number,
+	Right: number,
+	Top: number,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Returns current Roblox GUI inset values in pixels.
 --- @return insets Current safe-area style insets.
-function module.getInsets(): insets
+function module.GetInsets(): insets
 	local topLeft, bottomRight = guiService:GetGuiInset()
 
 	return {
-		bottom = bottomRight.Y,
-		left = topLeft.X,
-		right = bottomRight.X,
-		top = topLeft.Y,
+		Bottom = bottomRight.Y,
+		Left = topLeft.X,
+		Right = bottomRight.X,
+		Top = topLeft.Y,
 	}
 end
 
@@ -49,14 +49,14 @@ end
 
 --- Creates a UIPadding element from current Roblox GUI insets.
 --- @return element UIPadding element.
-function module.padding(): elementModule.element
-	local value = module.getInsets()
+function module.Padding(): elementModule.element
+	local value = module.GetInsets()
 
-	return elementModule.createUIPadding({
-		PaddingBottom = UDim.new(0, value.bottom),
-		PaddingLeft = UDim.new(0, value.left),
-		PaddingRight = UDim.new(0, value.right),
-		PaddingTop = UDim.new(0, value.top),
+	return elementModule.CreateUIPadding({
+		PaddingBottom = UDim.new(0, value.Bottom),
+		PaddingLeft = UDim.new(0, value.Left),
+		PaddingRight = UDim.new(0, value.Right),
+		PaddingTop = UDim.new(0, value.Top),
 	})
 end
 

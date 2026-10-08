@@ -20,10 +20,10 @@ export type style = {
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType variantStyle
+--- @reactilyType VariantStyle
 export type variantStyle = {
-	base: style?,
-	variants: { [string]: style }?,
+	Base: style?,
+	Variants: { [string]: style }?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -31,7 +31,7 @@ export type variantStyle = {
 --- Creates a frozen reusable style table.
 --- @param values style Style values.
 --- @return style Frozen style.
-function module.create(values: style): style
+function module.Create(values: style): style
 	return table.freeze(table.clone(values))
 end
 
@@ -41,20 +41,20 @@ end
 --- @param definition variantStyle Style definition.
 --- @param variant string? Variant name.
 --- @return style Resolved style.
-function module.variant(definition: variantStyle, variant: string?): style
+function module.Variant(definition: variantStyle, variant: string?): style
 	local output: style = {}
 
-	if definition.base then
-		for property, value in definition.base do
+	if definition.Base then
+		for property, value in definition.Base do
 			output[property] = value
 		end
 	end
 
-	if variant == nil or definition.variants == nil then
+	if variant == nil or definition.Variants == nil then
 		return output
 	end
 
-	local selected = definition.variants[variant]
+	local selected = definition.Variants[variant]
 	if not selected then
 		return output
 	end
@@ -72,7 +72,7 @@ end
 --- @param properties T Property table to copy.
 --- @param styleValue style Style values to apply to the copied table.
 --- @return T Copied property table with the style applied.
-function module.apply<T>(properties: T, styleValue: style): T
+function module.Apply<T>(properties: T, styleValue: style): T
 	local output: any = table.clone(properties :: any)
 
 	for property, value in styleValue do
@@ -87,7 +87,7 @@ end
 --- Merges multiple style tables without mutating the input styles.
 --- @param styles {style} Ordered style tables to merge.
 --- @return style New style containing the merged properties.
-function module.merge(styles: { style }): style
+function module.Merge(styles: { style }): style
 	local output: style = {}
 
 	for _, styleValue in styles do
@@ -105,7 +105,7 @@ end
 --- @param condition boolean Whether the style should be included.
 --- @param styleValue style Style to conditionally return.
 --- @return style Supplied style when enabled, otherwise an empty style.
-function module.when(condition: boolean, styleValue: style): style
+function module.When(condition: boolean, styleValue: style): style
 	if not condition then
 		return {}
 	end
@@ -119,7 +119,7 @@ end
 --- @param styleValue style Style to copy.
 --- @param property string Property to omit from the copied style.
 --- @return style Copied style without the specified property.
-function module.without(styleValue: style, property: string): style
+function module.Without(styleValue: style, property: string): style
 	local output = table.clone(styleValue)
 
 	output[property] = nil
@@ -134,7 +134,7 @@ end
 --- @param property string Property to assign.
 --- @param value any Value to assign to the property.
 --- @return style Copied style containing the new property value.
-function module.withProperty(styleValue: style, property: string, value: any): style
+function module.WithProperty(styleValue: style, property: string, value: any): style
 	local output = table.clone(styleValue)
 
 	output[property] = value

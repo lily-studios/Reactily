@@ -22,19 +22,19 @@ export type resourceStatus = "Idle" | "Pending" | "Rejected" | "Resolved"
 
 export type suspension = {
 	__reactilySuspension: boolean,
-	subscribe: (callback: () -> ()) -> () -> (),
+	Subscribe: (callback: () -> ()) -> () -> (),
 }
 
 export type resource<T> = {
-	delete: () -> boolean,
-	get: () -> T?,
-	getError: () -> any,
-	getStatus: () -> resourceStatus,
-	isDeleted: () -> boolean,
-	preload: () -> (),
-	read: () -> T,
-	refresh: () -> (),
-	subscribe: (callback: () -> ()) -> signalModule.connection,
+	Delete: () -> boolean,
+	Get: () -> T?,
+	GetError: () -> any,
+	GetStatus: () -> resourceStatus,
+	IsDeleted: () -> boolean,
+	Preload: () -> (),
+	Read: () -> T,
+	Refresh: () -> (),
+	Subscribe: (callback: () -> ()) -> signalModule.connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -43,13 +43,13 @@ local function createSuspension(ready: signalModule.signal<boolean>): suspension
 	return {
 		__reactilySuspension = true,
 
-		subscribe = function(callback: () -> ()): () -> ()
-			local connection = ready.connect(function(_value: boolean)
+		Subscribe = function(callback: () -> ()): () -> ()
+			local connection = ready.Connect(function(_value: boolean)
 				callback()
 			end)
 
 			return function()
-				connection.disconnect()
+				connection.Disconnect()
 			end
 		end,
 	}
@@ -60,14 +60,14 @@ end
 --- Returns whether an error value represents a Reactily suspension request.
 --- @param value any Error value to inspect.
 --- @return boolean True when the value is a suspension token.
-function module.isSuspension(value: any): boolean
+function module.IsSuspension(value: any): boolean
 	if type(value) ~= "table" then
 		return false
 	end
 	if value.__reactilySuspension ~= true then
 		return false
 	end
-	if type(value.subscribe) ~= "function" then
+	if type(value.Subscribe) ~= "function" then
 		return false
 	end
 
@@ -79,8 +79,8 @@ end
 --- Creates a lazy resource whose loader runs only when first requested.
 --- @param loader () -> T Loader that may yield and returns the resolved value.
 --- @return resource<T> New resource.
-function module.new<T>(loader: () -> T): resource<T>
-	local changed: signalModule.signal<boolean> = signalModule.new()
+function module.New<T>(loader: () -> T): resource<T>
+	local changed: signalModule.signal<boolean> = signalModule.New()
 
 	local errorValue: any = nil
 	local generation = 0
@@ -120,14 +120,14 @@ function module.new<T>(loader: () -> T): resource<T>
 			if success then
 				value = result
 				status = "Resolved"
-				changed.fire(true)
+				changed.Fire(true)
 
 				return
 			end
 
 			errorValue = result
 			status = "Rejected"
-			changed.fire(true)
+			changed.Fire(true)
 		end)
 	end
 
@@ -139,7 +139,7 @@ function module.new<T>(loader: () -> T): resource<T>
 		isDeleted = true
 		generation += 1
 
-		changed.delete()
+		changed.Delete()
 
 		value = nil
 		errorValue = nil
@@ -204,21 +204,21 @@ function module.new<T>(loader: () -> T): resource<T>
 	local function subscribe(callback: () -> ()): signalModule.connection
 		assert(not isDeleted, "Reactily resource is deleted.")
 
-		return changed.connect(function(_value: boolean)
+		return changed.Connect(function(_value: boolean)
 			callback()
 		end)
 	end
 
 	return {
-		delete = delete,
-		get = get,
-		getError = getError,
-		getStatus = getStatus,
-		isDeleted = getIsDeleted,
-		preload = preload,
-		read = read,
-		refresh = refresh,
-		subscribe = subscribe,
+		Delete = delete,
+		Get = get,
+		GetError = getError,
+		GetStatus = getStatus,
+		IsDeleted = getIsDeleted,
+		Preload = preload,
+		Read = read,
+		Refresh = refresh,
+		Subscribe = subscribe,
 	}
 end
 

@@ -22,23 +22,23 @@ local module = {}
 
 type formRecord = { [string]: any }
 
---- @reactilyType validationMap
+--- @reactilyType ValidationMap
 export type validationMap = {
 	[string]: validatorModule.validator<any>,
 }
 
---- @reactilyType form<T>
+--- @reactilyType Form<T>
 export type form<T> = {
-	delete: () -> boolean,
-	field: (name: string) -> bindingModule.binding<any>,
-	get: () -> T,
-	getErrors: () -> { [string]: string },
-	isDeleted: () -> boolean,
-	isDirty: () -> boolean,
-	reset: (nextInitial: T?) -> (),
-	set: (name: string, value: any) -> boolean,
-	subscribe: (callback: (value: T) -> ()) -> signalModule.connection,
-	validate: (validators: validationMap) -> boolean,
+	Delete: () -> boolean,
+	Field: (name: string) -> bindingModule.binding<any>,
+	Get: () -> T,
+	GetErrors: () -> { [string]: string },
+	IsDeleted: () -> boolean,
+	IsDirty: () -> boolean,
+	Reset: (nextInitial: T?) -> (),
+	Set: (name: string, value: any) -> boolean,
+	Subscribe: (callback: (value: T) -> ()) -> signalModule.connection,
+	Validate: (validators: validationMap) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -52,10 +52,10 @@ end
 --- Creates a reactive form with per-field bindings, reset, dirty state, and validation.
 --- @param initial T Initial form values.
 --- @return form<T> Owned form controller.
-function module.create<T>(initial: T): form<T>
+function module.Create<T>(initial: T): form<T>
 	assert(type(initial) == "table", "Reactily form initial value must be a table.")
 
-	local changed = signalModule.new()
+	local changed = signalModule.New()
 	local errors: { [string]: string } = {}
 	local fields: { [string]: bindingModule.binding<any> } = {}
 	local fieldConnections: { [string]: signalModule.connection } = {}
@@ -74,7 +74,7 @@ function module.create<T>(initial: T): form<T>
 	--——————————————————————————————————————————————————————————————————--
 
 	local function emitChanged()
-		changed.fire(cloneValue())
+		changed.Fire(cloneValue())
 	end
 
 	--——————————————————————————————————————————————————————————————————--
@@ -88,20 +88,20 @@ function module.create<T>(initial: T): form<T>
 			return existing
 		end
 
-		local source = bindingModule.new(values[name])
+		local source = bindingModule.New(values[name])
 
 		fields[name] = source
 
-		fieldConnections[name] = source.subscribe(function(change)
+		fieldConnections[name] = source.Subscribe(function(change)
 			if isDeleted then
 				return
 			end
 
-			if values[name] == change.current then
+			if values[name] == change.Current then
 				return
 			end
 
-			values[name] = change.current
+			values[name] = change.Current
 			errors[name] = nil
 
 			emitChanged()
@@ -125,8 +125,8 @@ function module.create<T>(initial: T): form<T>
 		local source = fields[name]
 
 		if source then
-			if source.get() ~= value then
-				source.set(value)
+			if source.Get() ~= value then
+				source.Set(value)
 			end
 		end
 
@@ -153,11 +153,11 @@ function module.create<T>(initial: T): form<T>
 		for name, source in fields do
 			local nextValue = values[name]
 
-			if source.get() == nextValue then
+			if source.Get() == nextValue then
 				continue
 			end
 
-			source.set(nextValue)
+			source.Set(nextValue)
 		end
 
 		emitChanged()
@@ -193,18 +193,18 @@ function module.create<T>(initial: T): form<T>
 		isDeleted = true
 
 		for _, connection in fieldConnections do
-			connection.disconnect()
+			connection.Disconnect()
 		end
 
 		for _, source in fields do
-			source.delete()
+			source.Delete()
 		end
 
 		table.clear(fieldConnections)
 		table.clear(fields)
 		table.clear(errors)
 
-		changed.delete()
+		changed.Delete()
 
 		return true
 	end
@@ -260,22 +260,22 @@ function module.create<T>(initial: T): form<T>
 	local function subscribe(callback: (value: T) -> ()): signalModule.connection
 		assert(not isDeleted, "Reactily form is deleted.")
 
-		return changed.connect(callback)
+		return changed.Connect(callback)
 	end
 
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		delete = delete,
-		field = field,
-		get = get,
-		getErrors = getErrors,
-		isDeleted = getIsDeleted,
-		isDirty = getIsDirty,
-		reset = reset,
-		set = set,
-		subscribe = subscribe,
-		validate = validate,
+		Delete = delete,
+		Field = field,
+		Get = get,
+		GetErrors = getErrors,
+		IsDeleted = getIsDeleted,
+		IsDirty = getIsDirty,
+		Reset = reset,
+		Set = set,
+		Subscribe = subscribe,
+		Validate = validate,
 	}
 end
 
