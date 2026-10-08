@@ -1,26 +1,10 @@
 # Contributing to Reactily
 
-Thank you for contributing to Reactily.
+Thank you for your interest in contributing to **Reactily**, a strongly typed, React-inspired UI framework for Roblox Luau, developed by Lily Studios.
 
-Reactily is a typed, React-inspired UI framework for Roblox Luau. Contributions should preserve its goals of predictable behavior, strong typing, explicit lifecycle ownership, efficient updates, and clean Roblox integration.
+Contributions should maintain Reactily's focus on **type safety, performance, predictable rendering, proper lifecycle management, and consistent APIs**.
 
-## Ways to Contribute
-
-Contributions are welcome for:
-
-- Bug fixes
-- Performance improvements
-- New framework features
-- Type improvements
-- Documentation
-- Tests
-- Examples
-- Developer tooling
-- API consistency improvements
-
-For large API changes, architecture changes, or features that may affect backward compatibility, open an issue or discussion before starting implementation.
-
-## Getting the Repository
+## Getting Started
 
 Clone the repository:
 
@@ -29,217 +13,119 @@ git clone https://github.com/lily-studios/Reactily.git
 cd Reactily
 ```
 
-To update an existing clone:
+Reactily requires Roblox Studio, Git, Node.js 22.22.0 or newer, and the development tools defined in `rokit.toml`.
+
+Install the toolchain:
 
 ```bash
-git pull
+rokit install
 ```
 
-You can also download the latest source from the GitHub repository or use a published GitHub Release when one is available.
-
-## Development Requirements
-
-You should have:
-
-- Roblox Studio
-- Git
-- A Luau-capable editor such as Visual Studio Code
-- Luau language support
-- StyLua for formatting
-
-If the project is being synchronized with Roblox Studio through Rojo, install and configure Rojo for your local workflow.
-
-## Code Style
-
-All contributions must follow the **Lily Studio Coding Convention**.
-
-Keep code clean, consistent, typed, efficient, and aligned with the existing Reactily codebase.
-
-## Formatting
-
-Use StyLua to format Luau source files.
-
-Format the repository before submitting a pull request.
-
-Depending on your local setup:
+Run the project checks:
 
 ```bash
-stylua .
+npm run check
 ```
 
-Do not manually reformat unrelated files in the same pull request.
+## Project Structure
 
-Keep diffs focused on the change being submitted.
+Reactily separates its implementation into dedicated modules.
 
-## Testing
+| Directory | Purpose |
+|---|---|
+| `scripts/core/` | Scheduling, batching, signals, and lifecycle utilities |
+| `scripts/runtime/` | Rendering, roots, bindings, and animations |
+| `scripts/state/` | Hooks, contexts, atoms, and state management |
+| `scripts/virtual/` | Elements, reconciliation, and component utilities |
+| `scripts/interface/` | UI components, layout, styling, and interactions |
+| `scripts/diagnostics/` | Debugging, profiling, and diagnostics |
+| `tools/` | API generation, verification, and release scripts |
+| `tests/` | Framework tests |
+| `reactily-website/` | Documentation website |
 
-Changes should be tested before opening a pull request.
+Keep new functionality in its appropriate module and avoid unnecessary dependencies between systems.
 
-At minimum:
+## Code Standards
 
-- Confirm the changed code runs under `--!strict`.
-- Confirm existing behavior still works.
-- Test expected success cases.
-- Test invalid or edge-case input when relevant.
-- Verify cleanup behavior.
-- Verify repeated setup and teardown do not leak resources.
-- Verify idle systems stop doing runtime work.
-- Verify unchanged state does not trigger redundant updates.
+All contributions must follow the **Lily Studios Coding Convention** and remain consistent with Reactily's existing implementation.
 
-For performance-sensitive changes, test both small and large workloads where practical.
+- Use `--!strict` for Luau source files.
+- Provide accurate types for public APIs.
+- Avoid unnecessary `any` types and unsafe casts.
+- Use PascalCase for Roblox properties and public type aliases.
+- Preserve established public function names.
+- Avoid circular dependencies, duplicate logic, and unnecessary complexity.
+- Include documentation for new public functions and types.
 
-Bug fixes should ideally include a regression test or a clear reproduction case.
+Roblox properties must use their exact native names, such as `BackgroundColor3`, `TextWrapped`, and `BorderSizePixel`.
 
-## Documentation
+Do not rename existing APIs or change their behavior without a clear reason.
 
-Update documentation when a contribution changes:
+## Public API
 
-- Public APIs
-- Function signatures
-- Behavior
-- Installation
-- Lifecycle semantics
-- Cleanup requirements
-- Examples
-- Supported Roblox objects or features
+Reactily's public entry point, `scripts/init.luau`, is automatically generated.
 
-Code examples should be valid Luau and should follow the same formatting conventions as the source.
+**Do not edit this file manually.**
 
-Use GitHub-compatible Markdown.
+Update the appropriate source module and, when necessary, `tools/reactily-exports.cjs`.
 
-## Commit Guidelines
+Regenerate and verify the public API:
 
-Keep commits focused and understandable.
+New exports must be properly typed, correctly referenced, and compatible with the existing framework.
 
-Good commit messages describe the actual change:
+## Performance and Lifecycle
 
-```text
-fix binding cleanup after root deletion
+Changes must preserve Reactily's rendering efficiency and resource management.
+
+- Avoid unnecessary component renders and Roblox property updates.
+- Prevent redundant state notifications.
+- Clean up event connections, effects, subscriptions, and scheduled tasks.
+- Ensure destroyed roots and components release their resources.
+- Avoid unnecessary background work when systems are idle.
+- Preserve correct reconciliation and component lifecycle behavior.
+
+Performance improvements should be tested when practical.
+
+## Formatting and Testing
+
+Reactily uses **StyLua** for formatting and **Selene** for linting.
+
+Format source files:
+
+```bash
+npm run format
 ```
 
-```text
-add typed viewport frame creator
-```
+Changes affecting runtime behavior must also be tested in Roblox Studio.
 
-```text
-reduce redundant store notifications
-```
+The integration test is located at `tests/test.server.luau`. Its current implementation requires a client environment and should be run as a LocalScript in `StarterPlayerScripts`.
 
-Avoid vague messages such as:
-
-```text
-update
-```
-
-```text
-fix stuff
-```
-
-```text
-changes
-```
-
-Large contributions may contain multiple commits, but each commit should represent a coherent change.
+Bug fixes should include a regression test or a reproducible example whenever practical.
 
 ## Pull Requests
 
-Before opening a pull request:
+Pull requests should clearly explain what changed, why it changed, and how it was tested.
 
-- Rebase or update your branch against the current target branch.
-- Format changed Luau files.
-- Run relevant tests.
-- Remove debugging code.
-- Remove unused files.
-- Review the diff for accidental changes.
-- Update documentation when required.
+Keep each pull request focused on a specific improvement.
 
-A pull request should explain:
+For breaking changes or significant architectural modifications, open an issue before implementation.
 
-1. What changed.
-2. Why the change is needed.
-3. How it was tested.
-4. Whether it changes public behavior or APIs.
-5. Any performance or lifecycle implications.
+## Issues and Feature Requests
 
-Screenshots or videos are useful for changes that affect visible Roblox UI behavior.
+Report bugs through [GitHub Issues](https://github.com/lily-studios/Reactily/issues).
 
-## Pull Request Scope
+Include the Reactily version or commit, expected behavior, actual behavior, relevant errors, and reproduction steps.
 
-Keep pull requests focused.
-
-Avoid combining unrelated work such as:
-
-- API additions
-- Large refactors
-- Formatting the entire repository
-- Documentation rewrites
-- Unrelated bug fixes
-
-Separate unrelated work into separate pull requests whenever practical.
-
-## Breaking Changes
-
-Breaking changes require extra consideration.
-
-A breaking change includes changes to:
-
-- Public function names
-- Parameters
-- Return values
-- Exported types
-- Lifecycle behavior
-- Cleanup behavior
-- Existing semantics relied on by callers
-
-Clearly label breaking changes in the pull request description.
-
-When possible, prefer a migration path over immediately removing an existing API.
-
-## Issues
-
-When reporting a bug, include:
-
-- A clear description
-- Expected behavior
-- Actual behavior
-- A minimal reproduction
-- Relevant error output
-- Roblox Studio context when relevant
-- Reactily version or commit
-- Any important environment information
-
-For feature requests, explain the problem first and the proposed API second.
-
-This helps determine whether a new API is necessary or whether an existing Reactily feature can solve the same problem.
-
-## Security
-
-Do not publicly disclose security-sensitive vulnerabilities before maintainers have had a reasonable opportunity to investigate them.
-
-For sensitive reports, use the repository's private security reporting method when available.
-
-## Generated Files
-
-Do not commit generated output, temporary files, editor caches, or local environment files unless the repository explicitly requires them.
-
-Examples may include:
-
-- Build output
-- Temporary test files
-- Editor metadata
-- Local logs
-- OS-generated files
-
-Follow the repository's `.gitignore`.
+Feature requests should explain the problem being solved and how the proposed feature fits Reactily.
 
 ## License
 
-Reactily is licensed under the **MIT License**.
+Reactily is licensed under the [MIT License](./LICENSE).
 
-By contributing to Reactily, you agree that your contributions may be distributed under the MIT License.
+By contributing, you agree that your contributions may be distributed under the same license.
 
-## Questions
+---
 
-If you are unsure whether a change fits Reactily, open an issue or discussion before investing significant work into the implementation.
+Thank you for contributing to **Reactily**.
 
-Focused contributions that preserve Reactily's typing, lifecycle, performance, and API consistency are preferred.
+**Lily Studios**
