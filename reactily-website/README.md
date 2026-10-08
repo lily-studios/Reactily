@@ -74,6 +74,42 @@ The workflow in `.github/workflows/deploy.yml` installs the lockfile, runs the f
 
 The startup path contains a TypeScript bootstrap. If an ESM import fails before React mounts, the actual error is displayed in the page instead of leaving a white screen.
 
-## Release selector
+## Versioned documentation
 
-The header links the documentation's pinned runtime version to the matching GitHub release. Update `src/lib/runtime.ts` and `src/lib/public-api-manifest.json` together when the docs are refreshed for a newer release.
+The version menu switches between the documentation snapshots generated from each published GitHub release's **exact Git tag**. APIs, guides, examples, sidebar, and search are scoped to the selected release. Version selection is preserved in the URL with `?version=v1.1.0`.
+
+GitHub Pages builds run `scripts/sync-release-snapshots.mjs` before building the website. GitHub releases (including Experimental and Pre-release) automatically trigger a new Pages build. Each snapshot comes from the release's original Markdown files. Releases that predate the website, such as v1.1.0, are reconstructed from their tagged README and public Luau exports. An unavailable snapshot shows an error rather than unrelated documentation.
+
+The current unreleased documentation is available by selecting **Current website docs**. When publishing a new stable release, update `src/lib/runtime.ts` and `src/lib/public-api-manifest.json` together.
+
+## API availability and status in Markdown
+
+Add the following optional frontmatter to any API or guide `.md` file:
+
+```yaml
+---
+title: Reactily.example
+since: v2.0.0
+deprecated_since: v2.2.0
+removed_in: v3.0.0
+deprecation_message: This API will be removed.
+replacement: Reactily.createElement
+experimental: false
+---
+```
+
+Use `deprecated: true` to mark the API deprecated immediately instead of using a version threshold. `since` and `removed_in` control which versions show the API; the tagged release archive is authoritative for whether an API actually existed in that release. Deprecated APIs display an amber warning and, if provided, their replacement. Experimental APIs display a purple warning.
+
+Mark an individual code example without changing the entire page:
+
+```text
+```luau experimental
+-- Code that may contain bugs or change
+```
+
+```luau deprecated
+-- Code using an outdated API
+```
+```
+
+Only APIs present in a release's source archive should be documented for that version. Never reuse newer API examples under an older release label.

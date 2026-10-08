@@ -259,10 +259,11 @@ export function isDocAvailable(doc: DocRecord, tag: string): boolean {
 }
 
 export function isDocDeprecated(doc: DocRecord, tag: string): boolean {
-  if (doc.deprecated) return true;
-  if (!doc.deprecatedSince) return false;
-  const comparison = compareDocVersions(tag, doc.deprecatedSince);
-  return comparison !== null && comparison >= 0;
+  if (doc.deprecatedSince) {
+    const comparison = compareDocVersions(tag, doc.deprecatedSince);
+    if (comparison !== null) return comparison >= 0;
+  }
+  return doc.deprecated;
 }
 
 export function labelForCategory(category: string): string {

@@ -244,11 +244,11 @@ function CodeContent({
 function CopyablePre({ children }: { readonly children?: ReactNode }) {
   const [copied, setCopied] = useState(false);
   const text = flattenText(children).replace(/\n$/, "");
-  const experimental = Children.toArray(children).some((child) =>
-    isValidElement<{ className?: string }>(child) &&
-    typeof child.props.className === "string" &&
-    /\blanguage-[a-z0-9_+.-]+-experimental\b/i.test(child.props.className),
-  );
+  const codeClasses = Children.toArray(children)
+    .filter((child) => isValidElement<{ className?: string }>(child))
+    .map((child) => (child as { props: { className?: string } }).props.className ?? "");
+  const experimental = codeClasses.some((name) => /\blanguage-[a-z0-9_+.-]+-experimental\b/i.test(name));
+  const deprecated = codeClasses.some((name) => /\blanguage-[a-z0-9_+.-]+-deprecated\b/i.test(name));
 
   const copy = async (): Promise<void> => {
     try {
@@ -261,7 +261,7 @@ function CopyablePre({ children }: { readonly children?: ReactNode }) {
   };
 
   return (
-    <div className={experimental ? "codeBlock codeBlock--experimental" : "codeBlock"}>
+    <div className={deprecated ? "codeBlock codeBlock--deprecated" : experimental ? "codeBlock codeBlock--experimental" : "codeBlock"}>
       <div className="codeChrome">
         <span className="codeChromeLeft">
           <span className="codeDots" aria-hidden="true">
@@ -287,6 +287,12 @@ function CopyablePre({ children }: { readonly children?: ReactNode }) {
         <div className="experimentalNotice experimentalNotice--code" role="note" aria-label="Experimental code warning">
           <TriangleAlert size={15} aria-hidden="true" />
           <span><strong>Experimental code.</strong> This example may contain bugs, cause errors, or change without notice.</span>
+        </div>
+      ) : null}
+      {deprecated ? (
+        <div className="deprecatedNotice deprecatedNotice--code" role="note" aria-label="Deprecated code warning">
+          <TriangleAlert size={15} aria-hidden="true" />
+          <span><strong>Deprecated code.</strong> This example uses an outdated API and may stop working in future releases.</span>
         </div>
       ) : null}
       <pre>{children}</pre>

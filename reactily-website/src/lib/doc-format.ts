@@ -81,10 +81,10 @@ export function formatDocumentationMarkdown(source: string): string {
       blank();
       const marker = fence[1] ?? "```";
       const languageInfo = (fence[2] ?? "").trim().toLowerCase();
-      // A fence such as "luau experimental" marks just that example as experimental.
-      const experimentalFence = /^([a-z0-9_+.-]+)\s+experimental$/.exec(languageInfo);
-      const language = experimentalFence?.[1] ?? languageInfo;
-      output.push(`${marker}${experimentalFence ? `${language}-experimental` : language}`);
+      // A fence such as "luau experimental" or "luau deprecated" labels only that example.
+      const markedFence = /^([a-z0-9_+.-]+)\s+(experimental|deprecated)$/.exec(languageInfo);
+      const language = markedFence?.[1] ?? languageInfo;
+      output.push(`${marker}${markedFence ? `${language}-${markedFence[2]}` : language}`);
       const body: string[] = [];
       index += 1;
       while (index < lines.length && !lines[index]?.trim().startsWith(marker)) {

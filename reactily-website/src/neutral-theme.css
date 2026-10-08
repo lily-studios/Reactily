@@ -761,3 +761,20 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
 .deprecatedNotice p { margin: 4px 0 0; }
 .apiFunctionLabel { display: inline-flex; gap: 8px; align-items: center; min-width: 0; }
 .apiFunctionLabel code { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* Deprecated code fences match the chrome of the surrounding Luau block. */
+:root .markdownBody .codeBlock .deprecatedNotice--code {
+  display: flex;
+  margin: 0;
+  padding: 9px 13px;
+  border: 0;
+  border-left: 3px solid #b58a56;
+  border-bottom: 1px solid var(--code-border);
+  border-radius: 0;
+  background: var(--code-header);
+  color: var(--code-text);
+  font-size: 12px;
+}
+:root .markdownBody .codeBlock .deprecatedNotice--code strong {
+  color: #f0c17f;
+}
