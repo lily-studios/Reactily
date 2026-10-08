@@ -1,14 +1,11 @@
 import { Menu, Moon, Search, Sun, X } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import type { Theme } from "../lib/theme";
 import { applyTheme, getInitialTheme } from "../lib/theme";
 import { Brand } from "./Brand";
+import { SearchDialog } from "./SearchDialog";
 import { VersionSelector } from "./VersionSelector";
-
-const SearchDialog = lazy(() =>
-  import("./SearchDialog").then((module) => ({ default: module.SearchDialog })),
-);
 
 const navigation = [
   { label: "Learn", href: "/docs/intro", section: "learn" },
@@ -119,9 +116,7 @@ export function Header() {
         ) : null}
       </header>
       {searchOpen ? (
-        <Suspense fallback={null}>
-          <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
-        </Suspense>
+        <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
       ) : null}
     </>
   );
