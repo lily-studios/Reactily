@@ -80,7 +80,7 @@ The version menu switches between the documentation snapshots generated from eac
 
 GitHub Pages builds run `scripts/sync-release-snapshots.mjs` before building the website. GitHub releases (including Experimental and Pre-release) automatically trigger a new Pages build. Each snapshot comes from the release's original Markdown files. Releases that predate the website, such as v1.1.0, are reconstructed from their tagged README and public Luau exports. An unavailable snapshot shows an error rather than unrelated documentation.
 
-The in-development documentation is available by selecting **Development** in the version menu. It displays the current version from `src/lib/runtime.ts` (for example, `v2.1.0 · Development`) rather than a generic development tag. This is separate from the immutable documentation snapshot for a published release with the same version. When publishing a new stable release, update `src/lib/runtime.ts` and `src/lib/public-api-manifest.json` together.
+The documentation website opens the **latest stable release** by default. The version menu contains only published releases; there is no separate Development or Current website docs entry. Older links using `?version=development` automatically return to the latest published version. When publishing a new stable release, update `src/lib/runtime.ts` and `src/lib/public-api-manifest.json` together.
 
 ## API availability and status in Markdown
 

@@ -796,8 +796,3 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
   font-size: 10px;
 }
 
-/* In-development documentation label: text only, no background. */
-:root .versionReleaseOptionStatus--development,
-:root .headerActions .versionSelectorShell .versionReleaseStatus--development {
-  color: var(--muted-strong);
-}

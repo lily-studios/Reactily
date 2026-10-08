@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { createDoc, docs as currentDocs, isDocAvailable } from "./docs";
+import { createDoc, isDocAvailable } from "./docs";
 import type { DocRecord } from "./docs";
 import { highestNumberedReleaseTag } from "./release-lifecycle";
 
@@ -24,7 +24,7 @@ type VersionDocsContext = {
   readonly status: LoadStatus;
   readonly error: string | null;
   readonly sourceType: string | null;
-  readonly selectTag: (tag: string | null) => void;
+  readonly selectTag: (tag: string) => void;
   readonly path: (target: string) => string;
 };
 
@@ -86,9 +86,8 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
   const [ready, setReady] = useState(false);
   const stableReleases = index?.releases.filter((release) => release.channel === "stable") ?? [];
   const newestStableTag = highestNumberedReleaseTag(stableReleases.map((release) => release.tag));
-  const latest = stableReleases.find((release) => release.tag === newestStableTag) ?? stableReleases[0];
-  const development = explicitTag === "development";
-  const tag = development ? null : explicitTag || latest?.tag || null;
+  const latest = stableReleases.find((release) => release.tag === newestStableTag) ?? stableReleases[0] ?? index?.releases[0];
+  const tag = explicitTag && explicitTag !== "development" ? explicitTag : latest?.tag ?? null;
   const [data, setData] = useState<{ tag: string | null; docs: readonly DocRecord[]; status: LoadStatus; error: string | null }>({
     tag: null, docs: [], status: "loading", error: null,
   });
@@ -110,11 +109,12 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
   useEffect(() => {
     if (!ready) return;
     if (!tag) {
-      if (indexError && !development) {
-        setData({ tag: null, docs: [], status: "error", error: indexError });
-      } else {
-        setData({ tag: null, docs: currentDocs, status: "ready", error: null });
-      }
+      setData({
+        tag: null,
+        docs: [],
+        status: "error",
+        error: indexError ?? "No published release documentation is available.",
+      });
       return;
     }
     const release = index?.releases.find((item) => item.tag === tag);
@@ -142,20 +142,32 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     return () => controller.abort();
   }, [tag, index, indexError, ready]);
 
+  // Old Development bookmarks now resolve to the latest published documentation.
+  useEffect(() => {
+    if (explicitTag !== "development") return;
+    const params = new URLSearchParams(location.search);
+    params.delete("version");
+    navigate({
+      pathname: location.pathname,
+      search: params.toString() ? `?${params.toString()}` : "",
+      hash: location.hash,
+    }, { replace: true });
+  }, [explicitTag, location.pathname, location.search, location.hash, navigate]);
+
   const path = (target: string): string => {
     if (/^(?:https?:)?\/\//i.test(target) || target.startsWith("#")) return target;
     const [beforeHash, hash] = target.split("#", 2);
     const [pathname, query] = (beforeHash ?? "").split("?", 2);
     const params = new URLSearchParams(query);
     if (tag) params.set("version", tag);
-    else if (development) params.set("version", "development");
+    else params.delete("version");
     const queryString = params.toString();
     return pathname + (queryString ? "?" + queryString : "") + (hash ? "#" + hash : "");
   };
 
-  const selectTag = (nextTag: string | null): void => {
+  const selectTag = (nextTag: string): void => {
     const params = new URLSearchParams(location.search);
-    params.set("version", nextTag ?? "development");
+    params.set("version", nextTag);
     navigate({ pathname: "/api", search: "?" + params.toString() });
   };
 

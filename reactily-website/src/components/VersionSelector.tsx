@@ -1,6 +1,5 @@
 import { Check, ChevronDown, ExternalLink } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router";
 import { fetchChangelogReleases, getReleaseChannel } from "../lib/changelog";
 import type { GitHubRelease } from "../lib/changelog";
 import { reactilyRuntime } from "../lib/runtime";
@@ -11,8 +10,6 @@ const fallbackTag = `v${reactilyRuntime.version}`;
 
 export function VersionSelector() {
   const { tag, selectTag } = useVersionedDocs();
-  const location = useLocation();
-  const isDevelopment = new URLSearchParams(location.search).get("version") === "development";
   const [releases, setReleases] = useState<readonly GitHubRelease[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -47,16 +44,15 @@ export function VersionSelector() {
   const stableReleases = releases.filter((release) => getReleaseChannel(release) === "stable");
   const highestTag = highestNumberedReleaseTag(stableReleases.map((release) => release.tag_name));
   const latestStable = stableReleases.find((release) => release.tag_name === highestTag) ?? stableReleases[0];
-  const shownTag = isDevelopment ? fallbackTag : tag ?? latestStable?.tag_name ?? fallbackTag;
-  const superseded = !isDevelopment && isSupersededRelease(shownTag, highestTag);
-  const current = isDevelopment ? undefined : releases.find((release) => release.tag_name === shownTag);
+  const shownTag = tag ?? latestStable?.tag_name ?? fallbackTag;
+  const superseded = isSupersededRelease(shownTag, highestTag);
+  const current = releases.find((release) => release.tag_name === shownTag);
   const channel = current ? getReleaseChannel(current) : null;
-  const currentStatus = isDevelopment ? "Development" :
-    channel === "experimental" ? "Experimental" :
+  const currentStatus = channel === "experimental" ? "Experimental" :
     channel === "prerelease" ? "Pre-release" :
     superseded ? "Deprecated" :
       shownTag === latestStable?.tag_name ? "Latest" : channel === "stable" ? "Stable" : null;
-  const choose = (next: string | null): void => { selectTag(next); setOpen(false); };
+  const choose = (next: string): void => { selectTag(next); setOpen(false); };
 
   return (
     <div className="versionSelectorWrap" ref={wrapperRef}>
@@ -69,7 +65,7 @@ export function VersionSelector() {
           {currentStatus ? (
             <>
               <span className="versionReleaseSeparator" aria-hidden="true">·</span>
-              <span className={`versionReleaseStatus versionReleaseStatus--${isDevelopment ? "development" : superseded && channel === "stable" ? "deprecated" : channel === "stable" ? "latest" : channel}`}>{currentStatus}</span>
+              <span className={`versionReleaseStatus versionReleaseStatus--${superseded && channel === "stable" ? "deprecated" : channel === "stable" ? "latest" : channel}`}>{currentStatus}</span>
             </>
           ) : null}
         </span>
@@ -78,15 +74,6 @@ export function VersionSelector() {
       {open ? (
         <nav id="reactily-release-options" className="versionReleaseMenu" aria-label="Documentation versions">
           <span className="versionReleaseMenuHeading">Documentation versions</span>
-          <div className="versionReleaseOption">
-            <button className="versionReleasePick" type="button" onClick={() => choose(null)}
-              aria-current={isDevelopment ? "true" : undefined}
-              title={`View in-development documentation for ${fallbackTag}`}>
-              <span className="versionReleaseOptionStatus versionReleaseOptionStatus--development">Development</span>
-              <span className="versionReleaseOptionTag">{fallbackTag}</span>
-              {isDevelopment ? <Check size={14} aria-hidden="true" /> : null}
-            </button>
-          </div>
           {releases.map((release) => {
             const releaseChannel = getReleaseChannel(release);
             const outdated = isSupersededRelease(release.tag_name, highestTag);
