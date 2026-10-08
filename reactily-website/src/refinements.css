@@ -78,15 +78,11 @@
   height: 38px;
 }
 
-.headerActions .headerGitHub {
-  flex: 0 0 auto;
-}
-
 .headerActions .searchButton {
-  flex: 0 0 140px;
-  width: 140px;
-  min-width: 140px;
-  max-width: 140px;
+  flex: 0 0 228px;
+  width: 228px;
+  min-width: 228px;
+  max-width: 228px;
   height: 38px;
   padding: 0 10px;
   justify-content: flex-start;
@@ -108,15 +104,22 @@
   height: 38px;
 }
 
-.desktopNav a, .headerGitHub, .versionSelectorShell, .searchButton, .iconButton {
+.desktopNav a, .versionSelectorShell, .searchButton, .iconButton {
   transition: background-color var(--ui-motion) var(--ui-ease),
               border-color var(--ui-motion) var(--ui-ease),
               color var(--ui-motion) var(--ui-ease),
               transform var(--ui-motion) var(--ui-ease);
 }
 
-.desktopNav a:hover, .headerGitHub:hover { transform: translateY(-1px); }
-.desktopNav a:active, .headerGitHub:active { transform: translateY(0); }
+.desktopNav a:hover { transform: translateY(-1px); }
+.desktopNav a:active { transform: translateY(0); }
+
+/* Slightly shorter Previous / Next documentation cards. */
+.docPagination a {
+  min-height: 72px;
+  padding: 11px 15px;
+  gap: 5px;
+}
 
 /* Give documentation navigation a little more room for API names. */
 .docsShell {
@@ -212,23 +215,6 @@
 
 /* On narrow screens collapse optional labels, then switch to the mobile menu. */
 @media (max-width: 1120px) {
-  .headerActions .headerGitHub {
-    flex-basis: 38px;
-    width: 38px;
-    min-width: 38px;
-    padding: 0;
-  }
-  .headerActions .headerGitHub span { display: none; }
-  .headerActions .searchButton {
-    flex-basis: 38px;
-    width: 38px;
-    min-width: 38px;
-    max-width: 38px;
-    padding: 0;
-    justify-content: center;
-  }
-  .headerActions .searchButton span,
-  .headerActions .searchButton kbd { display: none; }
   .docsShell {
     grid-template-columns: minmax(265px, 285px) minmax(0, 1fr);
     max-width: 1120px;
@@ -249,8 +235,20 @@
   .docsSidebarWrap { width: min(340px, 89vw); }
 }
 
+@media (max-width: 700px) {
+  .headerActions .searchButton {
+    flex-basis: 38px;
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    padding: 0;
+    justify-content: center;
+  }
+  .headerActions .searchButton span,
+  .headerActions .searchButton kbd { display: none; }
+}
+
 @media (max-width: 720px) {
-  .headerActions .headerGitHub { display: none; }
   .headerActions .versionSelectorShell {
     flex-basis: 132px;
     width: 132px;
@@ -264,10 +262,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .docHeader, .apiHeroGrid, .heroCopy, .heroVisualColumn { animation: none; }
-  .desktopNav a, .headerGitHub, .versionSelectorShell, .searchButton,
+  .desktopNav a, .versionSelectorShell, .searchButton,
   .iconButton, .searchResult, .searchResultEnter, .apiGroupCard,
   .apiFunctionList a svg, .sidebarLinks a, .sidebarNestedGroup button,
   .sidebarCategoryButton, .docPagination a { transition: none; }
   .searchResults { scroll-behavior: auto; }
-  .docPagination a:hover, .desktopNav a:hover, .headerGitHub:hover { transform: none; }
+  .docPagination a:hover, .desktopNav a:hover { transform: none; }
 }
