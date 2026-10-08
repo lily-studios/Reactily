@@ -22,7 +22,7 @@ const requiredPaths = [
 ];
 
 const requiredRepositoryPaths = [
-  ".github/workflows/pages.yml",
+  ".github/workflows/deploy.yml",
 ];
 
 const missing = [
