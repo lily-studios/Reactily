@@ -458,3 +458,33 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
 :root[data-theme="light"] .headerActions .versionSelectorShell .versionReleaseStatus--prerelease {
   color: #85520e;
 }
+
+/* Subtle feedback for the transparent version link. */
+:root .headerActions a.versionSelectorShell {
+  transition: transform 180ms ease;
+}
+:root .headerActions a.versionSelectorShell:hover {
+  background: transparent;
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+:root .headerActions a.versionSelectorShell:hover .versionTag,
+:root .headerActions a.versionSelectorShell:focus-visible .versionTag {
+  color: var(--accent-strong);
+}
+:root .headerActions a.versionSelectorShell .versionSelectorChevron {
+  transition: transform 180ms ease, color 180ms ease;
+}
+:root .headerActions a.versionSelectorShell:hover .versionSelectorChevron {
+  color: var(--text);
+  transform: translate(2px, -2px);
+}
+:root .headerActions a.versionSelectorShell:active {
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .headerActions a.versionSelectorShell,
+  :root .headerActions a.versionSelectorShell .versionSelectorChevron {
+    transition: none;
+  }
+}
