@@ -1,3 +1,4 @@
+
 # ============================================================
 # Reactily · Lily Studios
 # GitHub Pages · Documentation Deployment
@@ -39,6 +40,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: reactily-website
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -60,6 +65,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: reactily-website/package-lock.json
 
       # ------------------------------------------------------
       # Dependencies
@@ -82,10 +88,14 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
+      # ------------------------------------------------------
+      # Upload Website
+      # ------------------------------------------------------
+
       - name: Upload Documentation
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ./dist
+          path: reactily-website/dist
 
       # ------------------------------------------------------
       # Deployment
