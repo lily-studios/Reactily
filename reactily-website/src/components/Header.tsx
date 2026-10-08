@@ -1,4 +1,4 @@
-import { Github, Menu, Moon, Search, Sun, X } from "lucide-react";
+import { ExternalLink, Menu, Moon, Search, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import type { Theme } from "../lib/theme";
@@ -74,7 +74,7 @@ export function Header() {
           </nav>
           <div className="headerActions">
             <VersionSelector />
-            <a className="headerGitHub" href="https://github.com/lily-studios/Reactily" target="_blank" rel="noopener noreferrer" aria-label="Reactily on GitHub"><Github size={17} /><span>GitHub</span></a>
+            <a className="headerGitHub" href="https://github.com/lily-studios/Reactily" target="_blank" rel="noopener noreferrer" aria-label="Reactily on GitHub"><ExternalLink size={17} /><span>GitHub</span></a>
             <button
               className="searchButton"
               type="button"
