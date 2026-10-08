@@ -84,6 +84,47 @@ jobs:
         run: npm run build --prefix ./reactily-website
 
       # ------------------------------------------------------
+      # Browser smoke test (catches successful builds that crash)
+      # ------------------------------------------------------
+
+      - name: Smoke Test Production Website
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
+          npm run preview --prefix ./reactily-website -- --host 127.0.0.1 --port 4173 --strictPort > /tmp/reactily-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill "$PREVIEW_PID" 2>/dev/null || true' EXIT
+
+          BASE_URL="http://127.0.0.1:4173/Reactily/"
+          for attempt in {1..30}; do
+            if curl --fail --silent --output /dev/null "$BASE_URL"; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail --silent --output /dev/null "$BASE_URL"
+
+          for route in "" "api" "docs/intro" "docs/getting-started"; do
+            url="${BASE_URL}${route}"
+            echo "Browser smoke test: ${url}"
+            dom="$("$CHROME" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --no-first-run --virtual-time-budget=10000 --dump-dom "$url" 2>/tmp/reactily-chrome.log)"
+            case "$route" in
+              "") expected="React-style UI structure." ;;
+              api) expected="Reactily API" ;;
+              docs/intro) expected="What is Reactily?" ;;
+              docs/getting-started) expected="Install Reactily" ;;
+            esac
+            if ! printf '%s' "$dom" | grep -Fq "$expected" || printf '%s' "$dom" | grep -Eq "Reactily docs failed to (start|render)"; then
+              echo "::error::Reactily failed browser smoke test at $url (expected: $expected)"
+              printf '%s\n' "$dom" | tail -c 3500
+              cat /tmp/reactily-chrome.log || true
+              exit 1
+            fi
+            echo "PASSED: $route"
+          done
+
+      # ------------------------------------------------------
       # GitHub Pages
       # ------------------------------------------------------
 
