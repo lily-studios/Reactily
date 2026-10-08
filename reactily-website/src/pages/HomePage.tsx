@@ -2,27 +2,29 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 import { apiDocs, docs } from "../lib/docs";
 import { reactilyRuntime } from "../lib/runtime";
+import { HighlightedCode } from "../components/MarkdownArticle";
 
 function LuauTerminal() {
+  const code = [
+    "local function Counter(): Reactily.Element",
+    "    local count, setCount = Reactily.useState(0)",
+    "",
+    "    return Reactily.createTextButton({",
+    "        Size = UDim2.fromOffset(240, 56),",
+    "        Text = `Count: {count}`,",
+    "        OnActivated = function()",
+    "            setCount(function(previous: number): number",
+    "                return previous + 1",
+    "            end)",
+    "        end,",
+    "    })",
+    "end",
+  ].join("\n");
+
   return (
     <div className="terminalCard" aria-label="Reactily Luau code example">
-      <div className="terminalTopbar">
-        <span className="terminalFile">Counter.client.luau</span>
-      </div>
-      <pre className="terminalCode"><code>
-        <span className="syntaxKeyword">local function</span>{" Counter(): "}<span className="syntaxType">Reactily.Element</span>{"\n"}
-        {"  "}<span className="syntaxKeyword">local</span>{" count, setCount = "}<span className="syntaxType">Reactily</span>.<span className="syntaxFunction">useState</span>(<span className="syntaxNumber">0</span>){"\n\n"}
-        {"  "}<span className="syntaxKeyword">return</span>{" "}<span className="syntaxType">Reactily</span>.<span className="syntaxFunction">createTextButton</span>({"{"}{"\n"}
-        {"    "}<span className="syntaxProperty">Size</span>{" = "}<span className="syntaxType">UDim2</span>.fromOffset(<span className="syntaxNumber">240</span>, <span className="syntaxNumber">56</span>),{"\n"}
-        {"    "}<span className="syntaxProperty">Text</span>{" = "}<span className="syntaxString">{'`Count: {count}`'}</span>,{"\n"}
-        {"    "}<span className="syntaxProperty">OnActivated</span>{" = "}<span className="syntaxKeyword">function</span>(){"\n"}
-        {"      "}setCount(<span className="syntaxKeyword">function</span>(previous){"\n"}
-        {"        "}<span className="syntaxKeyword">return</span>{" previous + "}<span className="syntaxNumber">1</span>{"\n"}
-        {"      "}<span className="syntaxKeyword">end</span>){"\n"}
-        {"    "}<span className="syntaxKeyword">end</span>,{"\n"}
-        {"  })\n"}
-        <span className="syntaxKeyword">end</span>
-      </code></pre>
+      <div className="terminalTopbar"><span className="terminalFile">Counter.client.luau</span></div>
+      <pre className="terminalCode"><code><HighlightedCode source={code} /></code></pre>
     </div>
   );
 }
