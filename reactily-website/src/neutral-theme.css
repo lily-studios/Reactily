@@ -1,0 +1,115 @@
+/* Neutral UI theme. Import last so old accent rules cannot restore teal or blue. */
+:root {
+  --font-reading: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-code: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --bg: #141414;
+  --bg-elevated: #1b1b1b;
+  --bg-soft: #222222;
+  --bg-softer: #292929;
+  --surface: #202020;
+  --surface-strong: #303030;
+  --text: #f2f2f2;
+  --muted: #b4b4b4;
+  --muted-strong: #dedede;
+  --border: #333333;
+  --border-strong: #565656;
+  --accent: #d0d0d0;
+  --accent-strong: #f0f0f0;
+  --accent-soft: #373737;
+  --green: #bcbcbc;
+  --shadow: 0 12px 30px rgba(0,0,0,.2);
+  font-family: var(--font-reading);
+}
+:root[data-theme="light"] {
+  --bg: #f7f7f7;
+  --bg-elevated: #ffffff;
+  --bg-soft: #f0f0f0;
+  --bg-softer: #e8e8e8;
+  --surface: #ffffff;
+  --surface-strong: #ededed;
+  --text: #1c1c1c;
+  --muted: #636363;
+  --muted-strong: #383838;
+  --border: #dedede;
+  --border-strong: #bcbcbc;
+  --accent: #444444;
+  --accent-strong: #252525;
+  --accent-soft: #e8e8e8;
+  --green: #505050;
+  --shadow: 0 12px 30px rgba(0,0,0,.07);
+}
+body, button, input, select, textarea { font-family: var(--font-reading); }
+body { font-size: 15px; line-height: 1.65; }
+/* Large display type remains Sora, unchanged. */
+:where(.brandName, .heroCopy h1, .docHeader h1, .apiHero h1,
+ .sectionHeading h2, .splitCopy h2, .finalCta h2,
+ .architectureLayout h2, .bentoItem h3, .apiGroupHeader h2,
+ .notFoundPage h1, .compactHeading h2) { font-family: "Sora", sans-serif; }
+/* Small UI copy and paragraph text stay readable at everyday sizes. */
+:where(.sectionEyebrow, .bentoKicker, .sidebarLabel, .sidebarCategoryButton,
+ .docBreadcrumb, .tableOfContents > span, .sidebarNestedGroup button,
+ .apiGroupHeader p, .apiStatCard span, .heroFacts span,
+ .heroStats dd, .searchFooter, .codeLanguageLabel,
+ .versionSelectorCurrent, .versionLatestBadge, .versionDevBadge,
+ .footerBottom, .startMeta, .releasePill) {
+  font-family: var(--font-reading);
+  letter-spacing: normal;
+  text-transform: none;
+}
+:where(.markdownBody, .markdownBody p, .markdownBody li,
+ .docHeader p, .sidebarLinks a, .tableOfContents a,
+ .apiFunctionList a, .apiHero p, .searchResultCopy small,
+ .searchResultCopy strong, .heroCopy > p) {
+  font-family: var(--font-reading);
+}
+.markdownBody { font-size: 15px; line-height: 1.8; }
+.sidebarLinks a, .tableOfContents a { font-size: 13px; }
+.docBreadcrumb, .sidebarLabel { font-size: 12px; }
+/* Monospace only for actual code, signatures and keyboard shortcuts. */
+:where(.terminalCode, .terminalCode code, .codeBlock pre,
+ .codeBlock pre code, .markdownBody code, .apiFunctionList code,
+ kbd, code, pre) { font-family: var(--font-code); }
+/* Neutral actions and selection provide contrast in each color scheme. */
+:root .primaryButton {
+  color: #181818;
+  background: #dddddd;
+  border-color: #dddddd;
+}
+:root .primaryButton:hover {
+  color: #111111;
+  background: #f5f5f5;
+  border-color: #f5f5f5;
+}
+:root[data-theme="light"] .primaryButton {
+  color: #ffffff;
+  background: #363636;
+  border-color: #363636;
+}
+:root[data-theme="light"] .primaryButton:hover {
+  color: #ffffff;
+  background: #1b1b1b;
+  border-color: #1b1b1b;
+}
+:root .brandMark { color: #151515; background: #dedede; }
+:root[data-theme="light"] .brandMark { color: #ffffff; background: #303030; }
+::selection { background: #777777; color: #ffffff; }
+/* Neutralize legacy colored syntax UI only; keep colored tokenization readable. */
+:root .terminalCard, :root .markdownBody .codeBlock {
+  --code-bg: #1c1c1f;
+  --code-header: #262629;
+  --code-border: #3b3b40;
+  --code-text: #ebebee;
+}
+:root .markdownBody blockquote { background: var(--bg-soft); border-left-color: var(--border-strong); }
+:root .codeChrome i:first-child, :root .codeDots i:first-child,
+:root .codeDots i:nth-child(2), :root .codeDots i:nth-child(3),
+:root .terminalDots i:first-child, :root .terminalDots i:nth-child(2),
+:root .terminalDots i:nth-child(3) { background: #747474; }
+/* Focus and active navigation rely on strong neutral contrast. */
+:where(a,button,input,select,textarea):focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+:root[data-theme="light"] :where(a,button,input,select,textarea):focus-visible {
+  outline-color: #414141;
+}
