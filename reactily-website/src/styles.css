@@ -3256,3 +3256,79 @@ body {
   .apiGroupsGrid { grid-template-columns: 1fr; }
   .heroSection .heroLayout { min-height: 0; }
 }
+
+
+/* Unified dark code surfaces: identical readable palette in both themes. */
+:root .terminalCard,
+:root[data-theme="light"] .terminalCard,
+:root .markdownBody .codeBlock,
+:root[data-theme="light"] .markdownBody .codeBlock {
+  background: #111923;
+  color: #e7edf6;
+  border: 1px solid #344152;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: none;
+}
+:root .terminalTopbar,
+:root[data-theme="light"] .terminalTopbar,
+:root .markdownBody .codeChrome,
+:root[data-theme="light"] .markdownBody .codeChrome {
+  background: #1b2532;
+  border-bottom: 1px solid #344152;
+  color: #c1ccda;
+}
+:root .terminalCode,
+:root[data-theme="light"] .terminalCode,
+:root .markdownBody .codeBlock pre code,
+:root[data-theme="light"] .markdownBody .codeBlock pre code {
+  color: #edf2fa;
+  font: 12px/1.65 "IBM Plex Mono", monospace;
+  tab-size: 4;
+  white-space: pre;
+}
+:root .terminalCode { margin: 0; padding: 20px 22px; min-height: 0; }
+:root .terminalCard code,
+:root[data-theme="light"] .terminalCard code { color: #edf2fa; }
+:root .terminalCard .syntax-keyword,
+:root[data-theme="light"] .terminalCard .syntax-keyword,
+:root .markdownBody .syntax-keyword,
+:root[data-theme="light"] .markdownBody .syntax-keyword { color: #d4acff; }
+:root .terminalCard .syntax-type,
+:root[data-theme="light"] .terminalCard .syntax-type,
+:root .markdownBody .syntax-type,
+:root[data-theme="light"] .markdownBody .syntax-type { color: #93e4f3; }
+:root .terminalCard .syntax-function,
+:root[data-theme="light"] .terminalCard .syntax-function,
+:root .markdownBody .syntax-function,
+:root[data-theme="light"] .markdownBody .syntax-function { color: #8cc8ff; }
+:root .terminalCard .syntax-property,
+:root[data-theme="light"] .terminalCard .syntax-property,
+:root .markdownBody .syntax-property,
+:root[data-theme="light"] .markdownBody .syntax-property { color: #ffd29a; }
+:root .terminalCard .syntax-string,
+:root[data-theme="light"] .terminalCard .syntax-string,
+:root .markdownBody .syntax-string,
+:root[data-theme="light"] .markdownBody .syntax-string { color: #bde99e; }
+:root .terminalCard .syntax-number,
+:root[data-theme="light"] .terminalCard .syntax-number,
+:root .markdownBody .syntax-number,
+:root[data-theme="light"] .markdownBody .syntax-number { color: #ffb38a; }
+:root .terminalCard .syntax-punctuation,
+:root[data-theme="light"] .terminalCard .syntax-punctuation,
+:root .markdownBody .syntax-punctuation,
+:root[data-theme="light"] .markdownBody .syntax-punctuation { color: #dee5f0; }
+:root .terminalCard .syntax-comment,
+:root[data-theme="light"] .terminalCard .syntax-comment,
+:root .markdownBody .syntax-comment,
+:root[data-theme="light"] .markdownBody .syntax-comment { color: #a6b6c8; }
+:root .markdownBody .codeBlock pre { padding: 20px 22px; overflow-x: auto; }
+:root .markdownBody .codeBlock pre code { padding: 0; border: 0; background: transparent; }
+:root .markdownBody .codeChrome button { color: #e0e8f4; border-color: #415165; background: #263243; }
+:root .markdownBody .codeChrome button:hover { background: #34465e; }
+@media (max-width: 720px) {
+  :root .terminalCode,
+  :root .markdownBody .codeBlock pre code { font-size: 11px; }
+  :root .terminalCode,
+  :root .markdownBody .codeBlock pre { padding: 16px; }
+}
