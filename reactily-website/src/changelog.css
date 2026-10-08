@@ -145,6 +145,6 @@
 :root[data-theme="light"] .changelogLatest { color: #145d36; }
 :root[data-theme="light"] .changelogPrerelease { color: #85520e; }
 
-// Experimental entries are distinct from stable and prerelease entries.
+/* Experimental entries are distinct from stable and prerelease entries. */
 :root .changelogExperimental { color: #c6adff; }
 :root[data-theme="light"] .changelogExperimental { color: #7251a8; }
