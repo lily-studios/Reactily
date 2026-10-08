@@ -1,81 +1,46 @@
-
-/* ============================================================
- * Reactily · Lily Studios
- * Documentation Header
- * ============================================================ */
-
-import {
-  Menu,
-  Moon,
-  Search,
-  Sun,
-  X,
-} from "lucide-react";
-
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useState,
-} from "react";
-
-import { NavLink } from "react-router";
-
+import { Menu, Moon, Search, Sun, X } from "lucide-react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Link, useLocation } from "react-router";
 import type { Theme } from "../lib/theme";
-
-import {
-  applyTheme,
-  getInitialTheme,
-} from "../lib/theme";
-
+import { applyTheme, getInitialTheme } from "../lib/theme";
 import { Brand } from "./Brand";
 import { VersionSelector } from "./VersionSelector";
 
-/* ============================================================
- * Lazy-Loaded Search
- * ============================================================ */
-
 const SearchDialog = lazy(() =>
-  import("./SearchDialog").then((module) => ({
-    default: module.SearchDialog,
-  })),
+  import("./SearchDialog").then((module) => ({ default: module.SearchDialog })),
 );
 
-/* ============================================================
- * Header
- * ============================================================ */
+const navigation = [
+  { label: "Learn", href: "/docs/intro", section: "learn" },
+  { label: "API", href: "/api", section: "api" },
+  { label: "Examples", href: "/docs/guides/examples", section: "examples" },
+] as const;
 
 export function Header() {
-  /* ==========================================================
-   * State
-   * ========================================================== */
-
-  const [theme, setTheme] = useState<Theme>(
-    getInitialTheme,
-  );
-
+  const { pathname } = useLocation();
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [mobileOpen, setMobileOpen] = useState(false);
-
   const [searchOpen, setSearchOpen] = useState(false);
 
-  /* ==========================================================
-   * Theme
-   * ========================================================== */
+  const activeSection = pathname === "/api" || pathname.startsWith("/docs/api/")
+    ? "api"
+    : pathname === "/docs/guides/examples"
+      ? "examples"
+      : pathname.startsWith("/docs/")
+        ? "learn"
+        : undefined;
 
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
 
-  /* ==========================================================
-   * Keyboard Shortcuts
-   * ========================================================== */
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (
-        (event.metaKey || event.ctrlKey) &&
-        event.key.toLowerCase() === "k"
-      ) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setSearchOpen(true);
       }
@@ -87,170 +52,75 @@ export function Header() {
     };
 
     window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  /* ==========================================================
-   * Navigation
-   * ========================================================== */
-
-  const closeMobile = (): void => {
-    setMobileOpen(false);
-  };
-
-  /* ==========================================================
-   * Render
-   * ========================================================== */
+  const links = (mobile: boolean) => navigation.map((item) => (
+    <Link
+      key={item.section}
+      to={item.href}
+      className={activeSection === item.section ? "active" : undefined}
+      aria-current={pathname === item.href ? "page" : undefined}
+      onClick={mobile ? () => setMobileOpen(false) : undefined}
+    >
+      {item.label}
+    </Link>
+  ));
 
   return (
     <>
       <header className="siteHeader">
         <div className="headerInner">
           <Brand />
-
-          {/* ================================================
-           * Desktop Navigation
-           * ================================================ */}
-
-          <nav
-            className="desktopNav"
-            aria-label="Primary navigation"
-          >
-            <NavLink to="/docs/intro">
-              Learn
-            </NavLink>
-
-            <NavLink to="/api">
-              API
-            </NavLink>
-
-            <NavLink to="/docs/guides/examples">
-              Examples
-            </NavLink>
+          <nav className="desktopNav" aria-label="Primary navigation">
+            {links(false)}
           </nav>
-
-          {/* ================================================
-           * Header Actions
-           * ================================================ */}
-
           <div className="headerActions">
             <VersionSelector />
-
-            {/* Search */}
-
             <button
               className="searchButton"
               type="button"
-              onClick={() => {
-                setSearchOpen(true);
-              }}
+              onClick={() => setSearchOpen(true)}
               aria-label="Search Reactily documentation"
+              title="Search documentation (Ctrl/Command + K)"
             >
-              <Search
-                size={16}
-                aria-hidden="true"
-              />
-
+              <Search size={16} aria-hidden="true" />
               <span>Search</span>
-
               <kbd>⌘K</kbd>
             </button>
-
-            {/* Theme Toggle */}
-
             <button
               className="iconButton"
               type="button"
-              aria-label={`Switch to ${
-                theme === "dark" ? "light" : "dark"
-              } theme`}
-              onClick={() => {
-                setTheme((current: Theme): Theme =>
-                  current === "dark" ? "light" : "dark",
-                );
-              }}
+              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")}
             >
-              {theme === "dark" ? (
-                <Sun size={17} />
-              ) : (
-                <Moon size={17} />
-              )}
+              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
             </button>
-
-            {/* Mobile Navigation Toggle */}
-
             <button
               className="iconButton mobileMenuButton"
               type="button"
-              aria-label={
-                mobileOpen
-                  ? "Close navigation"
-                  : "Open navigation"
-              }
+              aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
               aria-expanded={mobileOpen}
-              onClick={() => {
-                setMobileOpen(
-                  (current: boolean): boolean => !current,
-                );
-              }}
+              aria-controls="mobile-primary-navigation"
+              onClick={() => setMobileOpen((current) => !current)}
             >
-              {mobileOpen ? (
-                <X size={18} />
-              ) : (
-                <Menu size={18} />
-              )}
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
-
-        {/* ==================================================
-         * Mobile Navigation
-         * ================================================== */}
-
         {mobileOpen ? (
           <nav
+            id="mobile-primary-navigation"
             className="mobileNav"
             aria-label="Mobile navigation"
           >
-            <NavLink
-              to="/docs/intro"
-              onClick={closeMobile}
-            >
-              Learn
-            </NavLink>
-
-            <NavLink
-              to="/api"
-              onClick={closeMobile}
-            >
-              API Reference
-            </NavLink>
-
-            <NavLink
-              to="/docs/guides/examples"
-              onClick={closeMobile}
-            >
-              Examples
-            </NavLink>
+            {links(true)}
           </nav>
         ) : null}
       </header>
-
-      {/* ====================================================
-       * Lazy Search Dialog
-       * ==================================================== */}
-
       {searchOpen ? (
         <Suspense fallback={null}>
-          <SearchDialog
-            open={searchOpen}
-            onClose={() => {
-              setSearchOpen(false);
-            }}
-          />
+          <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
         </Suspense>
       ) : null}
     </>
