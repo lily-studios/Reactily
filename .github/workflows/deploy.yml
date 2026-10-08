@@ -64,3 +64,72 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  cleanup:
+    name: Remove Old Pages Deployments
+    runs-on: ubuntu-24.04
+    needs: deploy
+    permissions:
+      deployments: write
+
+    steps:
+      - name: Delete Superseded Deployments
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t deployments < <(
+            gh api --paginate "repos/${GH_REPO}/deployments?environment=github-pages&per_page=100" \
+              --jq '.[] | [.created_at, (.id | tostring)] | @tsv' | sort -r
+          )
+
+          if (( ${#deployments[@]} < 2 )); then
+            echo "No older GitHub Pages deployments to delete."
+            exit 0
+          fi
+
+          latest_id="${deployments[0]##*$'\t'}"
+          latest_state="$(gh api "repos/${GH_REPO}/deployments/${latest_id}/statuses?per_page=1" --jq '.[0].state // "unknown"')"
+          latest_sha="$(gh api "repos/${GH_REPO}/deployments/${latest_id}" --jq '.sha')"
+
+          if [[ "${latest_state}" != "success" || "${latest_sha}" != "${GITHUB_SHA}" ]]; then
+            echo "::warning::Newest deployment is not this workflow's successful release. Skipping cleanup."
+            exit 0
+          fi
+
+          echo "Preserving the latest successful deployment: ${latest_id}"
+          removed=0
+          failed=0
+
+          for deployment in "${deployments[@]:1}"; do
+            id="${deployment##*$'\t'}"
+            state="$(gh api "repos/${GH_REPO}/deployments/${id}/statuses?per_page=1" --jq '.[0].state // "unknown"')"
+
+            if [[ "${state}" != "inactive" ]]; then
+              if ! gh api -X POST "repos/${GH_REPO}/deployments/${id}/statuses" \
+                -f state=inactive --silent; then
+                echo "::warning::Could not deactivate deployment ${id}"
+                failed=$((failed + 1))
+                continue
+              fi
+            fi
+
+            if gh api -X DELETE "repos/${GH_REPO}/deployments/${id}" --silent; then
+              echo "Deleted old deployment ${id}"
+              removed=$((removed + 1))
+            else
+              echo "::warning::Could not delete deployment ${id}"
+              failed=$((failed + 1))
+            fi
+          done
+
+          echo "Removed ${removed} old deployments; ${failed} could not be removed."
+          {
+            echo "### GitHub Pages deployment cleanup"
+            echo "Preserved current successful deployment: ${latest_id}"
+            echo "Removed old deployments: ${removed}"
+            echo "Failed removals: ${failed}"
+          } >> "${GITHUB_STEP_SUMMARY}"
