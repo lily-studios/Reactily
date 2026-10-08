@@ -102,7 +102,7 @@ Use `deprecated: true` to mark the API deprecated immediately instead of using a
 
 Mark an individual code example without changing the entire page:
 
-```text
+````markdown
 ```luau experimental
 -- Code that may contain bugs or change
 ```
@@ -110,6 +110,6 @@ Mark an individual code example without changing the entire page:
 ```luau deprecated
 -- Code using an outdated API
 ```
-```
+````
 
 Only APIs present in a release's source archive should be documented for that version. Never reuse newer API examples under an older release label.
