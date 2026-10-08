@@ -1,0 +1,26 @@
+{
+  "name": "reactily-luau",
+  "version": "2.0.0",
+  "description": "A strict Luau, React-inspired UI runtime for Roblox.",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "generate:init": "node tools/generate-init.cjs && stylua scripts/init.luau",
+    "check:init": "node tools/generate-init.cjs --check",
+    "preview:init": "node tools/generate-init.cjs --dry-run",
+    "generate:init:verbose": "node tools/generate-init.cjs --verbose",
+    "generate:init:debug": "node tools/generate-init.cjs --debug",
+    "format": "stylua scripts",
+    "format:check": "stylua --check scripts",
+    "lint": "selene scripts",
+    "check": "npm run check:init && npm run format:check && npm run lint",
+    "test": "npm run check",
+    "build:release": "node tools/build-release.cjs",
+    "build:release:clean": "node tools/build-release.cjs --clean",
+    "build:release:xml": "node tools/build-release.cjs --format rbxmx",
+    "release": "npm run check && npm run build:release:clean"
+  }
+}

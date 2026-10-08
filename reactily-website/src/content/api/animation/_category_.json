@@ -1,0 +1,11 @@
+{
+  "label": "Animation & Transitions",
+  "position": 2,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Animation & Transitions API",
+    "description": "Reactily animation & transitions API reference."
+  }
+}

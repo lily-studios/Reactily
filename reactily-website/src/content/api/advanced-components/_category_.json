@@ -1,0 +1,11 @@
+{
+  "label": "Advanced Components",
+  "position": 1,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Advanced Components API",
+    "description": "Reactily advanced components API reference."
+  }
+}
