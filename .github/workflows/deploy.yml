@@ -91,8 +91,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          set -euo pipefail
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
-          npm run preview --prefix ./reactily-website -- --host 127.0.0.1 --port 4173 --strictPort > /tmp/reactily-preview.log 2>&1 &
+          PREVIEW_ROOT="${RUNNER_TEMP}/reactily-preview"
+          mkdir -p "$PREVIEW_ROOT/Reactily"
+          cp -R reactily-website/dist/. "$PREVIEW_ROOT/Reactily/"
+          npm run preview --prefix ./reactily-website -- --host 127.0.0.1 --port 4173 --strictPort --outDir "$PREVIEW_ROOT" > /tmp/reactily-preview.log 2>&1 &
           PREVIEW_PID=$!
           "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --no-first-run --no-default-browser-check --user-data-dir="$(mktemp -d)" --remote-debugging-port=9222 --remote-allow-origins='*' about:blank > /tmp/reactily-chrome.log 2>&1 &
           CHROME_PID=$!
