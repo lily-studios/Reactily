@@ -104,8 +104,8 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
 :root,
 :root[data-theme="light"],
 :root[data-theme="dark"] {
-  --code-bg: #1c1c1c;
-  --code-header: #262626;
+  --code-bg: #171717;
+  --code-header: #222222;
   --code-border: #3b3b3b;
   --code-text: #ededed;
 }
