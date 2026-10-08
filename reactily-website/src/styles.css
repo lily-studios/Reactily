@@ -3525,3 +3525,75 @@ body {
   .sidebarCategoryButton, .versionSelectorShell { transition: none; }
   .button:hover { transform: none; }
 }
+
+
+/* Reactily uniform terminal surface: all code languages and both themes. */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --code-bg: #1c1c1f;
+  --code-header: #262629;
+  --code-border: #3b3b40;
+  --code-text: #e9edf4;
+}
+:root .terminalCard,
+:root[data-theme="light"] .terminalCard,
+:root .markdownBody .codeBlock,
+:root[data-theme="light"] .markdownBody .codeBlock {
+  background: var(--code-bg);
+  border-color: var(--code-border);
+  border-radius: 16px;
+}
+:root .terminalCard .terminalTopbar,
+:root[data-theme="light"] .terminalCard .terminalTopbar,
+:root .markdownBody .codeBlock .codeChrome,
+:root[data-theme="light"] .markdownBody .codeBlock .codeChrome {
+  background: var(--code-header);
+  border-color: var(--code-border);
+}
+:root .terminalCard .terminalCode,
+:root[data-theme="light"] .terminalCard .terminalCode,
+:root .terminalCard .terminalCode code,
+:root[data-theme="light"] .terminalCard .terminalCode code,
+:root .markdownBody .codeBlock pre,
+:root[data-theme="light"] .markdownBody .codeBlock pre,
+:root .markdownBody .codeBlock pre code,
+:root[data-theme="light"] .markdownBody .codeBlock pre code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 0;
+  box-shadow: none;
+}
+:root .markdownBody .codeBlock pre code,
+:root[data-theme="light"] .markdownBody .codeBlock pre code {
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.65;
+}
+:root .markdownBody .codeBlock .syntax-keyword,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-keyword,
+:root .terminalCard .syntax-keyword { color: #d4acff; }
+:root .markdownBody .codeBlock .syntax-type,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-type,
+:root .terminalCard .syntax-type { color: #93e4f3; }
+:root .markdownBody .codeBlock .syntax-function,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-function,
+:root .terminalCard .syntax-function { color: #8cc8ff; }
+:root .markdownBody .codeBlock .syntax-property,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-property,
+:root .terminalCard .syntax-property { color: #ffd29a; }
+:root .markdownBody .codeBlock .syntax-string,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-string,
+:root .terminalCard .syntax-string { color: #bde99e; }
+:root .markdownBody .codeBlock .syntax-number,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-number,
+:root .terminalCard .syntax-number { color: #ffb38a; }
+:root .markdownBody .codeBlock .syntax-comment,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-comment,
+:root .terminalCard .syntax-comment { color: #a6b6c8; }
+:root .markdownBody .codeBlock .syntax-constant,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-constant,
+:root .terminalCard .syntax-constant { color: #ff9ea4; }
+:root .markdownBody .codeBlock .syntax-punctuation,
+:root[data-theme="light"] .markdownBody .codeBlock .syntax-punctuation,
+:root .terminalCard .syntax-punctuation { color: #dee5f0; }
