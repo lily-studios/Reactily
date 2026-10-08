@@ -91,7 +91,12 @@ export function VersionSelector() {
     >
       <span className="versionSelectorCurrent">
         <span className="versionTag">{releaseTag}</span>
-        {statusLabel ? <span className={`versionReleaseStatus versionReleaseStatus--${status}`}>· {statusLabel}</span> : null}
+        {statusLabel ? (
+          <>
+            <span className="versionReleaseSeparator" aria-hidden="true">·</span>
+            <span className={`versionReleaseStatus versionReleaseStatus--${status}`}>{statusLabel}</span>
+          </>
+        ) : null}
       </span>
       <ExternalLink className="versionSelectorChevron" size={13} aria-hidden="true" />
     </a>
