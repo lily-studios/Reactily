@@ -137,3 +137,10 @@
   .changelogLoading { animation: none; }
   .changelogJump li a { transition: none; }
 }
+
+/* Release channels are identified from GitHub's prerelease flag, not tag spelling. */
+.changelogJump li a { flex-wrap: wrap; overflow-wrap: anywhere; }
+:root .changelogLatest { color: #65eda3; }
+:root .changelogPrerelease { color: #ffd27c; }
+:root[data-theme="light"] .changelogLatest { color: #145d36; }
+:root[data-theme="light"] .changelogPrerelease { color: #85520e; }

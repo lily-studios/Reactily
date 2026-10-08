@@ -488,3 +488,110 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
     transition: none;
   }
 }
+
+/* Release channel dropdown. The existing transparent version trigger stays intact. */
+:root .headerActions .versionSelectorWrap {
+  position: relative;
+  display: inline-flex;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+:root .headerActions button.versionSelectorShell {
+  appearance: none;
+  cursor: pointer;
+  font-family: var(--font-reading);
+  color: var(--text);
+  background: transparent;
+  border-color: transparent;
+  text-decoration: none;
+  transition: transform 180ms ease;
+}
+:root .headerActions button.versionSelectorShell:hover {
+  background: transparent;
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+:root .headerActions button.versionSelectorShell:hover .versionTag,
+:root .headerActions button.versionSelectorShell:focus-visible .versionTag {
+  color: var(--accent-strong);
+}
+:root .headerActions button.versionSelectorShell .versionSelectorChevron {
+  transition: transform 180ms ease, color 180ms ease;
+}
+:root .headerActions button.versionSelectorShell:hover .versionSelectorChevron {
+  color: var(--text);
+}
+:root .headerActions button.versionSelectorShell[aria-expanded="true"] .versionSelectorChevron {
+  transform: rotate(180deg);
+}
+:root .headerActions button.versionSelectorShell:active { transform: translateY(0); }
+
+.versionReleaseMenu {
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 8px);
+  right: 0;
+  width: max-content;
+  min-width: 235px;
+  max-width: min(90vw, 350px);
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow);
+}
+.versionReleaseMenuHeading,
+.versionReleaseMenuInfo {
+  display: block;
+  padding: 7px 9px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.versionReleaseOption {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+.versionReleaseOption:hover,
+.versionReleaseOption:focus-visible {
+  color: var(--text);
+  background: var(--surface-strong);
+  text-decoration: none;
+}
+.versionReleaseOption > svg {
+  flex: 0 0 13px;
+  margin-left: auto;
+  color: var(--muted);
+}
+.versionReleaseOptionStatus {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+:root .versionReleaseOptionStatus--latest { color: #65eda3; }
+:root .versionReleaseOptionStatus--prerelease { color: #ffd27c; }
+:root[data-theme="light"] .versionReleaseOptionStatus--latest { color: #145d36; }
+:root[data-theme="light"] .versionReleaseOptionStatus--prerelease { color: #85520e; }
+.versionReleaseOptionTag {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-code);
+  font-size: 11px;
+  font-weight: 700;
+}
+@media (max-width: 470px) {
+  :root .headerActions .versionSelectorWrap { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .headerActions button.versionSelectorShell,
+  :root .headerActions button.versionSelectorShell .versionSelectorChevron {
+    transition: none;
+  }
+}

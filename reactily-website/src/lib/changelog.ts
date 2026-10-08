@@ -11,7 +11,6 @@ export type GitHubRelease = {
 };
 
 const RELEASES_URL = "https://api.github.com/repos/lily-studios/Reactily/releases";
-const MINIMUM_VERSION = [1, 1, 0] as const;
 const MAX_PAGES = 20;
 
 function isRelease(value: unknown): value is GitHubRelease {
@@ -27,22 +26,6 @@ function isRelease(value: unknown): value is GitHubRelease {
     typeof record.draft === "boolean" &&
     typeof record.prerelease === "boolean"
   );
-}
-
-function parseVersion(tag: string): readonly [number, number, number] | null {
-  const match = /^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/i.exec(tag);
-  if (!match) return null;
-  const parts = match.slice(1).map(Number);
-  if (parts.length !== 3 || parts.some((part) => !Number.isSafeInteger(part))) return null;
-  return [parts[0]!, parts[1]!, parts[2]!];
-}
-
-function compareVersions(a: readonly number[], b: readonly number[]): number {
-  for (let index = 0; index < 3; index += 1) {
-    const difference = (a[index] ?? 0) - (b[index] ?? 0);
-    if (difference !== 0) return difference;
-  }
-  return 0;
 }
 
 export async function fetchChangelogReleases(signal: AbortSignal): Promise<readonly GitHubRelease[]> {
@@ -74,18 +57,15 @@ export async function fetchChangelogReleases(signal: AbortSignal): Promise<reado
     if (page === MAX_PAGES) throw new Error("The release history is too large to load.");
   }
 
+  // A GitHub release tag is an arbitrary string, not necessarily a SemVer value.
+  // Show every published release, including names such as "nightly", "v.2.1.1",
+  // "2.2.0-beta.1", and "October Release".
   return releases
-    .filter((release) => {
-      const version = parseVersion(release.tag_name);
-      return version !== null && compareVersions(version, MINIMUM_VERSION) >= 0;
-    })
+    .filter((release) => release.tag_name.trim().length > 0)
     .sort((left, right) => {
-      const a = parseVersion(left.tag_name)!;
-      const b = parseVersion(right.tag_name)!;
-      return compareVersions(b, a) ||
-        Number(left.prerelease) - Number(right.prerelease) ||
-        Date.parse(right.published_at ?? "") - Date.parse(left.published_at ?? "") ||
-        right.id - left.id;
+      const leftDate = Date.parse(left.published_at ?? "") || 0;
+      const rightDate = Date.parse(right.published_at ?? "") || 0;
+      return rightDate - leftDate || right.id - left.id;
     });
 }
 

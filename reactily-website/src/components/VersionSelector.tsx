@@ -1,104 +1,131 @@
-import { ExternalLink } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChevronDown, ExternalLink } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { fetchChangelogReleases } from "../lib/changelog";
+import type { GitHubRelease } from "../lib/changelog";
 import { reactilyRuntime } from "../lib/runtime";
 
-type ReleaseStatus = "latest" | "prerelease" | null;
-
-type ReleaseMetadata = {
-  readonly tag_name: string;
-  readonly prerelease: boolean;
-  readonly draft: boolean;
-};
-
-const releaseTag = `v${reactilyRuntime.version}`;
-const releaseUrl = `https://github.com/lily-studios/Reactily/releases/tag/${releaseTag}`;
-const apiUrl = "https://api.github.com/repos/lily-studios/Reactily/releases";
-
-async function getRelease(url: string, signal: AbortSignal): Promise<ReleaseMetadata | null> {
-  const response = await fetch(url, {
-    headers: { Accept: "application/vnd.github+json" },
-    signal,
-  });
-
-  if (!response.ok) return null;
-
-  const value: unknown = await response.json();
-
-  if (value === null || typeof value !== "object") return null;
-
-  const release = value as Record<string, unknown>;
-  if (
-    typeof release.tag_name !== "string" ||
-    typeof release.prerelease !== "boolean" ||
-    typeof release.draft !== "boolean"
-  ) return null;
-
-  return {
-    tag_name: release.tag_name,
-    prerelease: release.prerelease,
-    draft: release.draft,
-  };
-}
+const fallbackTag = `v${reactilyRuntime.version}`;
+const fallbackUrl = `https://github.com/lily-studios/Reactily/releases/tag/${encodeURIComponent(fallbackTag)}`;
 
 export function VersionSelector() {
-  const [status, setStatus] = useState<ReleaseStatus>(null);
+  const [releases, setReleases] = useState<readonly GitHubRelease[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const controller = new AbortController();
 
-    const resolveStatus = async (): Promise<void> => {
-      try {
-        const current = await getRelease(
-          `${apiUrl}/tags/${encodeURIComponent(releaseTag)}`,
-          controller.signal,
-        );
+    fetchChangelogReleases(controller.signal)
+      .then((result) => {
+        if (!controller.signal.aborted) setReleases(result);
+      })
+      .catch(() => {
+        // The documentation's own version remains available if GitHub is offline.
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
 
-        if (current === null || current.draft || controller.signal.aborted) return;
-
-        if (current.prerelease) {
-          setStatus("prerelease");
-          return;
-        }
-
-        const latest = await getRelease(`${apiUrl}/latest`, controller.signal);
-
-        if (!controller.signal.aborted && latest?.tag_name === releaseTag) {
-          setStatus("latest");
-        }
-      } catch {
-        // A failed GitHub request never hides the documented version.
-      }
-    };
-
-    void resolveStatus();
     return () => controller.abort();
   }, []);
 
-  const statusLabel = status === "latest"
-    ? "Latest"
-    : status === "prerelease"
-      ? "Pre-release"
-      : null;
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const closeOnOutsideClick = (event: PointerEvent): void => {
+      if (event.target instanceof Node && !wrapperRef.current?.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isOpen]);
+
+  // GitHub decides release type; tags can be numbers, words, or mixed formats.
+  const latestStable = releases.find((release) => !release.prerelease);
+  const latestPrerelease = releases.find((release) => release.prerelease);
+  const shownTag = latestStable?.tag_name ?? fallbackTag;
 
   return (
-    <a
-      className="versionSelectorShell"
-      href={releaseUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`Reactily ${releaseTag}${statusLabel ? `, ${statusLabel}` : ""}; open release on GitHub`}
-      title="View this version on GitHub"
-    >
-      <span className="versionSelectorCurrent">
-        <span className="versionTag">{releaseTag}</span>
-        {statusLabel ? (
-          <>
-            <span className="versionReleaseSeparator" aria-hidden="true">·</span>
-            <span className={`versionReleaseStatus versionReleaseStatus--${status}`}>{statusLabel}</span>
-          </>
-        ) : null}
-      </span>
-      <ExternalLink className="versionSelectorChevron" size={13} aria-hidden="true" />
-    </a>
+    <div className="versionSelectorWrap" ref={wrapperRef}>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="versionSelectorShell"
+        aria-label={`Reactily ${shownTag}; choose a release`}
+        aria-expanded={isOpen}
+        aria-controls="reactily-release-options"
+        onClick={() => setIsOpen((open) => !open)}
+      >
+        <span className="versionSelectorCurrent">
+          <span className="versionTag">{shownTag}</span>
+          {latestStable ? (
+            <>
+              <span className="versionReleaseSeparator" aria-hidden="true">·</span>
+              <span className="versionReleaseStatus versionReleaseStatus--latest">Latest</span>
+            </>
+          ) : null}
+        </span>
+        <ChevronDown className="versionSelectorChevron" size={14} aria-hidden="true" />
+      </button>
+      {isOpen ? (
+        <nav className="versionReleaseMenu" id="reactily-release-options" aria-label="Reactily releases">
+          <span className="versionReleaseMenuHeading">Release channels</span>
+          {latestStable ? (
+            <a
+              className="versionReleaseOption"
+              href={latestStable.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="versionReleaseOptionStatus versionReleaseOptionStatus--latest">Latest</span>
+              <span className="versionReleaseOptionTag">{latestStable.tag_name}</span>
+              <ExternalLink size={13} aria-hidden="true" />
+            </a>
+          ) : null}
+          {latestPrerelease ? (
+            <a
+              className="versionReleaseOption"
+              href={latestPrerelease.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="versionReleaseOptionStatus versionReleaseOptionStatus--prerelease">Pre-release</span>
+              <span className="versionReleaseOptionTag">{latestPrerelease.tag_name}</span>
+              <ExternalLink size={13} aria-hidden="true" />
+            </a>
+          ) : null}
+          {!latestStable && !latestPrerelease ? (
+            <>
+              {loading ? <span className="versionReleaseMenuInfo">Loading releases…</span> : null}
+              <a
+                className="versionReleaseOption"
+                href={fallbackUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="versionReleaseOptionTag">{fallbackTag}</span>
+                <ExternalLink size={13} aria-hidden="true" />
+              </a>
+            </>
+          ) : null}
+        </nav>
+      ) : null}
+    </div>
   );
 }

@@ -27,6 +27,8 @@ export function ChangelogPage() {
   const [status, setStatus] = useState<LoadStatus>("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [refreshCount, setRefreshCount] = useState(0);
+  const latestStable = releases.find((release) => !release.prerelease);
+
 
   useEffect(() => {
     const controller = new AbortController();
@@ -57,7 +59,7 @@ export function ChangelogPage() {
           Every update directly from the{" "}
           <a href="https://github.com/lily-studios/Reactily/releases" target="_blank" rel="noopener noreferrer">
             Reactily GitHub releases
-          </a>. Browse the complete release notes from v1.1.0 to the newest published version.
+          </a>. Browse all published releases, including pre-releases and named versions.
         </p>
       </header>
 
@@ -85,7 +87,7 @@ export function ChangelogPage() {
 
       {status === "ready" && releases.length === 0 ? (
         <section className="container changelogMessage" role="status">
-          No published releases at or after v1.1.0 were found on GitHub.
+          No published GitHub releases were found.
         </section>
       ) : null}
 
@@ -94,11 +96,15 @@ export function ChangelogPage() {
           <nav className="changelogJump" aria-label="Jump to release">
             <div className="changelogJumpHeading">Versions</div>
             <ol>
-              {releases.map((release, index) => (
+              {releases.map((release) => (
                 <li key={release.id}>
                   <a href={`#release-${release.id}`}>
                     <span>{release.tag_name}</span>
-                    {index === 0 ? <span className="changelogLatest">Latest</span> : null}
+                    {release.prerelease ? (
+                      <span className="changelogPrerelease">Pre-release</span>
+                    ) : release.id === latestStable?.id ? (
+                      <span className="changelogLatest">Latest</span>
+                    ) : null}
                   </a>
                 </li>
               ))}
@@ -114,7 +120,7 @@ export function ChangelogPage() {
               <span><ArrowDown size={14} /> Newest first</span>
             </div>
 
-            {releases.map((release, index) => (
+            {releases.map((release) => (
               <article
                 className="changelogEntry"
                 key={release.id}
@@ -125,8 +131,11 @@ export function ChangelogPage() {
                   <div>
                     <div className="changelogEntryMeta">
                       <span>{releaseDate(release.published_at)}</span>
-                      {index === 0 ? <span className="changelogLatest">Latest release</span> : null}
-                      {release.prerelease ? <span className="changelogPrerelease">Pre-release</span> : null}
+                      {release.prerelease ? (
+                        <span className="changelogPrerelease">Pre-release</span>
+                      ) : release.id === latestStable?.id ? (
+                        <span className="changelogLatest">Latest stable</span>
+                      ) : null}
                     </div>
                     <h2 id={`release-heading-${release.id}`}>{release.name || `Reactily ${release.tag_name}`}</h2>
                   </div>
