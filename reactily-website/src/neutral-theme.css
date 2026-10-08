@@ -686,3 +686,78 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
   :root .experimentalFlag { margin-left: 8px; }
   .apiFunctionLabel { flex-wrap: wrap; gap: 4px 8px; }
 }
+
+/* Version selector actions and release-specific documentation. */
+.versionReleasePick {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+.versionReleasePick > svg { margin-left: auto; flex-shrink: 0; }
+.versionReleaseGitHub {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 6px;
+  color: var(--muted);
+}
+.versionReleaseGitHub:hover { color: var(--text); background: var(--accent-soft); }
+.versionReleaseMenu { max-height: min(65vh, 480px); overflow-y: auto; }
+:root .headerActions .versionSelectorShell .versionReleaseStatus--experimental { color: #c6adff; }
+:root[data-theme="light"] .headerActions .versionSelectorShell .versionReleaseStatus--experimental { color: #7251a8; }
+.versionDocsMessage {
+  padding: 24px;
+  margin-block: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted-strong);
+  background: var(--surface);
+  font-size: 14px;
+}
+.versionDocsCaption { color: var(--muted); font-size: 13px; margin-block: 12px 20px; }
+.deprecatedFlag {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 10px;
+  padding: 3px 8px;
+  border: 1px solid #b58a56;
+  border-radius: 6px;
+  color: #f0c17f;
+  font-family: var(--font-reading);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+:root[data-theme="light"] .deprecatedFlag { color: #8a551e; border-color: #b58a56; }
+.deprecatedFlag--small { font-size: 10px; padding: 2px 6px; margin-left: 0; }
+:root .deprecatedNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 0 0 20px;
+  padding: 13px 16px;
+  border: 1px solid var(--border);
+  border-left: 3px solid #b58a56;
+  border-radius: 9px;
+  background: var(--bg-soft);
+  color: var(--muted-strong);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.deprecatedNotice > svg { color: #f0c17f; flex: 0 0 auto; margin-top: 2px; }
+:root[data-theme="light"] .deprecatedNotice > svg { color: #8a551e; }
+.deprecatedNotice strong { color: var(--text); }
+.deprecatedNotice p { margin: 4px 0 0; }
+.apiFunctionLabel { display: inline-flex; gap: 8px; align-items: center; min-width: 0; }
+.apiFunctionLabel code { min-width: 0; overflow: hidden; text-overflow: ellipsis; }

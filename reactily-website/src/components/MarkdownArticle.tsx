@@ -7,6 +7,7 @@ import { Link } from "react-router";
 import remarkGfm from "remark-gfm";
 import type { DocRecord } from "../lib/docs";
 import { headingId, resolveDocHref } from "../lib/docs";
+import { useVersionedDocs } from "../lib/versioned-docs";
 
 const LUAU_KEYWORDS = new Set([
   "and",
@@ -294,6 +295,7 @@ function CopyablePre({ children }: { readonly children?: ReactNode }) {
 }
 
 export function MarkdownArticle({ doc }: { readonly doc: DocRecord }) {
+  const { path } = useVersionedDocs();
   const components: Components = {
     h2({ children }) {
       const text = flattenText(children);
@@ -326,7 +328,7 @@ export function MarkdownArticle({ doc }: { readonly doc: DocRecord }) {
         return <a href={resolved}>{children}</a>;
       }
 
-      return <Link to={resolved}>{children}</Link>;
+      return <Link to={path(resolved)}>{children}</Link>;
     },
   };
 

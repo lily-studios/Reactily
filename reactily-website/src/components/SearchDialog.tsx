@@ -2,7 +2,8 @@ import { ArrowDown, ArrowUp, CornerDownLeft, FileText, Search, X } from "lucide-
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent, MouseEvent } from "react";
 import { useNavigate } from "react-router";
-import { docs, labelForCategory } from "../lib/docs";
+import { labelForCategory } from "../lib/docs";
+import { useVersionedDocs } from "../lib/versioned-docs";
 
 export type SearchDialogProps = {
   readonly open: boolean;
@@ -15,6 +16,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const resultRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const navigate = useNavigate();
+  const { docs, path } = useVersionedDocs();
 
   const results = useMemo(() => {
     const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -34,7 +36,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
       .sort((a, b) => b.score - a.score)
       .slice(0, 10)
       .map((entry) => entry.doc);
-  }, [query]);
+  }, [query, docs]);
 
   useEffect(() => {
     if (!open) return;
@@ -51,7 +53,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const selectResult = (index: number): void => {
     const doc = results[index];
     if (!doc) return;
-    navigate(doc.slug);
+    navigate(path(doc.slug));
     onClose();
   };
 

@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes, useLocation } from "react-router";
+import { VersionedDocsProvider } from "./lib/versioned-docs";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { ApiPage } from "./pages/ApiPage";
@@ -6,7 +7,7 @@ import { ChangelogPage } from "./pages/ChangelogPage";
 import { DocPage } from "./pages/DocPage";
 import { HomePage } from "./pages/HomePage";
 
-export function App() {
+function AppView() {
   const location = useLocation();
   const isDocs = location.pathname.startsWith("/docs/");
 
@@ -23,4 +24,8 @@ export function App() {
       {!isDocs ? <Footer /> : null}
     </div>
   );
+}
+
+export function App() {
+  return <VersionedDocsProvider><AppView /></VersionedDocsProvider>;
 }

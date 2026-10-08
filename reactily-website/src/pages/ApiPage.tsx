@@ -2,11 +2,15 @@ import { ArrowRight, Box, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
 import { Link } from "react-router";
-import { apiGroups } from "../lib/docs";
+import { isDocDeprecated, makeApiGroups } from "../lib/docs";
+import { useVersionedDocs } from "../lib/versioned-docs";
 import { reactilyRuntime } from "../lib/runtime";
 
 export function ApiPage() {
   const [query, setQuery] = useState("");
+  const { tag, docs, status, error, path } = useVersionedDocs();
+  const apiGroups = useMemo(() => makeApiGroups(docs), [docs]);
+  const apiCount = apiGroups.reduce((sum, group) => sum + group.docs.length, 0);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
 
   const groups = useMemo(() => {
@@ -18,7 +22,7 @@ export function ApiPage() {
         docs: group.docs.filter((doc) => doc.searchableText.includes(normalized)),
       }))
       .filter((group) => group.docs.length > 0 || group.label.toLowerCase().includes(normalized));
-  }, [query]);
+  }, [query, apiGroups]);
 
   const toggleGroup = (id: string): void => {
     setExpanded((current) => {
@@ -37,11 +41,11 @@ export function ApiPage() {
           <div className="apiHeroGrid">
             <div>
               <h1>Reactily API</h1>
-              <p>Find the right function, learn what it does, and follow its usage examples. This reference follows Reactily v{reactilyRuntime.version}.</p>
+              <p>Find the right function, learn what it does, and follow its usage examples. This reference follows Reactily {tag ?? `v${reactilyRuntime.version}`}.</p>
             </div>
             <div className="apiStatCard">
-              <strong>{reactilyRuntime.apiExportCount}</strong>
-              <span>runtime exports documented · {reactilyRuntime.apiTypeCount} public types</span>
+              <strong>{tag ? apiCount : reactilyRuntime.apiExportCount}</strong>
+              <span>{tag ? "Public API pages in this release" : `Runtime exports · ${reactilyRuntime.apiTypeCount} public types`}</span>
             </div>
           </div>
           <label className="apiSearch">
@@ -51,7 +55,10 @@ export function ApiPage() {
         </div>
       </section>
 
-      <section className="container apiGroupsGrid" aria-label="API categories">
+      {status === "loading" ? <div className="container versionDocsMessage" role="status">Loading {tag} documentation…</div> : null}
+      {status === "error" ? <div className="container versionDocsMessage" role="alert">{error}</div> : null}
+      {status === "ready" && tag ? <p className="container versionDocsCaption">Documented APIs for Reactily {tag}. Other releases may have different APIs.</p> : null}
+      {status === "ready" ? <section className="container apiGroupsGrid" aria-label="API categories">
         {groups.map((group) => (
           <article className="apiGroupCard" key={group.id}>
             <div className="apiGroupHeader">
@@ -63,10 +70,11 @@ export function ApiPage() {
             </div>
             <div className="apiFunctionList">
               {(query.trim() || expanded.has(group.id) ? group.docs : group.docs.slice(0, 6)).map((doc) => (
-                <Link key={doc.id} to={doc.slug}>
+                <Link key={doc.id} to={path(doc.slug)}>
                   <span className="apiFunctionLabel">
                     <code>{doc.title}</code>
                     {doc.experimental ? <span className="experimentalFlag experimentalFlag--small">Experimental</span> : null}
+                    {isDocDeprecated(doc, tag ?? `v${reactilyRuntime.version}`) ? <span className="deprecatedFlag deprecatedFlag--small">Deprecated</span> : null}
                   </span>
                   <ArrowRight size={14} />
                 </Link>
@@ -80,7 +88,7 @@ export function ApiPage() {
           </article>
         ))}
         {groups.length === 0 ? <div className="apiNoResults">No API entries matched “{query}”.</div> : null}
-      </section>
+      </section> : null}
     </main>
   );
 }

@@ -6,6 +6,7 @@ import { applyTheme, getInitialTheme } from "../lib/theme";
 import { Brand } from "./Brand";
 import { SearchDialog } from "./SearchDialog";
 import { VersionSelector } from "./VersionSelector";
+import { useVersionedDocs } from "../lib/versioned-docs";
 
 const navigation = [
   { label: "Learn", href: "/docs/intro", section: "learn" },
@@ -16,6 +17,7 @@ const navigation = [
 
 export function Header() {
   const { pathname } = useLocation();
+  const { path } = useVersionedDocs();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -58,7 +60,7 @@ export function Header() {
   const links = (mobile: boolean) => navigation.map((item) => (
     <Link
       key={item.section}
-      to={item.href}
+      to={path(item.href)}
       className={activeSection === item.section ? "active" : undefined}
       aria-current={activeSection === item.section ? "page" : undefined}
       onClick={mobile ? () => setMobileOpen(false) : undefined}

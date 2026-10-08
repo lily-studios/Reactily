@@ -5,6 +5,12 @@ export type DocFrontmatter = {
   readonly description?: string;
   readonly sidebarPosition?: number;
   readonly experimental?: boolean;
+  readonly since?: string;
+  readonly removedIn?: string;
+  readonly deprecated?: boolean;
+  readonly deprecatedSince?: string;
+  readonly deprecationMessage?: string;
+  readonly replacement?: string;
 };
 
 export type DocRecord = {
@@ -18,6 +24,13 @@ export type DocRecord = {
   readonly body: string;
   readonly searchableText: string;
   readonly experimental: boolean;
+  readonly since?: string;
+  readonly removedIn?: string;
+  readonly deprecated: boolean;
+  readonly deprecatedSince?: string;
+  readonly deprecationMessage?: string;
+  readonly replacement?: string;
+  readonly archivePath?: string;
 };
 
 export type DocGroup = {
@@ -50,6 +63,7 @@ const categoryLabels: Readonly<Record<string, string>> = {
   state: "State & Stores",
   "theme-style": "Theme & Style",
   "typed-creators": "Typed Creators",
+  legacy: "Version 1.1 public API",
   "virtual-tree": "Virtual Tree & Roots",
   virtualization: "Virtualization",
 };
@@ -101,6 +115,12 @@ function parseFrontmatter(source: string): { frontmatter: DocFrontmatter; body: 
       ...(values.description ? { description: values.description } : {}),
       sidebarPosition: Number.isFinite(position) ? position : Number.POSITIVE_INFINITY,
       experimental: values.experimental?.toLowerCase() === "true",
+      ...(values.since ? { since: values.since } : {}),
+      ...(values.removed_in ? { removedIn: values.removed_in } : {}),
+      deprecated: values.deprecated?.toLowerCase() === "true",
+      ...(values.deprecated_since ? { deprecatedSince: values.deprecated_since } : {}),
+      ...(values.deprecation_message ? { deprecationMessage: values.deprecation_message } : {}),
+      ...(values.replacement ? { replacement: values.replacement } : {}),
     },
     body,
   };
@@ -153,7 +173,7 @@ function categoryFor(path: string): string {
   return parts[0] ?? "other";
 }
 
-function createDoc(path: string, source: string): DocRecord {
+export function createDoc(path: string, source: string): DocRecord {
   const { frontmatter, body: rawBody } = parseFrontmatter(source);
   const fallbackTitle = firstHeading(rawBody) ?? titleCase(path.split("/").at(-1)?.replace(/\.md$/, "") ?? "Document");
   const title = frontmatter.title ?? fallbackTitle;
@@ -171,7 +191,13 @@ function createDoc(path: string, source: string): DocRecord {
     category,
     body,
     experimental: frontmatter.experimental ?? false,
-    searchableText: `${title} ${description} ${body} ${frontmatter.experimental ? "experimental" : ""}`.toLowerCase(),
+    deprecated: frontmatter.deprecated ?? false,
+    ...(frontmatter.since ? { since: frontmatter.since } : {}),
+    ...(frontmatter.removedIn ? { removedIn: frontmatter.removedIn } : {}),
+    ...(frontmatter.deprecatedSince ? { deprecatedSince: frontmatter.deprecatedSince } : {}),
+    ...(frontmatter.deprecationMessage ? { deprecationMessage: frontmatter.deprecationMessage } : {}),
+    ...(frontmatter.replacement ? { replacement: frontmatter.replacement } : {}),
+    searchableText: `${title} ${description} ${body} ${frontmatter.experimental ? "experimental" : ""} ${frontmatter.deprecated ? "deprecated" : ""}`.toLowerCase(),
   };
 }
 
@@ -190,20 +216,54 @@ export const guideDocs: readonly DocRecord[] = docs.filter((doc) => doc.category
 export const referenceDocs: readonly DocRecord[] = docs.filter((doc) => doc.category === "reference");
 export const apiDocs: readonly DocRecord[] = docs.filter((doc) => doc.sourcePath.startsWith("api/"));
 
-const apiDocsByCategory = apiDocs.reduce<Record<string, DocRecord[]>>((groups, doc) => {
+export function makeApiGroups(records: readonly DocRecord[]): readonly DocGroup[] {
+  const apiDocsByCategory = records.filter((doc) => doc.sourcePath.startsWith("api/")).reduce<Record<string, DocRecord[]>>((groups, doc) => {
   const group = groups[doc.category] ?? [];
   group.push(doc);
   groups[doc.category] = group;
   return groups;
 }, {});
 
-export const apiGroups: readonly DocGroup[] = Object.entries(apiDocsByCategory)
-  .map(([id, groupDocs]) => ({
-    id,
-    label: categoryLabels[id] ?? titleCase(id),
-    docs: [...groupDocs].sort((a, b) => a.title.localeCompare(b.title)),
-  }))
-  .sort((a, b) => a.label.localeCompare(b.label));
+  return Object.entries(apiDocsByCategory)
+    .map(([id, groupDocs]) => ({
+      id,
+      label: categoryLabels[id] ?? titleCase(id),
+      docs: [...groupDocs].sort((a, b) => a.title.localeCompare(b.title)),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+export const apiGroups: readonly DocGroup[] = makeApiGroups(docs);
+
+/** Compare numeric release tags; other names only match literally. */
+export function compareDocVersions(a: string, b: string): number | null {
+  const normalize = (tag: string): number[] | null => {
+    const match = /^(?:v\\.?)?(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(?:[-+].*)?$/i.exec(tag);
+    return match ? [Number(match[1]), Number(match[2] ?? 0), Number(match[3] ?? 0)] : null;
+  };
+  const left = normalize(a);
+  const right = normalize(b);
+  if (!left || !right) return a === b ? 0 : null;
+  for (let i = 0; i < 3; i += 1) {
+    const difference = (left[i] ?? 0) - (right[i] ?? 0);
+    if (difference !== 0) return difference;
+  }
+  return 0;
+}
+
+/** Version annotations are optional; tagged archives remain the source of truth. */
+export function isDocAvailable(doc: DocRecord, tag: string): boolean {
+  const since = doc.since ? compareDocVersions(tag, doc.since) : null;
+  const removed = doc.removedIn ? compareDocVersions(tag, doc.removedIn) : null;
+  return (since === null || since >= 0) && (removed === null || removed < 0);
+}
+
+export function isDocDeprecated(doc: DocRecord, tag: string): boolean {
+  if (doc.deprecated) return true;
+  if (!doc.deprecatedSince) return false;
+  const comparison = compareDocVersions(tag, doc.deprecatedSince);
+  return comparison !== null && comparison >= 0;
+}
 
 export function labelForCategory(category: string): string {
   return categoryLabels[category] ?? titleCase(category);

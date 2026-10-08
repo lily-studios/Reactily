@@ -1,7 +1,8 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router";
-import { apiGroups, conceptDocs, guideDocs, referenceDocs, startDocs } from "../lib/docs";
+import { makeApiGroups } from "../lib/docs";
+import { useVersionedDocs } from "../lib/versioned-docs";
 import type { DocGroup, DocRecord } from "../lib/docs";
 
 type NavigationProps = {
@@ -13,12 +14,13 @@ type DocLinksProps = NavigationProps & {
 };
 
 function DocLinks({ docs, onNavigate }: DocLinksProps) {
+  const { path } = useVersionedDocs();
   return (
     <div className="sidebarLinks">
       {docs.map((doc) => (
         <NavLink
           key={doc.id}
-          to={doc.slug}
+          to={path(doc.slug)}
           end
           onClick={onNavigate}
           className={({ isActive }) => isActive ? "active" : undefined}
@@ -70,6 +72,12 @@ function ApiGroup({ group, onNavigate }: NavigationProps & { readonly group: Doc
 
 export function DocsSidebar({ onNavigate }: NavigationProps) {
   const { pathname } = useLocation();
+  const { docs } = useVersionedDocs();
+  const startDocs = docs.filter((doc) => doc.category === "start");
+  const conceptDocs = docs.filter((doc) => doc.category === "concepts");
+  const guideDocs = docs.filter((doc) => doc.category === "guides");
+  const referenceDocs = docs.filter((doc) => doc.category === "reference");
+  const apiGroups = makeApiGroups(docs);
   const isApiRoute = pathname.startsWith("/docs/api/");
   const [apiOpen, setApiOpen] = useState(isApiRoute);
 
