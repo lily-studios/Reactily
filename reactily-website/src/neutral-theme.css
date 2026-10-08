@@ -93,18 +93,112 @@ body { font-size: 15px; line-height: 1.65; }
 :root .brandMark { color: #151515; background: #dedede; }
 :root[data-theme="light"] .brandMark { color: #ffffff; background: #303030; }
 ::selection { background: #777777; color: #ffffff; }
-/* Neutralize legacy colored syntax UI only; keep colored tokenization readable. */
-:root .terminalCard, :root .markdownBody .codeBlock {
-  --code-bg: #1c1c1f;
-  --code-header: #262629;
-  --code-border: #3b3b40;
-  --code-text: #ebebee;
+/* Shared, strictly neutral terminal palette for every theme and code block. */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --code-bg: #1c1c1c;
+  --code-header: #262626;
+  --code-border: #3b3b3b;
+  --code-text: #ededed;
 }
-:root .markdownBody blockquote { background: var(--bg-soft); border-left-color: var(--border-strong); }
-:root .codeChrome i:first-child, :root .codeDots i:first-child,
-:root .codeDots i:nth-child(2), :root .codeDots i:nth-child(3),
-:root .terminalDots i:first-child, :root .terminalDots i:nth-child(2),
-:root .terminalDots i:nth-child(3) { background: #747474; }
+
+:root .terminalCard,
+:root[data-theme="light"] .terminalCard,
+:root .markdownBody .codeBlock,
+:root[data-theme="light"] .markdownBody .codeBlock,
+:root .heroCodeCard,
+:root[data-theme="light"] .heroCodeCard {
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 1px solid var(--code-border);
+  border-radius: 16px;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+:root .terminalCard .terminalTopbar,
+:root[data-theme="light"] .terminalCard .terminalTopbar,
+:root .markdownBody .codeBlock .codeChrome,
+:root[data-theme="light"] .markdownBody .codeBlock .codeChrome,
+:root .heroCodeCard .codeCardHeader,
+:root .heroCodeCard .codeCardFooter {
+  background: var(--code-header);
+  color: #c9c9c9;
+  border-color: var(--code-border);
+}
+
+:root .terminalCard .terminalCode,
+:root[data-theme="light"] .terminalCard .terminalCode,
+:root .terminalCard .terminalCode code,
+:root[data-theme="light"] .terminalCard .terminalCode code,
+:root .markdownBody .codeBlock pre,
+:root[data-theme="light"] .markdownBody .codeBlock pre,
+:root .markdownBody .codeBlock pre code,
+:root[data-theme="light"] .markdownBody .codeBlock pre code,
+:root .heroCodeCard pre,
+:root[data-theme="light"] .heroCodeCard pre {
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 0;
+  box-shadow: none;
+}
+
+:root .markdownBody .codeBlock pre code,
+:root[data-theme="light"] .markdownBody .codeBlock pre code {
+  padding: 0;
+  font-family: var(--font-code);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* Syntax highlighting is gray too: no hidden blue, teal, or purple tones. */
+:root .terminalCard .syntax-keyword,
+:root .markdownBody .codeBlock .syntax-keyword { color: #f2f2f2; font-weight: 600; }
+:root .terminalCard .syntax-type,
+:root .markdownBody .codeBlock .syntax-type { color: #d4d4d4; }
+:root .terminalCard .syntax-function,
+:root .markdownBody .codeBlock .syntax-function { color: #ffffff; font-weight: 500; }
+:root .terminalCard .syntax-property,
+:root .markdownBody .codeBlock .syntax-property { color: #c7c7c7; }
+:root .terminalCard .syntax-string,
+:root .markdownBody .codeBlock .syntax-string { color: #bcbcbc; }
+:root .terminalCard .syntax-number,
+:root .markdownBody .codeBlock .syntax-number { color: #e0e0e0; }
+:root .terminalCard .syntax-comment,
+:root .markdownBody .codeBlock .syntax-comment { color: #969696; }
+:root .terminalCard .syntax-constant,
+:root .markdownBody .codeBlock .syntax-constant { color: #e6e6e6; }
+:root .terminalCard .syntax-punctuation,
+:root .markdownBody .codeBlock .syntax-punctuation { color: #bbbbbb; }
+
+:root .markdownBody .codeBlock .codeChrome button {
+  color: #e6e6e6;
+  background: #333333;
+  border-color: #505050;
+}
+:root .markdownBody .codeBlock .codeChrome button:hover { background: #444444; }
+:root .codeChrome i,
+:root .codeDots i,
+:root .terminalDots i { background: #777777; }
+
+/* The home snippet gets a modest bump without enlarging reference snippets. */
+:root .heroSection .terminalCode,
+:root[data-theme="light"] .heroSection .terminalCode {
+  font-family: var(--font-code);
+  font-size: 13.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+
+@media (max-width: 720px) {
+  :root .heroSection .terminalCode,
+  :root[data-theme="light"] .heroSection .terminalCode {
+    font-size: 12px;
+    line-height: 1.65;
+  }
+}
+
 /* Focus and active navigation rely on strong neutral contrast. */
 :where(a,button,input,select,textarea):focus-visible {
   outline: 2px solid var(--accent-strong);
