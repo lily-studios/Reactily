@@ -1,38 +1,57 @@
 ---
 sidebar_position: 1
 title: Rendering
+description: Understand roots, virtual elements, components, and keyed updates.
 ---
 
-# Rendering
+Reactily renders Roblox UI by turning virtual element descriptions into Instances. Your components describe **what the UI should look like**, while the renderer creates and reconciles the actual Roblox objects.
 
-Reactily elements are virtual descriptions. Rendering a tree causes the root reconciler to create, update, move, and delete the Roblox Instances required by that tree.
+## Roots and ownership
 
-## Typed creators
+Start with a `PlayerGui`, `SurfaceGui`, or another appropriate Roblox parent. A [render root](/docs/api/virtual-tree/create-root) owns the Reactily tree mounted underneath it.
 
-Prefer class-specific creators:
 ```luau
-Reactily.createFrame({
-	Size = UDim2.fromScale(1, 1),
-	BackgroundTransparency = .15,
-})
+local Root = Reactily.createRoot(PlayerGui)
+Root.render(Reactily.createFrame({
+    Size = UDim2.fromOffset(320, 180),
+}))
 ```
-Use `createElement()` when a generic class name is genuinely useful.
 
-## Components
+## Virtual elements and typed creators
 
-Function components return elements:
+Typed creators such as `createFrame`, `createTextLabel`, and `createTextButton` describe Roblox GUI objects. These calls do not immediately create Instances.
+
+All Roblox host properties use **PascalCase**.
+
+## Function components
+
+A component is a Luau function that returns an element. Use components to group and reuse UI behavior.
+
 ```luau
-local function greeting(): Reactily.Element
-	return Reactily.createTextLabel({
-		Text = "Hello",
-		Size = UDim2.fromOffset(180, 40),
-	})
+type GreetingProps = {
+    Name: string,
+}
+
+local function Greeting(props: GreetingProps): Reactily.Element
+    return Reactily.createTextLabel({
+        Size = UDim2.fromOffset(240, 44),
+        Text = `Hello, {props.Name}`,
+    })
 end
-```
-## Keys
 
-Use stable keys when children can be reordered. Keys let reconciliation preserve identity instead of treating a reordered entry as a brand-new element.
+Root.render(Reactily.createComponent(Greeting, { Name = "Lily" }))
+```
+
+Components can use hooks such as [useState](/docs/api/hooks/use-state) to update UI from local state.
+
+## Reconciliation and keys
+
+When you render a new virtual tree, Reactily compares it with the previous one instead of blindly remounting every object. For lists whose items move, insert, or disappear, provide stable keys so item identities survive reordering.
 
 ## Portals
 
-Portals render a subtree under another Roblox parent without moving the component's logical ownership.
+A portal renders a subtree into a different Roblox parent while maintaining the logical relationship of the component tree. Use it for overlays or UI hosted outside the normal parent.
+
+## Cleanup
+
+Call `Root.delete()` to release the root. For more detail see [Lifecycle](/docs/concepts/lifecycle) and [Examples](/docs/guides/examples).
