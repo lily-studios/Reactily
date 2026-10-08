@@ -415,9 +415,6 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
 .headerActions .versionSelectorShell .versionReleaseStatus {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px;
-  border: 1px solid transparent;
-  border-radius: 999px;
   font-family: var(--font-reading);
   font-size: 12px;
   font-weight: 800;
@@ -426,28 +423,19 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
   white-space: nowrap;
 }
 
-/* Dark mode: bright green for stable, warm amber for prerelease. */
+/* Color the release status text without a badge background or border. */
 :root .headerActions .versionSelectorShell .versionReleaseStatus--latest {
   color: #65eda3;
-  background-color: #173a28;
-  border-color: #347953;
 }
 
 :root .headerActions .versionSelectorShell .versionReleaseStatus--prerelease {
   color: #ffd27c;
-  background-color: #3c2b12;
-  border-color: #99712d;
 }
 
-/* Light mode retains a legible dark foreground and soft status tint. */
 :root[data-theme="light"] .headerActions .versionSelectorShell .versionReleaseStatus--latest {
   color: #145d36;
-  background-color: #e2f5e8;
-  border-color: #9cceb0;
 }
 
 :root[data-theme="light"] .headerActions .versionSelectorShell .versionReleaseStatus--prerelease {
   color: #85520e;
-  background-color: #fff0d3;
-  border-color: #e2c185;
 }
