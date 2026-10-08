@@ -2614,14 +2614,14 @@ kbd {
   display: grid;
   grid-template-columns: 1fr;
   align-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: 14px;
-  background: var(--surface);
+  background: transparent;
 }
 
 .versionSelectorShell:hover {
-  border-color: var(--border-strong);
-  background: var(--surface-strong);
+  border-color: transparent;
+  background: transparent;
 }
 
 .versionSelectorShell:focus-visible {
