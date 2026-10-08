@@ -15,6 +15,7 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/New_York"
+<<<<<<< Updated upstream
     open-pull-requests-limit: 5
     groups:
       minor-and-patch:
@@ -26,6 +27,22 @@ updates:
     commit-message:
       prefix: "deps"
 
+=======
+
+    open-pull-requests-limit: 5
+
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    commit-message:
+      prefix: "deps"
+
+>>>>>>> Stashed changes
   # Reactily Website
   - package-ecosystem: "npm"
     directory: "/reactily-website"
@@ -34,7 +51,13 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/New_York"
+<<<<<<< Updated upstream
     open-pull-requests-limit: 5
+=======
+
+    open-pull-requests-limit: 5
+
+>>>>>>> Stashed changes
     groups:
       minor-and-patch:
         patterns:
@@ -42,5 +65,9 @@ updates:
         update-types:
           - "minor"
           - "patch"
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     commit-message:
       prefix: "deps"
