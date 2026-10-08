@@ -58,7 +58,7 @@ npm run build
 
 ## GitHub Pages deployment
 
-The workflow in `.github/workflows/pages.yml` installs the lockfile, runs the full verification suite, and deploys `dist` with the official Pages actions. In repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. Pull requests run the build checks without deploying.
+The workflow in `.github/workflows/deploy.yml` installs the lockfile, runs the full verification suite, and deploys `dist` with the official Pages actions. In repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. Pushes to `main` affecting the website or workflow trigger verification and deployment. The workflow can also be started manually.
 
 ## Toolchain
 
