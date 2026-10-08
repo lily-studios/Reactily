@@ -3597,3 +3597,51 @@ body {
 :root .markdownBody .codeBlock .syntax-punctuation,
 :root[data-theme="light"] .markdownBody .codeBlock .syntax-punctuation,
 :root .terminalCard .syntax-punctuation { color: #dee5f0; }
+
+
+/* Balanced header and wider, more connected content. */
+:root { --header-height: 64px; }
+.headerInner { width: min(1390px,calc(100% - 40px)); grid-template-columns: minmax(140px,.65fr) minmax(350px,1.1fr) minmax(0,1.5fr); gap: 14px; }
+.desktopNav { justify-self: center; width: 100%; max-width: 440px; }
+.desktopNav a { flex: 1; white-space: nowrap; padding: 7px 11px; }
+.headerActions { min-width: 0; justify-self: stretch; justify-content: flex-end; gap: 7px; }
+.headerGitHub { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 88px; height: 38px; padding: 0 11px; background: var(--surface); color: var(--muted-strong); border: 1px solid var(--border); border-radius: 9px; text-decoration: none; font-size: 12px; font-weight: 600; transition: background-color 180ms ease,border-color 180ms ease; }
+.headerGitHub:hover { background: var(--surface-strong); border-color: var(--border-strong); }
+.versionSelectorShell { min-width: 161px; height: 38px; }
+.searchButton { flex: 1 1 180px; max-width: 280px; min-width: 100px; height: 38px; justify-content: flex-start; padding-inline: 12px; }
+.searchButton kbd { margin-left: auto; }
+.iconButton { width: 38px; height: 38px; }
+.container { width: min(1280px,calc(100% - 40px)); }
+.heroSection .heroLayout { grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: clamp(22px,3vw,42px); }
+.heroSection .heroCopy > p { max-width: 685px; }
+.heroSection .heroVisualColumn { width: 100%; }
+.apiSearch { max-width: 900px; }
+.apiHeroGrid { gap: 24px; }
+.docsShell { grid-template-columns: minmax(220px,265px) minmax(0,880px) minmax(175px,215px); }
+.docsArticle { padding-inline: clamp(20px,3vw,42px); }
+@media (max-width: 1270px) {
+  .headerInner { grid-template-columns: auto minmax(270px,1fr) auto; }
+  .headerGitHub { min-width: 38px; width: 38px; padding: 0; }
+  .headerGitHub span { display: none; }
+  .searchButton { flex: 0 0 38px; width: 38px; min-width: 38px; padding: 0; justify-content: center; }
+  .searchButton span,.searchButton kbd { display: none; }
+}
+@media (max-width: 1180px) {
+  .docsShell { grid-template-columns: 250px minmax(0,1fr); max-width: 1080px; margin-inline: auto; }
+  .tableOfContents { display: none; }
+}
+@media (max-width: 980px) {
+  .headerInner { grid-template-columns: minmax(0,1fr) auto; }
+  .desktopNav { display: none; }
+  .headerActions { justify-self: end; }
+  .heroSection .heroLayout { grid-template-columns: 1fr; }
+  .heroSection .heroVisualColumn { max-width: 740px; }
+}
+@media (max-width: 720px) {
+  .headerGitHub { display: none; }
+  .versionSelectorShell { min-width: 135px; }
+  .container { width: calc(100% - 30px); }
+  .docsShell { display: block; }
+}
+@media (max-width: 470px) { .versionSelectorShell { display: none; } }
+@media (prefers-reduced-motion:reduce) { .headerGitHub { transition: none; } }
