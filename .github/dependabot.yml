@@ -1,0 +1,80 @@
+
+# ============================================================
+# Reactily · Lily Studios
+# Dependabot Configuration
+# ============================================================
+
+version: 2
+
+updates:
+  # ----------------------------------------------------------
+  # Reactily Dependencies
+  # ----------------------------------------------------------
+
+  - package-ecosystem: "npm"
+    directory: "/"
+
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+
+    open-pull-requests-limit: 5
+
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    commit-message:
+      prefix: "deps"
+
+  # ----------------------------------------------------------
+  # Reactily Website Dependencies
+  # ----------------------------------------------------------
+
+  - package-ecosystem: "npm"
+    directory: "/reactily-website"
+
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+
+    open-pull-requests-limit: 5
+
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    commit-message:
+      prefix: "deps"
+
+  # ----------------------------------------------------------
+  # GitHub Actions
+  # ----------------------------------------------------------
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      
+    open-pull-requests-limit: 5
+
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+    commit-message:
+      prefix: "ci"
