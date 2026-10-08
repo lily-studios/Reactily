@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router";
 
 import { App } from "./App";
 import "./styles.css";
+import "./refinements.css";
 
 type AppErrorBoundaryProps = {
   readonly children: ReactNode;
