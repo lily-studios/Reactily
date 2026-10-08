@@ -7,6 +7,7 @@ import { reactilyRuntime } from "../lib/runtime";
 
 export function ApiPage() {
   const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
 
   const groups = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -19,6 +20,15 @@ export function ApiPage() {
       .filter((group) => group.docs.length > 0 || group.label.toLowerCase().includes(normalized));
   }, [query]);
 
+  const toggleGroup = (id: string): void => {
+    setExpanded((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   return (
     <main className="apiPage">
       <section className="apiHero">
@@ -27,7 +37,7 @@ export function ApiPage() {
           <div className="apiHeroGrid">
             <div>
               <h1>Reactily API</h1>
-              <p>Reference for Reactily v{reactilyRuntime.version}: runtime exports, public Luau types, signatures, behavior notes, parameters, and examples.</p>
+              <p>Find the right function, learn what it does, and follow its usage examples. This reference follows Reactily v{reactilyRuntime.version}.</p>
             </div>
             <div className="apiStatCard">
               <strong>{reactilyRuntime.apiExportCount}</strong>
@@ -36,12 +46,12 @@ export function ApiPage() {
           </div>
           <label className="apiSearch">
             <Search size={18} />
-            <input value={query} onChange={(event: ChangeEvent<HTMLInputElement>) => setQuery(event.target.value)} placeholder="Filter the API reference…" />
+            <input type="search" aria-label="Search APIs" value={query} onChange={(event: ChangeEvent<HTMLInputElement>) => setQuery(event.target.value)} placeholder="Search functions, types, and usage…" />
           </label>
         </div>
       </section>
 
-      <section className="container apiGroupsGrid">
+      <section className="container apiGroupsGrid" aria-label="API categories">
         {groups.map((group) => (
           <article className="apiGroupCard" key={group.id}>
             <div className="apiGroupHeader">
@@ -52,16 +62,16 @@ export function ApiPage() {
               </div>
             </div>
             <div className="apiFunctionList">
-              {group.docs.slice(0, 6).map((doc) => (
+              {(query.trim() || expanded.has(group.id) ? group.docs : group.docs.slice(0, 6)).map((doc) => (
                 <Link key={doc.id} to={doc.slug}>
                   <code>{doc.title}</code><ArrowRight size={14} />
                 </Link>
               ))}
             </div>
-            {group.docs.length > 6 ? (
-              <Link className="apiMore" to={group.docs[0]?.slug ?? "/docs/intro"}>
-                Browse all {group.docs.length} <ArrowRight size={14} />
-              </Link>
+            {group.docs.length > 6 && !query.trim() ? (
+              <button type="button" className="apiMore" aria-expanded={expanded.has(group.id)} onClick={() => toggleGroup(group.id)}>
+                {expanded.has(group.id) ? "Show fewer" : `Show all ${group.docs.length}`} <ArrowRight size={14} />
+              </button>
             ) : null}
           </article>
         ))}
