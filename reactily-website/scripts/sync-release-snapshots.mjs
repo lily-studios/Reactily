@@ -82,10 +82,12 @@ fs.mkdirSync(folder, { recursive: true });
 const index = [];
 for (const release of await releases()) {
   const tag = release.tag_name;
-  if (!/^[A-Za-z0-9][A-Za-z0-9._/-]{0,150}$/.test(tag) || tag.includes("..") || tag.includes("//")) throw Error("Unsupported Git tag " + tag);
+  if (typeof tag !== "string" || !tag || tag.length > 200) throw Error("Unsupported Git tag " + tag);
   const ref = "refs/tags/" + tag;
+  try { git("check-ref-format", ref); }
+  catch { throw Error("Invalid Git tag " + tag); }
   const sourceSha = git("rev-parse", "--verify", ref + "^{commit}");
-  const destination = path.join(folder, encodeURIComponent(tag) + ".json");
+  const destination = path.join(folder, Buffer.from(tag, "utf8").toString("hex") + ".json");
   if (fs.existsSync(destination) && JSON.parse(fs.readFileSync(destination, "utf8")).sourceSha !== sourceSha) throw Error("Immutable release tag moved: " + tag);
   const snapshot = generateTag(ref, tag);
   if (!snapshot.docs.length || new Set(snapshot.docs.map((item) => item.path)).size !== snapshot.docs.length) throw Error("Invalid snapshot " + tag);
@@ -93,7 +95,7 @@ for (const release of await releases()) {
   index.push({ tag, name: release.name || tag, channel: label(release), publishedAt: release.published_at, url: release.html_url, sourceSha, exportCount: snapshot.exportCount, typeCount: snapshot.typeCount });
   console.log("[snapshots] " + tag + ": " + snapshot.docs.length + " pages from " + snapshot.sourceType);
 }
-const keep = new Set(["index.json", ...index.map((version) => encodeURIComponent(version.tag) + ".json")]);
+const keep = new Set(["index.json", ...index.map((version) => Buffer.from(version.tag, "utf8").toString("hex") + ".json")]);
 for (const file of fs.readdirSync(folder)) if (file.endsWith(".json") && !keep.has(file)) fs.rmSync(path.join(folder, file));
 save(path.join(folder, "index.json"), { schemaVersion: 1, releases: index });
 console.log("[snapshots] Synchronized " + index.length + " immutable release archives.");

@@ -59,7 +59,8 @@ function validIndex(value: unknown): value is DocsIndex {
 }
 
 async function loadSnapshot(release: ArchivedRelease, signal: AbortSignal): Promise<readonly DocRecord[]> {
-  const value = await json(base + encodeURIComponent(release.tag) + ".json", signal);
+  const key = Array.from(new TextEncoder().encode(release.tag), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  const value = await json(base + key + ".json", signal);
   if (!value || typeof value !== "object") throw new Error("Invalid release snapshot.");
   const archive = value as DocsSnapshot;
   if (archive.tag !== release.tag || archive.sourceSha !== release.sourceSha ||
@@ -106,7 +107,11 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
   useEffect(() => {
     if (!ready) return;
     if (!tag) {
-      setData({ tag: null, docs: currentDocs, status: "ready", error: indexError });
+      if (indexError && !development) {
+        setData({ tag: null, docs: [], status: "error", error: indexError });
+      } else {
+        setData({ tag: null, docs: currentDocs, status: "ready", error: null });
+      }
       return;
     }
     const release = index?.releases.find((item) => item.tag === tag);
