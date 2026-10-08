@@ -40,9 +40,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: reactily-website
 
     environment:
       name: github-pages
@@ -71,15 +68,20 @@ jobs:
       # Dependencies
       # ------------------------------------------------------
 
+      - name: Verify Website Build Script
+        run: |
+          test -f reactily-website/package.json
+          node -e 'const pkg = require("./reactily-website/package.json"); if (!pkg.scripts?.build) { throw new Error("Missing build script in reactily-website/package.json"); } console.log("Website build:", pkg.scripts.build);'
+
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --prefix ./reactily-website
 
       # ------------------------------------------------------
       # Build
       # ------------------------------------------------------
 
       - name: Build Documentation
-        run: npm run build
+        run: npm run build --prefix ./reactily-website
 
       # ------------------------------------------------------
       # GitHub Pages
