@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f171a" />
+    <meta name="description" content="Reactily — a typed, React-inspired UI framework for Roblox Luau." />
+    <title>Reactily</title>
+    <script>
+      (function () {
+        try {
+          var redirect = window.sessionStorage.getItem("reactily-spa-redirect");
+          if (redirect) {
+            window.sessionStorage.removeItem("reactily-spa-redirect");
+            window.history.replaceState(null, "", redirect);
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <style>
+      html, body, #root { min-height: 100%; }
+      body { margin: 0; background: #0f171a; color: #eef9fa; }
+      .startupFallback {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        box-sizing: border-box;
+        font: 500 14px/1.5 "Manrope", sans-serif;
+      }
+      .startupFallback > div {
+        width: min(520px, 100%);
+        padding: 22px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 12px;
+        background: #151f23;
+      }
+      .startupFallback strong { display: block; margin-bottom: 6px; font-size: 17px; }
+      .startupFallback span { color: #9db2b7; }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <main class="startupFallback">
+        <div>
+          <strong>Loading Reactily documentation…</strong>
+          <span>If this remains on screen, the startup diagnostic will show the exact module error.</span>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/bootstrap.js"></script>
+  </body>
+</html>

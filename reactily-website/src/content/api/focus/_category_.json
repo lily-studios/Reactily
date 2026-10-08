@@ -1,0 +1,11 @@
+{
+  "label": "Focus & Interaction",
+  "position": 5,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Focus & Interaction API",
+    "description": "Reactily focus & interaction API reference."
+  }
+}

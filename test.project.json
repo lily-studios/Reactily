@@ -1,0 +1,16 @@
+{
+	"name": "ReactilyTests",
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"Reactily": {
+				"$path": "scripts"
+			}
+		},
+		"ServerScriptService": {
+			"ReactilyTests": {
+				"$path": "tests"
+			}
+		}
+	}
+}

@@ -1,0 +1,11 @@
+{
+  "label": "Virtual Tree & Roots",
+  "position": 14,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Virtual Tree & Roots API",
+    "description": "Reactily virtual tree & roots API reference."
+  }
+}

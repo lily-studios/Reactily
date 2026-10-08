@@ -1,0 +1,11 @@
+{
+  "label": "Virtualization",
+  "position": 15,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Virtualization API",
+    "description": "Reactily virtualization API reference."
+  }
+}
