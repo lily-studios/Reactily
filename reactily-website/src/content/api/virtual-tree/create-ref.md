@@ -12,11 +12,11 @@ Creates a mutable Reactily ref object.
 ## Signature
 
 ```luau
-Reactily.createRef<T>(): ref<T?>
+Reactily.createRef<T>(): Ref<T?>
 ```
 
 ## Usage
 
 ```luau
-local ref = Reactily.createRef()
+local Ref = Reactily.createRef()
 ```

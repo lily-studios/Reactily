@@ -11,7 +11,7 @@ Binds a reactive value to a Roblox Attribute with optional two-way synchronizati
 
 ## Signature
 ```luau
-Reactily.bindAttribute<T>(source: binding<T>, instance: Instance, attributeName: string, twoWay: boolean?): () -> ()
+Reactily.bindAttribute<T>(source: Binding<T>, instance: Instance, attributeName: string, twoWay: boolean?): () -> ()
 ```
 ## Usage
 ```luau

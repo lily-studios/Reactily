@@ -1,13 +1,11 @@
 ---
 title: Reactily.useDebugValue
-sidebar_label: useDebugValue
-sidebar_position: 42
 description: Associates a formatted debug value with the currently rendering component.
 ---
 
 # `Reactily.useDebugValue`
 
-Associates a formatted debug value with the currently rendering component.
+Associates a formatted debug value with the currently rendering component. This export is included in Reactily v2.1.0 (API v1).
 
 ## Signature
 
@@ -21,6 +19,4 @@ Reactily.useDebugValue<T>(value: T, formatter: ((value: T) -> any)?)
 Reactily.useDebugValue(value, tostring)
 ```
 
-## Notes
-
-This API is exported by the current unreleased Reactily 1.4.0 development runtime and is safe to use from a function component where the hook rules allow it.
+Use this hook or constructor only in a valid Reactily component/render context, as applicable.

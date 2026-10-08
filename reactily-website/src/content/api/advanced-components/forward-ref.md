@@ -11,14 +11,14 @@ Creates a component wrapper that forwards props.ref to the render callback.
 
 ## Signature
 ```luau
-Reactily.forwardRef(render: (props: any, ref: refTarget<any>?) -> any): any
+Reactily.forwardRef(render: (props: any, Ref: RefTarget<any>?) -> any): any
 ```
 ## Usage
 ```luau
-local input = Reactily.forwardRef(function(props, ref)
+local input = Reactily.forwardRef(function(props, Ref)
 	return Reactily.createTextBox({
-		ref = ref,
-		text = props.text,
+		Ref = Ref,
+		Text = props.text,
 	})
 end)
 ```

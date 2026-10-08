@@ -11,25 +11,25 @@ Creates a typed virtual `ImageButton` element with class-specific prop autocompl
 
 ## Signature
 ```luau
-Reactily.createImageButton(props: imageButtonProps?, children: {element}?): element
+Reactily.createImageButton(props: ImageButtonProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `imageButtonProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `ImageButtonProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createImageButton({
-	size = UDim2.fromOffset(64, 64),
-	image = "rbxassetid://123456789",
-	onActivated = function()
+local Element = Reactily.createImageButton({
+	Size = UDim2.fromOffset(64, 64),
+	Image = "rbxassetid://123456789",
+	OnActivated = function()
 		print("clicked")
 	end,
 })

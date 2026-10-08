@@ -11,21 +11,21 @@ Creates a typed virtual `UIAspectRatioConstraint` element with class-specific pr
 
 ## Signature
 ```luau
-Reactily.createUIAspectRatioConstraint(props: uiAspectRatioConstraintProps?): element
+Reactily.createUIAspectRatioConstraint(props: UIAspectRatioConstraintProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiAspectRatioConstraintProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UIAspectRatioConstraintProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local constraint = Reactily.createUIAspectRatioConstraint({
-	aspectRatio = 16 / 9,
+	AspectRatio = 16 / 9,
 })
 ```

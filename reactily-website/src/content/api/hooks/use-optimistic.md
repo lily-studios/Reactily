@@ -1,13 +1,11 @@
 ---
 title: Reactily.useOptimistic
-sidebar_label: useOptimistic
-sidebar_position: 47
 description: Provides optimistic state derived from a base value and reducer.
 ---
 
 # `Reactily.useOptimistic`
 
-Provides optimistic state derived from a base value and reducer.
+Provides optimistic state derived from a base value and reducer. This export is included in Reactily v2.1.0 (API v1).
 
 ## Signature
 
@@ -23,6 +21,4 @@ local optimistic, dispatch = Reactily.useOptimistic(value, function(current, amo
 end)
 ```
 
-## Notes
-
-This API is exported by the current unreleased Reactily 1.4.0 development runtime and is safe to use from a function component where the hook rules allow it.
+Use this hook or constructor only in a valid Reactily component/render context, as applicable.

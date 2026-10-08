@@ -26,7 +26,7 @@ Reactily.useCallback<T>(callback: T, dependencies: {any}?): T
 
 ## Usage
 ```luau
-local onClick = Reactily.useCallback(function()
+local OnClick = Reactily.useCallback(function()
 	print(selection)
 end, {selection})
 ```

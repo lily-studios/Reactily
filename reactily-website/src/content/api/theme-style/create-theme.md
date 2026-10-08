@@ -11,7 +11,7 @@ Creates change-only typed theme token state.
 
 ## Signature
 ```luau
-Reactily.createTheme<T>(initialValue: T): theme<T>
+Reactily.createTheme<T>(initialValue: T): Theme<T>
 ```
 ## Parameters
 
@@ -21,11 +21,11 @@ Reactily.createTheme<T>(initialValue: T): theme<T>
 
 ## Returns
 
-A `theme<T>`.
+A `Theme<T>`.
 
 ## Usage
 ```luau
-local theme = Reactily.createTheme({
+local Theme = Reactily.createTheme({
 	accent = Color3.fromRGB(80, 120, 255),
 })
 ```

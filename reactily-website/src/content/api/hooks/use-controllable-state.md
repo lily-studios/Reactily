@@ -11,14 +11,14 @@ Creates state that can be controlled by props or managed internally.
 
 ## Signature
 ```luau
-Reactily.useControllableState<T>(options: controllableStateOptions<T>): (T, stateSetter<T>)
+Reactily.useControllableState<T>(options: ControllableStateOptions<T>): (T, StateSetter<T>)
 ```
 ## Usage
 ```luau
 local value, setValue = Reactily.useControllableState({
-	value = props.value,
-	defaultValue = 0,
-	onChanged = props.onChanged,
+	Value = props.value,
+	DefaultValue = 0,
+	OnChanged = props.onChanged,
 })
 ```
 ## Works with

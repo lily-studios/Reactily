@@ -16,5 +16,5 @@ description: Public Reactily Interaction module.
 Binds hover, pressed, focused, and disabled visual states to a GuiObject.
 
 ```luau
-Reactily.Interaction.bind(object: GuiObject, options: interactionOptions): interactionController
+Reactily.Interaction.bind(object: GuiObject, options: InteractionOptions): InteractionController
 ```

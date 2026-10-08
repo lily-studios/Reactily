@@ -11,22 +11,22 @@ Creates a typed virtual `UISizeConstraint` element with class-specific prop auto
 
 ## Signature
 ```luau
-Reactily.createUISizeConstraint(props: uiSizeConstraintProps?): element
+Reactily.createUISizeConstraint(props: UISizeConstraintProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiSizeConstraintProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UISizeConstraintProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local constraint = Reactily.createUISizeConstraint({
-	minSize = Vector2.new(200, 100),
-	maxSize = Vector2.new(800, 600),
+	MinSize = Vector2.new(200, 100),
+	MaxSize = Vector2.new(800, 600),
 })
 ```

@@ -11,11 +11,11 @@ Creates and owns a Reactily binding for the component lifetime.
 
 ## Signature
 ```luau
-Reactily.useBinding<T>(initialValue: T): binding<T>
+Reactily.useBinding<T>(initialValue: T): Binding<T>
 ```
 ## Usage
 ```luau
-local binding = Reactily.useBinding(0)
+local Binding = Reactily.useBinding(0)
 ```
 ## Works with
 

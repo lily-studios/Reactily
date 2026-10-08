@@ -11,18 +11,18 @@ Creates a derived signal by transforming every emitted source value.
 
 ## Signature
 ```luau
-Reactily.mapSignal<A, B>(source: signal<A>, mapper: (value: A) -> B): signal<B>
+Reactily.mapSignal<A, B>(source: Signal<A>, mapper: (value: A) -> B): Signal<B>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `signal<A>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Signal<A>` | Yes | Source Reactily atom, binding, or signal. |
 | `mapper` | `(value: A) -> B` | Yes | Function that transforms one or more source values into the derived value. |
 
 ## Returns
 
-A `signal<B>`.
+A `Signal<B>`.
 
 ## Usage
 ```luau

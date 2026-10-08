@@ -11,13 +11,13 @@ Creates a component-owned spring and updates its target when the input changes.
 
 ## Signature
 ```luau
-Reactily.useSpring<T>(target: T, options: springOptions?): spring<T>
+Reactily.useSpring<T>(target: T, options: SpringOptions?): Spring<T>
 ```
 ## Usage
 ```luau
-local spring = Reactily.useSpring(target, {
-	frequency = 8,
-	damping = 1,
+local Spring = Reactily.useSpring(target, {
+	Frequency = 8,
+	Damping = 1,
 })
 ```
 ## Works with

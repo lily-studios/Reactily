@@ -11,17 +11,17 @@ Creates a derived signal that suppresses consecutive duplicate values.
 
 ## Signature
 ```luau
-Reactily.distinctSignal<T>(source: signal<T>): signal<T>
+Reactily.distinctSignal<T>(source: Signal<T>): Signal<T>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `signal<T>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Signal<T>` | Yes | Source Reactily atom, binding, or signal. |
 
 ## Returns
 
-A `signal<T>`.
+A `Signal<T>`.
 
 ## Usage
 ```luau

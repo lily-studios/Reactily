@@ -11,12 +11,12 @@ Creates a derived selector from one store.
 
 ## Signature
 ```luau
-Reactily.createSelector<T, R>(source: store<T>, selectorFunction: (state: T) -> R): selector<R>
+Reactily.createSelector<T, R>(source: Store<T>, selectorFunction: (state: T) -> R): Selector<R>
 ```
 ## Usage
 ```luau
-local selector = Reactily.createSelector(
-	store,
+local Selector = Reactily.createSelector(
+	Store,
 	function(state)
 		return state.count
 	end

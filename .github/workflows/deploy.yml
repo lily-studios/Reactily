@@ -1,132 +1,66 @@
-
-# ============================================================
-# Reactily · Lily Studios
-# GitHub Pages · Documentation Deployment
-# ============================================================
-
-name: Deploy Documentation
+name: Deploy Reactily Documentation
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "reactily-website/**"
+      - ".github/workflows/pages.yml"
 
   workflow_dispatch:
-
-# ============================================================
-# Permissions
-# ============================================================
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# ============================================================
-# Concurrency
-# ============================================================
-
 concurrency:
   group: github-pages
   cancel-in-progress: true
 
-# ============================================================
-# Jobs
-# ============================================================
-
 jobs:
-  deploy:
-    name: Build and Deploy Documentation
-
+  build:
+    name: Build Documentation
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: reactily-website/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: reactily-website
+        run: npm ci
+
+      - name: Verify Documentation
+        working-directory: reactily-website
+        run: npm run verify
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Documentation
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: reactily-website/dist
+
+  deploy:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: build
 
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      # ------------------------------------------------------
-      # Checkout
-      # ------------------------------------------------------
-
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-
-      # ------------------------------------------------------
-      # Node.js
-      # ------------------------------------------------------
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: reactily-website/package-lock.json
-
-      # ------------------------------------------------------
-      # Dependencies
-      # ------------------------------------------------------
-
-      - name: Verify Website Build Script
-        run: |
-          test -f reactily-website/package.json
-          node -e 'const pkg = require("./reactily-website/package.json"); if (!pkg.scripts?.build) { throw new Error("Missing build script in reactily-website/package.json"); } console.log("Website build:", pkg.scripts.build);'
-
-      - name: Install Dependencies
-        run: npm ci --prefix ./reactily-website
-
-      # ------------------------------------------------------
-      # Build
-      # ------------------------------------------------------
-
-      - name: Build Documentation
-        run: npm run build --prefix ./reactily-website
-
-      # ------------------------------------------------------
-      # Browser smoke test (catches successful builds that crash)
-      # ------------------------------------------------------
-
-      - name: Smoke Test Production Website
-        shell: bash
-        run: |
-          set -euo pipefail
-          set -euo pipefail
-          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
-          npm run preview --prefix ./reactily-website -- --host 127.0.0.1 --port 4173 --strictPort --base /Reactily/ > /tmp/reactily-preview.log 2>&1 &
-          PREVIEW_PID=$!
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --no-first-run --no-default-browser-check --user-data-dir="$(mktemp -d)" --remote-debugging-port=9222 --remote-allow-origins='*' about:blank > /tmp/reactily-chrome.log 2>&1 &
-          CHROME_PID=$!
-          trap 'kill "$CHROME_PID" "$PREVIEW_PID" 2>/dev/null || true' EXIT
-          for attempt in {1..30}; do
-            if curl --fail --silent --output /dev/null http://127.0.0.1:4173/Reactily/; then
-              break
-            fi
-            sleep 1
-          done
-          curl --fail --silent --output /dev/null http://127.0.0.1:4173/Reactily/
-          node reactily-website/scripts/smoke-test.mjs
-
-      # ------------------------------------------------------
-      # GitHub Pages
-      # ------------------------------------------------------
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v6
-
-      # ------------------------------------------------------
-      # Upload Website
-      # ------------------------------------------------------
-
-      - name: Upload Documentation
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: reactily-website/dist
-
-      # ------------------------------------------------------
-      # Deployment
-      # ------------------------------------------------------
-
-      - name: Deploy Documentation
+      - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4

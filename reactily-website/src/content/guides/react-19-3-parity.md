@@ -11,7 +11,7 @@ Reactily is React-inspired, not a DOM renderer. The current documentation site i
 
 ## Current Reactily equivalents
 
-The unreleased Reactily 1.4.0 development runtime already includes modern state and concurrency-style APIs:
+Reactily v2.1.0 (API v1) already includes modern state and concurrency-style APIs:
 
 ```luau
 Reactily.useActionState
@@ -39,16 +39,12 @@ Reactily.useShortcut
 Reactily.useTag
 ```
 
-## React 19.3 features that are DOM-specific
+## APIs mapped to Roblox
 
-React 19.3 stabilized View Transitions and Fragment Refs. React's View Transition implementation is explicitly DOM-based, so Reactily should not copy that API literally onto Roblox. Reactily already provides Roblox-native animation building blocks through `Motion`, `Presence`, tweens, springs, and transition scheduling.
+Reactily v2.1.0 includes Roblox-native `ViewTransition` and Fragment ref capabilities. These do not render browser DOM snapshots; they operate on Reactily elements and Roblox Instances. For transition configuration, see the [`createViewTransition` API](/docs/api/animation/create-view-transition). The package also exposes the `FragmentInstance` type.
 
 React DOM's `browser()` and Trusted Types support are also web/server-rendering features and do not map to Roblox clients.
 
-## Fragment refs
-
-Reactily currently exposes `Reactily.Fragment` and `Reactily.createFragment`, but it does not claim React 19.3 Fragment Ref parity. If Fragment-group refs are added later, they should use Roblox-native operations and ship as an additive minor-version feature.
-
 ## Compatibility rule
 
-New React-inspired functionality should be additive throughout Reactily 1.x. Existing public names and behavior remain supported, deprecated APIs get a migration period, and intentionally breaking changes wait for Reactily 2.0.
+New React-inspired functionality should be additive throughout Reactily 2.x. Existing public names and behavior remain supported, deprecated APIs get a migration period, and intentionally breaking changes wait for the next major release.

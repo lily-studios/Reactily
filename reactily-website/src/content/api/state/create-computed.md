@@ -12,20 +12,20 @@ Creates read-only derived atom state from a source atom.
 ## Signature
 ```luau
 Reactily.createComputed<A, B>(
-	source: atom<A>,
+	source: Atom<A>,
 	selectorFunction: (value: A) -> B
-): computed<B>
+): Computed<B>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `atom<A>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Atom<A>` | Yes | Source Reactily atom, binding, or signal. |
 | `selectorFunction` | `(value: A) -> B` | Yes | Function that derives a selected/computed value from the source. |
 
 ## Returns
 
-A read-only derived `computed<B>`.
+A read-only derived `Computed<B>`.
 
 ## Usage
 ```luau

@@ -12,26 +12,26 @@ Creates a virtual function-component element.
 ## Signature
 ```luau
 Reactily.createComponent<P>(
-	componentValue: component<P>,
+	componentValue: Component<P>,
 	props: P,
-	children: {element}?,
+	children: {Element}?,
 	key: string?
-): element
+): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `componentValue` | `component<P>` | Yes | Typed Reactily function component to render. |
+| `componentValue` | `Component<P>` | Yes | Typed Reactily function component to render. |
 | `props` | `P` | Yes | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 | `key` | `string?` | No | Optional stable identity key used by reconciliation. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createComponent(counter, {})
+local Element = Reactily.createComponent(counter, {})
 ```

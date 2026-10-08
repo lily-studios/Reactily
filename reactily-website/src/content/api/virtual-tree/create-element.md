@@ -13,25 +13,25 @@ Creates a generic Roblox host element. Prefer a typed creator when one exists.
 ```luau
 Reactily.createElement(
 	className: string,
-	props: elementModule.genericProps?,
-	children: {element}?
-): element
+	props: {[string]: any}?,
+	children: {Element}?
+): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
 | `className` | `string` | Yes | Roblox Instance class name to create or pool. |
-| `props` | `elementModule.genericProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `{[string]: any}?` | No | Optional table of Roblox host properties. Prefer the typed creator for a supported Instance class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createElement("Frame", {
-	size = UDim2.fromOffset(300, 180),
+local Element = Reactily.createElement("Frame", {
+	Size = UDim2.fromOffset(300, 180),
 })
 ```

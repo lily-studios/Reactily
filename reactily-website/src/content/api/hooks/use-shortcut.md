@@ -1,28 +1,24 @@
 ---
 title: Reactily.useShortcut
-sidebar_label: useShortcut
-sidebar_position: 49
 description: Binds a keyboard shortcut for the lifetime of the component.
 ---
 
 # `Reactily.useShortcut`
 
-Binds a keyboard shortcut for the lifetime of the component.
+Binds a keyboard shortcut for the lifetime of the component. This export is included in Reactily v2.1.0 (API v1).
 
 ## Signature
 
 ```luau
-Reactily.useShortcut(options: shortcutModule.shortcutOptions, callback: () -> ())
+Reactily.useShortcut(options: ShortcutOptions, callback: () -> ())
 ```
 
 ## Usage
 
 ```luau
-Reactily.useShortcut({ key = Enum.KeyCode.K }, function()
+Reactily.useShortcut({ Key = Enum.KeyCode.K }, function()
 	print("Shortcut pressed")
 end)
 ```
 
-## Notes
-
-This API is exported by the current unreleased Reactily 1.4.0 development runtime and is safe to use from a function component where the hook rules allow it.
+Use this hook or constructor only in a valid Reactily component/render context, as applicable.

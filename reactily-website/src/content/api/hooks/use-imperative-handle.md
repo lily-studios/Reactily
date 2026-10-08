@@ -11,12 +11,12 @@ Creates or updates an imperative handle exposed through a Reactily ref.
 
 ## Signature
 ```luau
-Reactily.useImperativeHandle<T>(target: refTarget<T>?, factory: () -> T, dependencies: {any}?): ()
+Reactily.useImperativeHandle<T>(target: RefTarget<T>?, factory: () -> T, dependencies: {any}?): ()
 ```
 ## Usage
 ```luau
 Reactily.useImperativeHandle(
-	ref,
+	Ref,
 	function()
 		return {
 			focus = function()

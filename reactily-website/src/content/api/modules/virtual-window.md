@@ -16,7 +16,7 @@ description: Public Reactily VirtualWindow module.
 Creates a cached controller for variable-size virtualized lists.
 
 ```luau
-Reactily.VirtualWindow.new(sizes: { number }, viewportSize: number, overscan: number?): variableVirtualList
+Reactily.VirtualWindow.new(sizes: { number }, viewportSize: number, overscan: number?): VariableVirtualList
 ```
 
 ### `VirtualWindow.resolve`

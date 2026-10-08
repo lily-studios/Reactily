@@ -29,4 +29,4 @@ Public APIs should be deprecated before removal. A replacement should ship first
 
 ## Runtime source of truth
 
-The API reference in this site is validated against the current unreleased Reactily 1.4.0 development runtime. The documentation build includes an API coverage check so stale names are caught before release.
+The API inventory on this site is pinned to the Reactily v2.1.0 release source and checked against the bundled export manifest during verification. The check reports missing and stale value exports and public types.

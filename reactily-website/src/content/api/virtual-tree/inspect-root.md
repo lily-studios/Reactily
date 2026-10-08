@@ -11,11 +11,11 @@ Returns a diagnostic snapshot of a mounted Reactily root tree.
 
 ## Signature
 ```luau
-Reactily.inspectRoot(rootValue: root): any
+Reactily.inspectRoot(rootValue: Root): any
 ```
 ## Usage
 ```luau
-local snapshot = Reactily.inspectRoot(root)
+local snapshot = Reactily.inspectRoot(Root)
 ```
 ## Works with
 

@@ -16,5 +16,5 @@ description: Public Reactily Shortcut module.
 Creates an owned keyboard shortcut.
 
 ```luau
-Reactily.Shortcut.create(options: shortcutOptions, callback: () -> ()): inputModule.inputBinding
+Reactily.Shortcut.create(options: ShortcutOptions, callback: () -> ()): inputModule.InputBinding
 ```

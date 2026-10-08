@@ -11,12 +11,12 @@ Creates a typed Reactily context with a fallback value.
 
 ## Signature
 ```luau
-Reactily.createContext<T>(defaultValue: T): context<T>
+Reactily.createContext<T>(defaultValue: T): Context<T>
 ```
 ## Usage
 ```luau
-local context = Reactily.createContext({
-	enabled = true,
+local Context = Reactily.createContext({
+	Enabled = true,
 })
 ```
 ## Works with

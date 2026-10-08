@@ -15,7 +15,7 @@ Reactily.memo<T>(componentValue: T, comparator: ((previousProps: {[string]: any}
 ```
 ## Usage
 ```luau
-local optimizedComponent = Reactily.memo(component)
+local optimizedComponent = Reactily.memo(Component)
 ```
 ## Works with
 

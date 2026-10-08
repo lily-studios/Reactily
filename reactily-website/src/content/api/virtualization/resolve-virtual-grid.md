@@ -11,7 +11,7 @@ Resolves the visible item range for a fixed-size grid.
 
 ## Signature
 ```luau
-Reactily.resolveVirtualGrid(itemCount: number, cellWidth: number, cellHeight: number, viewportWidth: number, viewportHeight: number, scrollOffsetY: number, horizontalGap: number?, verticalGap: number?, overscanRows: number?): gridRange
+Reactily.resolveVirtualGrid(itemCount: number, cellWidth: number, cellHeight: number, viewportWidth: number, viewportHeight: number, scrollOffsetY: number, horizontalGap: number?, verticalGap: number?, overscanRows: number?): GridRange
 ```
 ## Usage
 ```luau

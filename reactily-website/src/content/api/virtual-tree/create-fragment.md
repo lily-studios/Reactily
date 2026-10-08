@@ -11,18 +11,18 @@ Groups children without creating a Roblox host Instance.
 
 ## Signature
 ```luau
-Reactily.createFragment(children: {element}, key: string?): element
+Reactily.createFragment(children: {Element}, key: string?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `children` | `{element}` | Yes | Optional child Reactily elements rendered beneath this element/component. |
+| `children` | `{Element}` | Yes | Optional child Reactily elements rendered beneath this element/component. |
 | `key` | `string?` | No | Optional stable identity key used by reconciliation. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau

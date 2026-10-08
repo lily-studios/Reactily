@@ -11,22 +11,22 @@ Creates a typed virtual `UIGridLayout` element with class-specific prop autocomp
 
 ## Signature
 ```luau
-Reactily.createUIGridLayout(props: uiGridLayoutProps?): element
+Reactily.createUIGridLayout(props: UIGridLayoutProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiGridLayoutProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UIGridLayoutProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local layout = Reactily.createUIGridLayout({
-	cellSize = UDim2.fromOffset(120, 120),
-	cellPadding = UDim2.fromOffset(8, 8),
+	CellSize = UDim2.fromOffset(120, 120),
+	CellPadding = UDim2.fromOffset(8, 8),
 })
 ```

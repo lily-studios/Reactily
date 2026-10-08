@@ -11,24 +11,24 @@ Creates a typed virtual `TextLabel` element with class-specific prop autocomplet
 
 ## Signature
 ```luau
-Reactily.createTextLabel(props: textLabelProps?, children: {element}?): element
+Reactily.createTextLabel(props: TextLabelProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `textLabelProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `TextLabelProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createTextLabel({
-	size = UDim2.fromOffset(300, 50),
-	text = "Reactily",
-	textSize = 28,
+local Element = Reactily.createTextLabel({
+	Size = UDim2.fromOffset(300, 50),
+	Text = "Reactily",
+	TextSize = 28,
 })
 ```

@@ -32,7 +32,7 @@ Reactily.Profiler.isEnabled(): boolean
 Returns a copy of profile data for one component.
 
 ```luau
-Reactily.Profiler.get(componentValue: component): componentProfile?
+Reactily.Profiler.get(componentValue: Component): ComponentProfile?
 ```
 
 ### `Profiler.snapshot`
@@ -56,7 +56,7 @@ Reactily.Profiler.getSlowComponents(limit: number?): { slowComponent }
 Records one component render when profiling is enabled.
 
 ```luau
-Reactily.Profiler.record(componentValue: component, duration: number, reason: string)
+Reactily.Profiler.record(componentValue: Component, duration: number, reason: string)
 ```
 
 ### `Profiler.setEnabled`

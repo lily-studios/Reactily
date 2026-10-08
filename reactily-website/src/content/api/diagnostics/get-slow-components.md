@@ -11,7 +11,7 @@ Returns the slowest recorded components ordered by average render time.
 
 ## Signature
 ```luau
-Reactily.getSlowComponents(limit: number?): {{component: any, profile: componentProfile}}
+Reactily.getSlowComponents(limit: number?): {{Component: any, profile: ComponentProfile}}
 ```
 ## Usage
 ```luau

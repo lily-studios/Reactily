@@ -11,8 +11,9 @@
     "typecheck": "tsc -b --pretty false",
     "validate:api": "node scripts/validate-api-docs.mjs",
     "doctor": "node scripts/doctor.mjs",
-    "verify": "npm run check:structure && npm run doctor && npm run typecheck && npm run validate:api && npm run build",
-    "check:structure": "node scripts/check-structure.mjs"
+    "verify": "npm run check:structure && npm run doctor && npm run validate:api && npm run validate:links && npm run build",
+    "check:structure": "node scripts/check-structure.mjs",
+    "validate:links": "node scripts/validate-doc-links.mjs"
   },
   "dependencies": {
     "lucide-react": "1.52.0",

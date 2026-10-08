@@ -11,7 +11,7 @@ Creates a low-level owner record for connections, Instances, and cleanups.
 
 ## Signature
 ```luau
-Reactily.createLifecycleOwner(): lifecycleOwner
+Reactily.createLifecycleOwner(): LifecycleOwner
 ```
 ## Parameters
 

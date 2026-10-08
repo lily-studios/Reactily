@@ -11,7 +11,7 @@ Starts loading a lazy component before it is rendered.
 
 ## Signature
 ```luau
-Reactily.preloadLazy(componentValue: component<any>): boolean
+Reactily.preloadLazy(componentValue: Component<any>): boolean
 ```
 ## Usage
 ```luau

@@ -1,8 +1,8 @@
 ---
 title: Reactily.Measure
-sidebar_label: Measure
+sidebar_label: measure
 sidebar_position: 15
-description: Public Reactily Measure module.
+description: Public Reactily measure module.
 ---
 
 # `Reactily.Measure`
@@ -16,5 +16,5 @@ description: Public Reactily Measure module.
 Observes AbsolutePosition and AbsoluteSize for a GuiObject.
 
 ```luau
-Reactily.Measure.create(object: GuiObject): measure
+Reactily.Measure.create(object: GuiObject): Measure
 ```

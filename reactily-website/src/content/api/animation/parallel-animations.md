@@ -11,7 +11,7 @@ Creates a group that starts every animation together.
 
 ## Signature
 ```luau
-Reactily.parallelAnimations(animations: {animationPlayable}): animationGroup
+Reactily.parallelAnimations(animations: {AnimationPlayable}): AnimationGroup
 ```
 ## Usage
 ```luau

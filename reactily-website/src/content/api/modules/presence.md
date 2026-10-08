@@ -1,8 +1,8 @@
 ---
 title: Reactily.Presence
-sidebar_label: Presence
+sidebar_label: presence
 sidebar_position: 19
-description: Public Reactily Presence module.
+description: Public Reactily presence module.
 ---
 
 # `Reactily.Presence`
@@ -16,5 +16,5 @@ description: Public Reactily Presence module.
 Creates an enter/exit visibility controller for a GuiObject.
 
 ```luau
-Reactily.Presence.create(object: GuiObject, options: presenceOptions?): presence
+Reactily.Presence.create(object: GuiObject, options: PresenceOptions?): Presence
 ```

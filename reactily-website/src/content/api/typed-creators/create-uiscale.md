@@ -11,21 +11,21 @@ Creates a typed virtual `UIScale` element with class-specific prop autocomplete.
 
 ## Signature
 ```luau
-Reactily.createUIScale(props: uiScaleProps?): element
+Reactily.createUIScale(props: UIScaleProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiScaleProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UIScaleProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local scale = Reactily.createUIScale({
-	scale = 1.1,
+local Scale = Reactily.createUIScale({
+	Scale = 1.1,
 })
 ```

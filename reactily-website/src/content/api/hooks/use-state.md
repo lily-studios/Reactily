@@ -11,7 +11,7 @@ Creates typed component state and a stable setter.
 
 ## Signature
 ```luau
-Reactily.useState<T>(initialValue: T): (T, stateSetter<T>)
+Reactily.useState<T>(initialValue: T): (T, StateSetter<T>)
 ```
 ## Parameters
 
@@ -21,7 +21,7 @@ Reactily.useState<T>(initialValue: T): (T, stateSetter<T>)
 
 ## Returns
 
-`(T, stateSetter<T>)`.
+`(T, StateSetter<T>)`.
 
 ## Usage
 ```luau

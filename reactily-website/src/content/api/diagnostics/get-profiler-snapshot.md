@@ -11,7 +11,7 @@ Returns all currently collected component profiles.
 
 ## Signature
 ```luau
-Reactily.getProfilerSnapshot(): {[any]: componentProfile}
+Reactily.getProfilerSnapshot(): {[any]: ComponentProfile}
 ```
 ## Usage
 ```luau

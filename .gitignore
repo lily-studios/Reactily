@@ -204,3 +204,5 @@ reactily-website/.vite/
 *.pid.lock
 
 .DS_Store?
+*.zip
+*.zip

@@ -14,7 +14,7 @@ Provides typed reducer-driven component state and a stable dispatch function.
 Reactily.useReducer<S, A>(
 	reducer: (stateValue: S, action: A) -> S,
 	initialState: S
-): (S, reducerDispatch<A>)
+): (S, ReducerDispatch<A>)
 ```
 ## Parameters
 
@@ -25,7 +25,7 @@ Reactily.useReducer<S, A>(
 
 ## Returns
 
-`(S, reducerDispatch<A>)`.
+`(S, ReducerDispatch<A>)`.
 
 ## Usage
 ```luau

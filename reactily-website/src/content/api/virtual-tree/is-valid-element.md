@@ -19,6 +19,6 @@ Reactily.isValidElement(value: any): boolean
 
 ```luau
 if Reactily.isValidElement(value) then
-	print("Reactily element")
+	print("Reactily Element")
 end
 ```

@@ -11,22 +11,22 @@ Creates a typed virtual `UITextSizeConstraint` element with class-specific prop 
 
 ## Signature
 ```luau
-Reactily.createUITextSizeConstraint(props: uiTextSizeConstraintProps?): element
+Reactily.createUITextSizeConstraint(props: UITextSizeConstraintProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiTextSizeConstraintProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UITextSizeConstraintProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local constraint = Reactily.createUITextSizeConstraint({
-	minTextSize = 14,
-	maxTextSize = 32,
+	MinTextSize = 14,
+	MaxTextSize = 32,
 })
 ```

@@ -11,11 +11,11 @@ Creates a lazy resource whose loader runs only when first requested.
 
 ## Signature
 ```luau
-Reactily.createResource<T>(loader: () -> T): resource<T>
+Reactily.createResource<T>(loader: () -> T): Resource<T>
 ```
 ## Usage
 ```luau
-local resource = Reactily.createResource(function()
+local Resource = Reactily.createResource(function()
 	return loadData()
 end)
 ```

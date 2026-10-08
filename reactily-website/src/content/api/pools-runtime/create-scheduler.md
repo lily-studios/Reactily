@@ -11,7 +11,7 @@ Creates Reactily's idle-safe one-shot work scheduler.
 
 ## Signature
 ```luau
-Reactily.createScheduler(): scheduler
+Reactily.createScheduler(): Scheduler
 ```
 ## Parameters
 
@@ -23,8 +23,8 @@ A Reactily scheduler.
 
 ## Usage
 ```luau
-local scheduler = Reactily.createScheduler()
-scheduler.enqueue(function()
+local Scheduler = Reactily.createScheduler()
+Scheduler.enqueue(function()
 	print("scheduled")
 end)
 ```

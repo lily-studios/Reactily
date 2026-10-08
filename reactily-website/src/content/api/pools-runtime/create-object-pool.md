@@ -16,7 +16,7 @@ Reactily.createObjectPool<T>(
 	resetObject: (object: T) -> (),
 	deleteObject: (object: T) -> (),
 	maximumSize: number
-): objectPool<T>
+): ObjectPool<T>
 ```
 ## Parameters
 
@@ -29,7 +29,7 @@ Reactily.createObjectPool<T>(
 
 ## Returns
 
-A bounded `objectPool<T>`.
+A bounded `ObjectPool<T>`.
 
 ## Usage
 ```luau

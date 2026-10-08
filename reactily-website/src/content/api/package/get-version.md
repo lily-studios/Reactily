@@ -13,4 +13,4 @@ description: Deprecated compatibility alias that returns Reactily.version.
 local version = Reactily.getVersion()
 ```
 
-This alias remains available through the Reactily 1.x compatibility line so older applications do not break.
+This alias remains available through the Reactily 2.x compatibility line so older applications do not break.

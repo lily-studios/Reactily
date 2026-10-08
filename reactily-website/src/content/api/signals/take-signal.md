@@ -11,18 +11,18 @@ Creates a derived signal that forwards at most `maximum` source emissions.
 
 ## Signature
 ```luau
-Reactily.takeSignal<T>(source: signal<T>, maximum: number): signal<T>
+Reactily.takeSignal<T>(source: Signal<T>, maximum: number): Signal<T>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `signal<T>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Signal<T>` | Yes | Source Reactily atom, binding, or signal. |
 | `maximum` | `number` | Yes | Maximum allowed value or maximum number of signal emissions to forward. |
 
 ## Returns
 
-A `signal<T>`.
+A `Signal<T>`.
 
 ## Usage
 ```luau

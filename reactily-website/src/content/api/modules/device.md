@@ -16,5 +16,5 @@ description: Public Reactily Device module.
 Creates an event-driven monitor for Roblox device and viewport capabilities.
 
 ```luau
-Reactily.Device.create(): deviceMonitor
+Reactily.Device.create(): DeviceMonitor
 ```

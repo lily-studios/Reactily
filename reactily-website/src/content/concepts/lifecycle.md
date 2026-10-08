@@ -7,10 +7,10 @@ title: Lifecycle
 
 Reactily-owned resources use `delete()` and `isDeleted()`.
 ```luau
-local root = Reactily.createRoot(playerGui)
+local Root = Reactily.createRoot(playerGui)
 
 -- Later:
-root.delete()
+Root.delete()
 ```
 Deletion should:
 
@@ -22,7 +22,7 @@ Deletion should:
 Roblox-owned resources retain Roblox names:
 ```luau
 instance:Destroy()
-connection:Disconnect()
+Connection:Disconnect()
 ```
 ## Ownership rule
 

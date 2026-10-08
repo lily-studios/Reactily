@@ -11,7 +11,7 @@ Creates a low-priority transition starter and pending state.
 
 ## Signature
 ```luau
-Reactily.useTransition(): (boolean, transitionStarter)
+Reactily.useTransition(): (boolean, TransitionStarter)
 ```
 ## Usage
 ```luau

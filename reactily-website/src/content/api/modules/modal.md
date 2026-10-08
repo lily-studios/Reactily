@@ -16,5 +16,5 @@ description: Public Reactily Modal module.
 Creates a full-screen modal overlay element around children.
 
 ```luau
-Reactily.Modal.create(options: modalOptions?, children: { any }): elementModule.element
+Reactily.Modal.create(options: ModalOptions?, children: { any }): elementModule.Element
 ```

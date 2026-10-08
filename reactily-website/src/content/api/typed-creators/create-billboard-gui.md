@@ -11,28 +11,28 @@ Creates a typed virtual `BillboardGui` element with class-specific prop autocomp
 
 ## Signature
 ```luau
-Reactily.createBillboardGui(props: billboardGuiProps?, children: {element}?): element
+Reactily.createBillboardGui(props: BillboardGuiProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `billboardGuiProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `BillboardGuiProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createBillboardGui({
-	size = UDim2.fromOffset(240, 80),
-	alwaysOnTop = true,
+local Element = Reactily.createBillboardGui({
+	Size = UDim2.fromOffset(240, 80),
+	AlwaysOnTop = true,
 }, {
 	Reactily.createTextLabel({
-		size = UDim2.fromScale(1, 1),
-		text = "Item",
+		Size = UDim2.fromScale(1, 1),
+		Text = "Item",
 	}),
 })
 ```

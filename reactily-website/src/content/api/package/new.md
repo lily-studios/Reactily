@@ -10,7 +10,7 @@ description: Deprecated compatibility alias for Reactily.createRoot.
 > Deprecated in Reactily 1.4. Use `Reactily.createRoot(parent)` instead.
 
 ```luau
-local root = Reactily.new(playerGui)
+local Root = Reactily.new(playerGui)
 ```
 
-This alias remains available through the Reactily 1.x compatibility line so older applications do not break.
+This alias remains available through the Reactily 2.x compatibility line so older applications do not break.

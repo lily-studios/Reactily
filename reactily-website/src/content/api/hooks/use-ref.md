@@ -11,7 +11,7 @@ Creates persistent mutable component storage that does not trigger rerenders.
 
 ## Signature
 ```luau
-Reactily.useRef<T>(initialValue: T): ref<T>
+Reactily.useRef<T>(initialValue: T): Ref<T>
 ```
 ## Parameters
 
@@ -21,7 +21,7 @@ Reactily.useRef<T>(initialValue: T): ref<T>
 
 ## Returns
 
-`ref<T>`.
+`Ref<T>`.
 
 ## Usage
 ```luau

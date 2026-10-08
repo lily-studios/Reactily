@@ -24,5 +24,5 @@ Reactily.Focus.clearSelection()
 Creates a focus group with forward/backward navigation.
 
 ```luau
-Reactily.Focus.new(): focusGroup
+Reactily.Focus.new(): FocusGroup
 ```

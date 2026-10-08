@@ -12,30 +12,34 @@ Mount the Reactily package where your client code can require it. The supported 
 ```text
 src/init.luau
 ```
-Require the package:
+For this example, expose the package ModuleScript as `ReplicatedStorage.Reactily` and run the code from a `LocalScript`:
 ```luau
-local Reactily = require(path.Reactily)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Reactily = require(ReplicatedStorage:WaitForChild("Reactily"))
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 ```
 ## Create a root
 
 A root owns one rendered Reactily tree.
 ```luau
-local root = Reactily.createRoot(playerGui)
+local Root = Reactily.createRoot(playerGui)
 ```
 ## Create a component
 ```luau
-type counterProps = {
-	initialValue: number,
+type CounterProps = {
+	InitialValue: number,
 }
 
-local function counter(props: counterProps): Reactily.element
-	local count, setCount = Reactily.useState(props.initialValue)
+local function Counter(props: CounterProps): Reactily.Element
+	local count, setCount = Reactily.useState(props.InitialValue)
 
 	return Reactily.createTextButton({
-		size = UDim2.fromOffset(240, 64),
-		text = `Count: {count}`,
+		Size = UDim2.fromOffset(240, 64),
+		Text = `Count: {count}`,
 
-		onActivated = function()
+		OnActivated = function()
 			setCount(function(previous: number): number
 				return previous + 1
 			end)
@@ -45,21 +49,21 @@ end
 ```
 ## Render it
 ```luau
-root.render(
-	Reactily.createComponent(counter, {
-		initialValue = 0,
+Root.render(
+	Reactily.createComponent(Counter, {
+		InitialValue = 0,
 	})
 )
 ```
 ## Update by rendering again
 ```luau
-root.render(nextElement)
+Root.render(nextElement)
 ```
 Reactily reconciles the next tree with the current tree rather than rebuilding everything blindly.
 
 ## Clean up
 ```luau
-root.delete()
+Root.delete()
 ```
 `delete()` releases Reactily-owned work and rendered resources owned by the root.
 

@@ -1,13 +1,11 @@
 ---
 title: Reactily.useCurrentCamera
-sidebar_label: useCurrentCamera
-sidebar_position: 41
 description: Returns the current Workspace camera and updates when CurrentCamera changes.
 ---
 
 # `Reactily.useCurrentCamera`
 
-Returns the current Workspace camera and updates when CurrentCamera changes.
+Returns the current Workspace camera and updates when CurrentCamera changes. This export is included in Reactily v2.1.0 (API v1).
 
 ## Signature
 
@@ -21,6 +19,4 @@ Reactily.useCurrentCamera(): Camera?
 local camera = Reactily.useCurrentCamera()
 ```
 
-## Notes
-
-This API is exported by the current unreleased Reactily 1.4.0 development runtime and is safe to use from a function component where the hook rules allow it.
+Use this hook or constructor only in a valid Reactily component/render context, as applicable.

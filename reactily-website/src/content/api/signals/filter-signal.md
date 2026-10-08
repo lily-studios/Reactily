@@ -11,18 +11,18 @@ Creates a derived signal that forwards only values accepted by `predicate`.
 
 ## Signature
 ```luau
-Reactily.filterSignal<T>(source: signal<T>, predicate: (value: T) -> boolean): signal<T>
+Reactily.filterSignal<T>(source: Signal<T>, predicate: (value: T) -> boolean): Signal<T>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `signal<T>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Signal<T>` | Yes | Source Reactily atom, binding, or signal. |
 | `predicate` | `(value: T) -> boolean` | Yes | Function returning `true` when a signal value should be forwarded. |
 
 ## Returns
 
-A `signal<T>`.
+A `Signal<T>`.
 
 ## Usage
 ```luau

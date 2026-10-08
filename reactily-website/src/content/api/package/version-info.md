@@ -11,8 +11,8 @@ Structured semantic-version information.
 
 ```luau
 Reactily.versionInfo = {
-	major = 1,
-	minor = 4,
+	major = 2,
+	minor = 1,
 	patch = 0,
 }
 ```

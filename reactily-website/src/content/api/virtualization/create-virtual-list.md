@@ -11,7 +11,7 @@ Creates a small stateful virtual-list virtualRange controller.
 
 ## Signature
 ```luau
-Reactily.createVirtualList(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): virtualList
+Reactily.createVirtualList(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): VirtualList
 ```
 ## Usage
 ```luau

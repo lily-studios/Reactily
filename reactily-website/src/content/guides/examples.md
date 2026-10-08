@@ -7,23 +7,23 @@ title: Examples
 
 ## Counter
 ```luau
-local function counter(): Reactily.element
+local function counter(): Reactily.Element
 	local count, setCount = Reactily.useState(0)
 
 	return Reactily.createTextButton({
-		text = `Count: {count}`,
+		Text = `Count: {count}`,
 
-		onActivated = function()
+		OnActivated = function()
 			setCount(count + 1)
 		end,
 	})
 end
 ```
-## Theme
+## theme
 ```luau
-local theme = Reactily.createTheme({
+local Theme = Reactily.createTheme({
 	surface = Color3.fromRGB(28, 28, 32),
-	text = Color3.fromRGB(245, 245, 245),
+	Text = Color3.fromRGB(245, 245, 245),
 })
 ```
 ## Virtualized list
@@ -38,22 +38,22 @@ local range = Reactily.resolveVirtualList(
 ```
 ## Owned animation
 ```luau
-local animation = Reactily.playTween(
+local Animation = Reactily.playTween(
 	panel,
 	{
 		Position = UDim2.fromScale(.5, .5),
 		BackgroundTransparency = 0,
 	},
 	{
-		time = .25,
-		easingStyle = Enum.EasingStyle.Quad,
-		easingDirection = Enum.EasingDirection.Out,
+		Time = .25,
+		EasingStyle = Enum.EasingStyle.Quad,
+		EasingDirection = Enum.EasingDirection.Out,
 	}
 )
 
-animation.onCompleted(function(playbackState)
+Animation.onCompleted(function(playbackState)
 	if playbackState ~= Enum.PlaybackState.Completed then return end
 
-	animation.delete()
+	Animation.delete()
 end)
 ```

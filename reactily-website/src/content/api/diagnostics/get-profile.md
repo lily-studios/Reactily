@@ -11,11 +11,11 @@ Returns a copy of profile data for one component.
 
 ## Signature
 ```luau
-Reactily.getProfile(componentValue: component<any>): componentProfile?
+Reactily.getProfile(componentValue: Component<any>): ComponentProfile?
 ```
 ## Usage
 ```luau
-local profile = Reactily.getProfile(component)
+local profile = Reactily.getProfile(Component)
 ```
 ## Works with
 

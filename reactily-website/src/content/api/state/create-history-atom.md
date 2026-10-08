@@ -11,7 +11,7 @@ Creates an atom with bounded undo/redo history.
 
 ## Signature
 ```luau
-Reactily.createHistoryAtom<T>(initialValue: T, limit: number): historyAtom<T>
+Reactily.createHistoryAtom<T>(initialValue: T, limit: number): HistoryAtom<T>
 ```
 ## Parameters
 
@@ -22,11 +22,11 @@ Reactily.createHistoryAtom<T>(initialValue: T, limit: number): historyAtom<T>
 
 ## Returns
 
-A `historyAtom<T>` with undo/redo history.
+A `HistoryAtom<T>` with undo/redo history.
 
 ## Usage
 ```luau
-local position = Reactily.createHistoryAtom(Vector2.zero, 100)
+local Position = Reactily.createHistoryAtom(Vector2.zero, 100)
 position.set(Vector2.new(20, 10))
 position.undo()
 ```

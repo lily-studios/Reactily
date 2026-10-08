@@ -11,22 +11,22 @@ Creates a derived string binding using a formatter.
 
 ## Signature
 ```luau
-Reactily.formatBinding<T>(source: binding<T>, formatter: (value: T) -> string): binding<string>
+Reactily.formatBinding<T>(source: Binding<T>, formatter: (value: T) -> string): Binding<string>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `binding<T>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Binding<T>` | Yes | Source Reactily atom, binding, or signal. |
 | `formatter` | `(value: T) -> string` | Yes | Function that converts the source value into a display string. |
 
 ## Returns
 
-A `binding<string>`.
+A `Binding<string>`.
 
 ## Usage
 ```luau
-local text = Reactily.formatBinding(progress, function(value)
+local Text = Reactily.formatBinding(progress, function(value)
 	return `{math.round(value * 100)}%`
 end)
 ```

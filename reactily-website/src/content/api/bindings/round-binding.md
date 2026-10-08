@@ -11,18 +11,18 @@ Creates a derived numeric binding rounded to the requested decimal precision.
 
 ## Signature
 ```luau
-Reactily.roundBinding(source: binding<number>, precision: number): binding<number>
+Reactily.roundBinding(source: Binding<number>, precision: number): Binding<number>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `binding<number>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Binding<number>` | Yes | Source Reactily atom, binding, or signal. |
 | `precision` | `number` | Yes | Number of decimal places retained by numeric rounding. |
 
 ## Returns
 
-A `binding<number>`.
+A `Binding<number>`.
 
 ## Usage
 ```luau

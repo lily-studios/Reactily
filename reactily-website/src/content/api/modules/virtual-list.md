@@ -1,8 +1,8 @@
 ---
 title: Reactily.VirtualList
-sidebar_label: VirtualList
+sidebar_label: virtualList
 sidebar_position: 32
-description: Public Reactily VirtualList module.
+description: Public Reactily virtualList module.
 ---
 
 # `Reactily.VirtualList`
@@ -24,7 +24,7 @@ Reactily.VirtualList.resolve( itemCount: number, itemSize: number, scrollOffset:
 Creates a small stateful virtual-list range controller.
 
 ```luau
-Reactily.VirtualList.new(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): virtualList
+Reactily.VirtualList.new(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): VirtualList
 ```
 
 ### `VirtualList.slice`
@@ -40,5 +40,5 @@ Reactily.VirtualList.slice<T>(items: { T }, rangeValue: range): { T }
 Creates a virtualized vertical ScrollingFrame element for a fixed-size item list.
 
 ```luau
-Reactily.VirtualList.render<T>(options: renderOptions<T>): elementModule.element
+Reactily.VirtualList.render<T>(options: renderOptions<T>): elementModule.Element
 ```

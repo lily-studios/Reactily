@@ -1,8 +1,8 @@
 ---
 title: Reactily.Style
-sidebar_label: Style
+sidebar_label: style
 sidebar_position: 28
-description: Public Reactily Style module.
+description: Public Reactily style module.
 ---
 
 # `Reactily.Style`
@@ -16,7 +16,7 @@ description: Public Reactily Style module.
 Creates a frozen reusable style table.
 
 ```luau
-Reactily.Style.create(values: style): style
+Reactily.Style.create(values: Style): Style
 ```
 
 ### `Style.variant`
@@ -24,7 +24,7 @@ Reactily.Style.create(values: style): style
 Resolves a base style and named variant into one style table.
 
 ```luau
-Reactily.Style.variant(definition: variantStyle, variant: string?): style
+Reactily.Style.variant(definition: VariantStyle, variant: string?): Style
 ```
 
 ### `Style.apply`
@@ -32,7 +32,7 @@ Reactily.Style.variant(definition: variantStyle, variant: string?): style
 Applies a style to a property table without mutating the original table.
 
 ```luau
-Reactily.Style.apply<T>(properties: T, styleValue: style): T
+Reactily.Style.apply<T>(properties: T, styleValue: Style): T
 ```
 
 ### `Style.merge`
@@ -40,7 +40,7 @@ Reactily.Style.apply<T>(properties: T, styleValue: style): T
 Merges multiple style tables without mutating the input styles.
 
 ```luau
-Reactily.Style.merge(styles: { style }): style
+Reactily.Style.merge(styles: { Style }): Style
 ```
 
 ### `Style.when`
@@ -48,7 +48,7 @@ Reactily.Style.merge(styles: { style }): style
 Returns a style only when the supplied condition is true.
 
 ```luau
-Reactily.Style.when(condition: boolean, styleValue: style): style
+Reactily.Style.when(condition: boolean, styleValue: Style): Style
 ```
 
 ### `Style.without`
@@ -56,7 +56,7 @@ Reactily.Style.when(condition: boolean, styleValue: style): style
 Creates a style without one specified property.
 
 ```luau
-Reactily.Style.without(styleValue: style, property: string): style
+Reactily.Style.without(styleValue: Style, property: string): Style
 ```
 
 ### `Style.withProperty`
@@ -64,5 +64,5 @@ Reactily.Style.without(styleValue: style, property: string): style
 Creates a style with one property assigned to a new value.
 
 ```luau
-Reactily.Style.withProperty(styleValue: style, property: string, value: any): style
+Reactily.Style.withProperty(styleValue: Style, property: string, value: any): Style
 ```

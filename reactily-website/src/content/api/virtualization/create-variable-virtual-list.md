@@ -11,7 +11,7 @@ Creates a cached controller for variable-size virtualized lists.
 
 ## Signature
 ```luau
-Reactily.createVariableVirtualList(sizes: {number}, viewportSize: number, overscan: number?): variableVirtualList
+Reactily.createVariableVirtualList(sizes: {number}, viewportSize: number, overscan: number?): VariableVirtualList
 ```
 ## Usage
 ```luau

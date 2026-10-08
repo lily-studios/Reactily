@@ -11,12 +11,12 @@ Subscribes a component to a Reactily store, optionally selecting one derived val
 
 ## Signature
 ```luau
-Reactily.useStore<S>(storeValue: store<S>, selectorFunction: ((state: S) -> any)?): any
+Reactily.useStore<S>(storeValue: Store<S>, selectorFunction: ((state: S) -> any)?): any
 ```
 ## Usage
 ```luau
 local count = Reactily.useStore(
-	store,
+	Store,
 	function(state)
 		return state.count
 	end

@@ -15,7 +15,7 @@ Reactily.createAttributeAtom<T>(
 	instance: Instance,
 	attributeName: string,
 	defaultValue: T
-): atom<T>
+): Atom<T>
 ```
 ## Parameters
 
@@ -27,9 +27,9 @@ Reactily.createAttributeAtom<T>(
 
 ## Returns
 
-A `atom<T>`.
+A `Atom<T>`.
 
 ## Usage
 ```luau
-local enabled = Reactily.createAttributeAtom(item, "enabled", true)
+local Enabled = Reactily.createAttributeAtom(item, "enabled", true)
 ```

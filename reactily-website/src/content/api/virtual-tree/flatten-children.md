@@ -11,11 +11,11 @@ Flattens nested Reactily child arrays and removes false/nil entries.
 
 ## Signature
 ```luau
-Reactily.flattenChildren(children: {any}): {element}
+Reactily.flattenChildren(children: {any}): {Element}
 ```
 ## Usage
 ```luau
-local children = Reactily.flattenChildren({
+local Children = Reactily.flattenChildren({
 	first,
 	{second, third},
 	false,

@@ -13,10 +13,10 @@ The stable compatibility identifier for Reactily's public API.
 Reactily.apiVersion: number
 ```
 
-The unreleased Reactily 1.4.0 development runtime exports:
+Reactily v2.1.0 (API v1) exports:
 
 ```luau
 Reactily.apiVersion == 1
 ```
 
-Use this instead of requiring one exact patch version when your package only depends on the Reactily 1.x public contract.
+Use this instead of requiring one exact patch version when your package depends on the Reactily API v1 contract.

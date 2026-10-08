@@ -11,7 +11,7 @@ Creates structured external state with subscriptions, selectors, and batching.
 
 ## Signature
 ```luau
-Reactily.createStore<T>(initialState: T): store<T>
+Reactily.createStore<T>(initialState: T): Store<T>
 ```
 ## Parameters
 
@@ -21,11 +21,11 @@ Reactily.createStore<T>(initialState: T): store<T>
 
 ## Returns
 
-A `store<T>`.
+A `Store<T>`.
 
 ## Usage
 ```luau
-local store = Reactily.createStore({
+local Store = Reactily.createStore({
 	page = "Home",
 })
 ```

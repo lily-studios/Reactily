@@ -1,13 +1,11 @@
 ---
 title: Reactily.useLocalPlayer
-sidebar_label: useLocalPlayer
-sidebar_position: 45
 description: Returns Players.LocalPlayer from a client component.
 ---
 
 # `Reactily.useLocalPlayer`
 
-Returns Players.LocalPlayer from a client component.
+Returns Players.LocalPlayer from a client component. This export is included in Reactily v2.1.0 (API v1).
 
 ## Signature
 
@@ -21,6 +19,4 @@ Reactily.useLocalPlayer(): Player?
 local player = Reactily.useLocalPlayer()
 ```
 
-## Notes
-
-This API is exported by the current unreleased Reactily 1.4.0 development runtime and is safe to use from a function component where the hook rules allow it.
+Use this hook or constructor only in a valid Reactily component/render context, as applicable.

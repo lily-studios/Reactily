@@ -11,7 +11,7 @@ Creates a one-shot delay step compatible with Reactily animation sequences.
 
 ## Signature
 ```luau
-Reactily.createAnimationDelay(seconds: number): animationPlayable
+Reactily.createAnimationDelay(seconds: number): AnimationPlayable
 ```
 ## Usage
 ```luau

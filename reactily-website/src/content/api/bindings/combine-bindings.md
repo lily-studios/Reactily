@@ -12,22 +12,22 @@ Creates a derived binding from two source bindings.
 ## Signature
 ```luau
 Reactily.combineBindings<A, B, R>(
-	first: binding<A>,
-	second: binding<B>,
+	first: Binding<A>,
+	second: Binding<B>,
 	mapper: (firstValue: A, secondValue: B) -> R
-): binding<R>
+): Binding<R>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `first` | `binding<A>` | Yes | First source binding. |
-| `second` | `binding<B>` | Yes | Second source binding. |
+| `first` | `Binding<A>` | Yes | First source binding. |
+| `second` | `Binding<B>` | Yes | Second source binding. |
 | `mapper` | `(firstValue: A, secondValue: B) -> R` | Yes | Function that transforms one or more source values into the derived value. |
 
 ## Returns
 
-A `binding<R>`.
+A `Binding<R>`.
 
 ## Usage
 ```luau

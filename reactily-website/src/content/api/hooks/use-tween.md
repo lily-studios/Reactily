@@ -11,7 +11,7 @@ Creates and owns a TweenService animation while dependencies remain current.
 
 ## Signature
 ```luau
-Reactily.useTween(instance: Instance, goals: {[string]: any}, options: tweenOptions, dependencies: {any}?): animation?
+Reactily.useTween(instance: Instance, goals: {[string]: any}, options: TweenOptions, dependencies: {any}?): Animation?
 ```
 ## Usage
 ```luau
@@ -21,7 +21,7 @@ Reactily.useTween(
 		Position = targetPosition,
 	},
 	{
-		time = .2,
+		Time = .2,
 	},
 	{targetPosition}
 )

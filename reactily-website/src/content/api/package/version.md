@@ -18,7 +18,7 @@ Reactily.version: string
 ## Current runtime
 
 ```luau
-print(Reactily.version) -- "1.3.1"
+print(Reactily.version) -- "2.1.0"
 ```
 
 Use this for diagnostics and display. Production packages should prefer feature detection over exact-version equality when possible.

@@ -14,8 +14,8 @@ Creates an owned TweenService animation without playing it immediately.
 Reactily.createTween(
 	instance: Instance,
 	goals: {[string]: any},
-	options: tweenOptions
-): animation
+	options: TweenOptions
+): Animation
 ```
 ## Parameters
 
@@ -23,7 +23,7 @@ Reactily.createTween(
 | --- | --- | :---: | --- |
 | `instance` | `Instance` | Yes | Roblox Instance used by the requested Reactily helper. |
 | `goals` | `{[string]: any}` | Yes | Roblox TweenService goal property table. |
-| `options` | `tweenOptions` | Yes | Typed Tween configuration. |
+| `options` | `TweenOptions` | Yes | Typed Tween configuration. |
 
 ## Returns
 
@@ -31,10 +31,10 @@ An owned Reactily animation wrapper.
 
 ## Usage
 ```luau
-local animation = Reactily.createTween(frame, {
+local Animation = Reactily.createTween(frame, {
 	BackgroundTransparency = 0,
 }, {
-	time = .2,
+	Time = .2,
 })
-animation.play()
+Animation.play()
 ```

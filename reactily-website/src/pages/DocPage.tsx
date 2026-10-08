@@ -19,10 +19,11 @@ export function DocPage() {
 
   const navigation = useMemo(() => {
     if (!doc) return { previous: undefined, next: undefined };
-    const index = docs.findIndex((candidate) => candidate.id === doc.id);
+    const sectionDocs = docs.filter((candidate) => candidate.category === doc.category);
+    const index = sectionDocs.findIndex((candidate) => candidate.id === doc.id);
     return {
-      previous: index > 0 ? docs[index - 1] : undefined,
-      next: index >= 0 && index < docs.length - 1 ? docs[index + 1] : undefined,
+      previous: index > 0 ? sectionDocs[index - 1] : undefined,
+      next: index >= 0 && index < sectionDocs.length - 1 ? sectionDocs[index + 1] : undefined,
     };
   }, [doc]);
 
@@ -41,11 +42,11 @@ export function DocPage() {
 
   return (
     <main className="docsShell">
-      <button className="mobileDocsToggle" type="button" onClick={() => setSidebarOpen((current) => !current)}>
+      <button className="mobileDocsToggle" type="button" aria-expanded={sidebarOpen} aria-controls="docs-sidebar" onClick={() => setSidebarOpen((current) => !current)}>
         <Menu size={16} /> Documentation menu
       </button>
-      <div className={`docsSidebarWrap${sidebarOpen ? " open" : ""}`}>
-        <DocsSidebar />
+      <div id="docs-sidebar" className={`docsSidebarWrap${sidebarOpen ? " open" : ""}`}>
+        <DocsSidebar onNavigate={() => setSidebarOpen(false)} />
       </div>
 
       <article className="docsArticle">

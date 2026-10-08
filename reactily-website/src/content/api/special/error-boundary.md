@@ -13,7 +13,7 @@ React-compatible error-boundary component marker.
 
 ```luau
 local boundary = Reactily.createElement(Reactily.ErrorBoundary, {
-	fallback = fallback,
-	children = { child },
+	Fallback = fallback,
+	Children = { child },
 })
 ```

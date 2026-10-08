@@ -11,22 +11,22 @@ Creates a typed virtual `UIPageLayout` element with class-specific prop autocomp
 
 ## Signature
 ```luau
-Reactily.createUIPageLayout(props: uiPageLayoutProps?): element
+Reactily.createUIPageLayout(props: UIPageLayoutProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiPageLayoutProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UIPageLayoutProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local layout = Reactily.createUIPageLayout({
-	animated = true,
-	circular = false,
+	Animated = true,
+	Circular = false,
 })
 ```

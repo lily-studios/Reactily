@@ -11,24 +11,24 @@ Creates a typed virtual `TextBox` element with class-specific prop autocomplete.
 
 ## Signature
 ```luau
-Reactily.createTextBox(props: textBoxProps?, children: {element}?): element
+Reactily.createTextBox(props: TextBoxProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `textBoxProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `TextBoxProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createTextBox({
-	size = UDim2.fromOffset(280, 48),
-	placeholderText = "Search...",
-	text = "",
+local Element = Reactily.createTextBox({
+	Size = UDim2.fromOffset(280, 48),
+	PlaceholderText = "Search...",
+	Text = "",
 })
 ```

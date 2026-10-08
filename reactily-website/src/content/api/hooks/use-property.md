@@ -1,13 +1,11 @@
 ---
 title: Reactily.useProperty
-sidebar_label: useProperty
-sidebar_position: 48
 description: Subscribes to a Roblox Instance property.
 ---
 
 # `Reactily.useProperty`
 
-Subscribes to a Roblox Instance property.
+Subscribes to a Roblox Instance property. This export is included in Reactily v2.1.0 (API v1).
 
 ## Signature
 
@@ -21,6 +19,4 @@ Reactily.useProperty<T>(instance: Instance, propertyName: string): T
 local visible = Reactily.useProperty(frame, "Visible")
 ```
 
-## Notes
-
-This API is exported by the current unreleased Reactily 1.4.0 development runtime and is safe to use from a function component where the hook rules allow it.
+Use this hook or constructor only in a valid Reactily component/render context, as applicable.

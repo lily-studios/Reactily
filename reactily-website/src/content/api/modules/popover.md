@@ -16,5 +16,5 @@ description: Public Reactily Popover module.
 Positions a popover GuiObject relative to an anchor.
 
 ```luau
-Reactily.Popover.place(anchor: GuiObject, object: GuiObject, options: popoverOptions?): UDim2
+Reactily.Popover.place(anchor: GuiObject, object: GuiObject, options: PopoverOptions?): UDim2
 ```

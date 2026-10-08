@@ -12,11 +12,11 @@ Clones an existing Reactily element while merging replacement props.
 ## Signature
 
 ```luau
-Reactily.cloneElement(elementValue: element, props: genericProps?, children: { any }?): element
+Reactily.cloneElement(elementValue: Element, props: genericProps?, children: { any }?): Element
 ```
 
 ## Usage
 
 ```luau
-local nextElement = Reactily.cloneElement(element, { Text = "Updated" })
+local nextElement = Reactily.cloneElement(Element, { Text = "Updated" })
 ```

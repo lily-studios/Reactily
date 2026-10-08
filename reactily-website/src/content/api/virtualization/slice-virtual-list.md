@@ -11,14 +11,14 @@ Returns the source-array entries covered by a virtual range.
 
 ## Signature
 ```luau
-Reactily.sliceVirtualList<T>(items: {T}, rangeValue: virtualRange): {T}
+Reactily.sliceVirtualList<T>(items: {T}, rangeValue: VirtualRange): {T}
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
 | `items` | `{T}` | Yes | Source array to slice using the virtual range. |
-| `rangeValue` | `virtualRange` | Yes | Virtualized range returned by `Reactily.resolveVirtualList()`. |
+| `rangeValue` | `VirtualRange` | Yes | Virtualized range returned by `Reactily.resolveVirtualList()`. |
 
 ## Returns
 

@@ -16,5 +16,5 @@ description: Public Reactily Resize module.
 Makes a GuiObject resizable from a dedicated handle GuiObject.
 
 ```luau
-Reactily.Resize.bind(target: GuiObject, handle: GuiObject, options: resizeOptions?): resizeController
+Reactily.Resize.bind(target: GuiObject, handle: GuiObject, options: ResizeOptions?): ResizeController
 ```

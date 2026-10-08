@@ -12,8 +12,8 @@ Reactily elements are virtual descriptions. Rendering a tree causes the root rec
 Prefer class-specific creators:
 ```luau
 Reactily.createFrame({
-	size = UDim2.fromScale(1, 1),
-	backgroundTransparency = .15,
+	Size = UDim2.fromScale(1, 1),
+	BackgroundTransparency = .15,
 })
 ```
 Use `createElement()` when a generic class name is genuinely useful.
@@ -22,10 +22,10 @@ Use `createElement()` when a generic class name is genuinely useful.
 
 Function components return elements:
 ```luau
-local function greeting(): Reactily.element
+local function greeting(): Reactily.Element
 	return Reactily.createTextLabel({
-		text = "Hello",
-		size = UDim2.fromOffset(180, 40),
+		Text = "Hello",
+		Size = UDim2.fromOffset(180, 40),
 	})
 end
 ```

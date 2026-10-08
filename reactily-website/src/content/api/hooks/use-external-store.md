@@ -10,7 +10,7 @@ description: Deprecated compatibility alias for Reactily.useSyncExternalStore.
 > Deprecated in Reactily 1.4. Use `Reactily.useSyncExternalStore` instead.
 
 ```luau
-local value = Reactily.useExternalStore(subscribe, getSnapshot)
+local Value = Reactily.useExternalStore(subscribe, getSnapshot)
 ```
 
-The alias is preserved throughout the Reactily 1.x line for compatibility.
+The alias is preserved throughout the Reactily 2.x line for compatibility.

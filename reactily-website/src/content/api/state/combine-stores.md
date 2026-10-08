@@ -11,7 +11,7 @@ Combines multiple stores into one derived selector.
 
 ## Signature
 ```luau
-Reactily.combineStores<R>(stores: {store<any>}, selectorFunction: (values: {any}) -> R): selector<R>
+Reactily.combineStores<R>(stores: {Store<any>}, selectorFunction: (values: {any}) -> R): Selector<R>
 ```
 ## Usage
 ```luau

@@ -8,7 +8,7 @@ export function Footer() {
       <div className="footerInner">
         <div className="footerBrand">
           <Brand />
-          <p>Development docs · Runtime {reactilyRuntime.version} · API v{reactilyRuntime.apiVersion}</p>
+          <p>Reactily v{reactilyRuntime.version} · API v{reactilyRuntime.apiVersion} · {reactilyRuntime.apiExportCount} runtime exports</p>
         </div>
 
         <div className="footerLinks">

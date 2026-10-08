@@ -2,7 +2,7 @@ import { ArrowRight, Box, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
 import { Link } from "react-router";
-import { apiDocs, apiGroups } from "../lib/docs";
+import { apiGroups } from "../lib/docs";
 import { reactilyRuntime } from "../lib/runtime";
 
 export function ApiPage() {
@@ -14,9 +14,7 @@ export function ApiPage() {
     return apiGroups
       .map((group) => ({
         ...group,
-        docs: group.docs.filter((doc) =>
-          `${doc.title} ${doc.description}`.toLowerCase().includes(normalized),
-        ),
+        docs: group.docs.filter((doc) => doc.searchableText.includes(normalized)),
       }))
       .filter((group) => group.docs.length > 0 || group.label.toLowerCase().includes(normalized));
   }, [query]);
@@ -29,11 +27,11 @@ export function ApiPage() {
           <div className="apiHeroGrid">
             <div>
               <h1>Reactily API</h1>
-              <p>Every public export in the current development runtime ({reactilyRuntime.version}), organized by system with signatures, behavior notes, parameters, and examples.</p>
+              <p>Reference for Reactily v{reactilyRuntime.version}: runtime exports, public Luau types, signatures, behavior notes, parameters, and examples.</p>
             </div>
             <div className="apiStatCard">
-              <strong>{apiDocs.length}</strong>
-              <span>documented public exports</span>
+              <strong>{reactilyRuntime.apiExportCount}</strong>
+              <span>runtime exports documented · {reactilyRuntime.apiTypeCount} public types</span>
             </div>
           </div>
           <label className="apiSearch">

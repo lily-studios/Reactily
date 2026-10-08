@@ -11,11 +11,11 @@ Reads the current value from a Reactily context.
 
 ## Signature
 ```luau
-Reactily.useContext<T>(contextValue: context<T>): T
+Reactily.useContext<T>(contextValue: Context<T>): T
 ```
 ## Usage
 ```luau
-local value = Reactily.useContext(context)
+local Value = Reactily.useContext(Context)
 ```
 ## Works with
 

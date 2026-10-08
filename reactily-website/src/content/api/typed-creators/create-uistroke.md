@@ -11,22 +11,22 @@ Creates a typed virtual `UIStroke` element with class-specific prop autocomplete
 
 ## Signature
 ```luau
-Reactily.createUIStroke(props: uiStrokeProps?): element
+Reactily.createUIStroke(props: UIStrokeProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiStrokeProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UIStrokeProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local stroke = Reactily.createUIStroke({
-	thickness = 2,
-	transparency = .25,
+	Thickness = 2,
+	Transparency = .25,
 })
 ```

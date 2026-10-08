@@ -1,8 +1,8 @@
 ---
 title: Reactily.Tooltip
-sidebar_label: Tooltip
+sidebar_label: tooltip
 sidebar_position: 29
-description: Public Reactily Tooltip module.
+description: Public Reactily tooltip module.
 ---
 
 # `Reactily.Tooltip`
@@ -16,5 +16,5 @@ description: Public Reactily Tooltip module.
 Attaches an owned tooltip to a GuiObject.
 
 ```luau
-Reactily.Tooltip.attach(parent: Instance, target: GuiObject, text: string, options: tooltipOptions?): tooltip
+Reactily.Tooltip.attach(parent: Instance, target: GuiObject, text: string, options: TooltipOptions?): Tooltip
 ```

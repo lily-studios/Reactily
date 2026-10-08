@@ -13,11 +13,10 @@ npm -v
 
 ## Clean install
 
-Run these commands **inside this folder**:
+Run these commands **inside this folder**. `npm ci` installs the exact dependency versions recorded in `package-lock.json`:
 
 ```bash
-rm -rf node_modules package-lock.json dist
-npm install
+npm ci
 npm run doctor
 npm run typecheck
 npm run dev
@@ -57,6 +56,10 @@ For a custom domain hosted at the root:
 npm run build
 ```
 
+## GitHub Pages deployment
+
+The workflow in `.github/workflows/pages.yml` installs the lockfile, runs the full verification suite, and deploys `dist` with the official Pages actions. In repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. Pull requests run the build checks without deploying.
+
 ## Toolchain
 
 - React 19.3.0
@@ -64,13 +67,13 @@ npm run build
 - React Router 8.4.0
 - Vite 8.3.3
 - `@vitejs/plugin-react` 6.1.2
-- TypeScript 6.0.2 (current Vite React+TS template baseline)
+- TypeScript 7.0.2
 - Lucide React 1.52.0
 - react-markdown 10.1.0
 - remark-gfm 4.0.1
 
-The startup path contains a plain-JavaScript bootstrap. If an ESM import fails before React mounts, the actual error is displayed in the page instead of leaving a white screen.
+The startup path contains a TypeScript bootstrap. If an ESM import fails before React mounts, the actual error is displayed in the page instead of leaving a white screen.
 
 ## Release selector
 
-The header reads published versions from the GitHub Releases API. If GitHub is unavailable or rate-limited, the selector falls back to the bundled Reactily runtime version. Selecting a version opens that release on GitHub; "All GitHub releases" opens the repository release history.
+The header links the documentation's pinned runtime version to the matching GitHub release. Update `src/lib/runtime.ts` and `src/lib/public-api-manifest.json` together when the docs are refreshed for a newer release.

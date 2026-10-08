@@ -24,5 +24,5 @@ Reactily.SafeArea.getInsets(): insets
 Creates a UIPadding element from current Roblox GUI insets.
 
 ```luau
-Reactily.SafeArea.padding(): elementModule.element
+Reactily.SafeArea.padding(): elementModule.Element
 ```

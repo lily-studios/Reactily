@@ -1,8 +1,8 @@
 ---
 title: Reactily.Command
-sidebar_label: Command
+sidebar_label: command
 sidebar_position: 2
-description: Public Reactily Command module.
+description: Public Reactily command module.
 ---
 
 # `Reactily.Command`
@@ -16,5 +16,5 @@ description: Public Reactily Command module.
 Creates a command registry that can share actions across buttons, menus, and shortcuts.
 
 ```luau
-Reactily.Command.create(): commandRegistry
+Reactily.Command.create(): CommandRegistry
 ```

@@ -11,21 +11,21 @@ Creates a typed virtual `UICorner` element with class-specific prop autocomplete
 
 ## Signature
 ```luau
-Reactily.createUICorner(props: uiCornerProps?): element
+Reactily.createUICorner(props: UICornerProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiCornerProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UICornerProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local corner = Reactily.createUICorner({
-	cornerRadius = UDim.new(0, 10),
+	CornerRadius = UDim.new(0, 10),
 })
 ```

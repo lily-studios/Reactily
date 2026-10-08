@@ -11,23 +11,23 @@ Creates a typed virtual `VideoFrame` element with class-specific prop autocomple
 
 ## Signature
 ```luau
-Reactily.createVideoFrame(props: videoFrameProps?, children: {element}?): element
+Reactily.createVideoFrame(props: VideoFrameProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `videoFrameProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `VideoFrameProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createVideoFrame({
-	size = UDim2.fromOffset(640, 360),
-	video = "rbxassetid://123456789",
+local Element = Reactily.createVideoFrame({
+	Size = UDim2.fromOffset(640, 360),
+	Video = "rbxassetid://123456789",
 })
 ```

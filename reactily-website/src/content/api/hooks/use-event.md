@@ -15,4 +15,4 @@ local handler = Reactily.useEvent(function()
 end)
 ```
 
-The alias is preserved throughout the Reactily 1.x line for compatibility.
+The alias is preserved throughout the Reactily 2.x line for compatibility.

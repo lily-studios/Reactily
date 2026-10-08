@@ -11,14 +11,14 @@ Applies a style table onto a cloned typed props table.
 
 ## Signature
 ```luau
-Reactily.applyStyle<T>(properties: T, styleValue: style): T
+Reactily.applyStyle<T>(properties: T, styleValue: Style): T
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
 | `properties` | `T` | Yes | Typed props table that receives the supplied Reactily style values. |
-| `styleValue` | `style` | Yes | Reactily style table to apply. |
+| `styleValue` | `Style` | Yes | Reactily style table to apply. |
 
 ## Returns
 
@@ -27,8 +27,8 @@ Reactily.applyStyle<T>(properties: T, styleValue: style): T
 ## Usage
 ```luau
 local props = Reactily.applyStyle({
-	size = UDim2.fromOffset(200, 80),
+	Size = UDim2.fromOffset(200, 80),
 }, {
-	backgroundTransparency = .2,
+	BackgroundTransparency = .2,
 })
 ```

@@ -15,7 +15,7 @@ Reactily.useOwned<T>(value: T): T
 ```
 ## Usage
 ```luau
-local binding = Reactily.useOwned(
+local Binding = Reactily.useOwned(
 	Reactily.createBinding(0)
 )
 ```

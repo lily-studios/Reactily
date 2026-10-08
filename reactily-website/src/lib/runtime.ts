@@ -1,7 +1,8 @@
 export const reactilyRuntime = {
-  version: "1.4.0-dev",
+  version: "2.1.0",
   apiVersion: 1,
-  apiExportCount: 197,
-  compatibilityLine: "1.x",
+  apiExportCount: 226,
+  apiTypeCount: 122,
+  compatibilityLine: "Package 2.x · API v1",
   reactBaseline: "React 19.3-inspired",
 } as const;

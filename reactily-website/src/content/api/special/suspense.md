@@ -13,7 +13,7 @@ React-compatible Suspense component marker for fallback rendering.
 
 ```luau
 local tree = Reactily.createElement(Reactily.Suspense, {
-	fallback = loading,
-	children = { content },
+	Fallback = loading,
+	Children = { content },
 })
 ```

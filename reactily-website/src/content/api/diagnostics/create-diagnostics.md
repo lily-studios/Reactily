@@ -11,7 +11,7 @@ Creates explicit runtime counters with no background polling.
 
 ## Signature
 ```luau
-Reactily.createDiagnostics(): diagnostics
+Reactily.createDiagnostics(): Diagnostics
 ```
 ## Parameters
 
@@ -23,6 +23,6 @@ A diagnostics counter owner.
 
 ## Usage
 ```luau
-local diagnostics = Reactily.createDiagnostics()
-diagnostics.increment("renders")
+local Diagnostics = Reactily.createDiagnostics()
+Diagnostics.increment("renders")
 ```

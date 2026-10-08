@@ -1,13 +1,11 @@
 ---
 title: Reactily.useEffectEvent
-sidebar_label: useEffectEvent
-sidebar_position: 44
 description: Creates an Effect Event that reads the latest committed values without resubscribing the effect.
 ---
 
 # `Reactily.useEffectEvent`
 
-Creates an Effect Event that reads the latest committed values without resubscribing the effect.
+Creates an Effect Event that reads the latest committed values without resubscribing the effect. This export is included in Reactily v2.1.0 (API v1).
 
 ## Signature
 
@@ -23,6 +21,4 @@ local onConnected = Reactily.useEffectEvent(function()
 end)
 ```
 
-## Notes
-
-This API is exported by the current unreleased Reactily 1.4.0 development runtime and is safe to use from a function component where the hook rules allow it.
+Use this hook or constructor only in a valid Reactily component/render context, as applicable.

@@ -11,7 +11,7 @@ Creates a standalone reactive binding.
 
 ## Signature
 ```luau
-Reactily.createBinding<T>(initialValue: T): binding<T>
+Reactily.createBinding<T>(initialValue: T): Binding<T>
 ```
 ## Parameters
 
@@ -21,7 +21,7 @@ Reactily.createBinding<T>(initialValue: T): binding<T>
 
 ## Returns
 
-A `binding<T>`.
+A `Binding<T>`.
 
 ## Usage
 ```luau

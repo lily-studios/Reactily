@@ -26,7 +26,7 @@ if (!atLeast(actualNode, requiredNode) && actualNode.major < 23) {
 
 const requiredFiles = [
   "index.html",
-  "src/bootstrap.js",
+  "src/bootstrap.ts",
   "src/main.tsx",
   "src/App.tsx",
   "src/lib/docs.ts",
@@ -53,9 +53,8 @@ const packages = [
 ];
 
 for (const dependency of packages) {
-  try {
-    import.meta.resolve(dependency);
-  } catch {
+  const packageManifest = path.join(projectRoot, "node_modules", ...dependency.split("/"), "package.json");
+  if (!fs.existsSync(packageManifest)) {
     console.error(`[doctor] Missing dependency: ${dependency}. Run npm install from ${projectRoot}`);
     process.exitCode = 1;
   }

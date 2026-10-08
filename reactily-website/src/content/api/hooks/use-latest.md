@@ -11,7 +11,7 @@ Returns a stable ref whose current field is refreshed every render.
 
 ## Signature
 ```luau
-Reactily.useLatest<T>(value: T): ref<T>
+Reactily.useLatest<T>(value: T): Ref<T>
 ```
 ## Usage
 ```luau

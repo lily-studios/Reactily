@@ -11,22 +11,22 @@ Creates a typed virtual `UIListLayout` element with class-specific prop autocomp
 
 ## Signature
 ```luau
-Reactily.createUIListLayout(props: uiListLayoutProps?): element
+Reactily.createUIListLayout(props: UIListLayoutProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiListLayoutProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UIListLayoutProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local layout = Reactily.createUIListLayout({
-	padding = UDim.new(0, 8),
-	fillDirection = Enum.FillDirection.Vertical,
+	Padding = UDim.new(0, 8),
+	FillDirection = Enum.FillDirection.Vertical,
 })
 ```

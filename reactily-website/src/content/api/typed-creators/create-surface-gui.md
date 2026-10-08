@@ -11,23 +11,23 @@ Creates a typed virtual `SurfaceGui` element with class-specific prop autocomple
 
 ## Signature
 ```luau
-Reactily.createSurfaceGui(props: surfaceGuiProps?, children: {element}?): element
+Reactily.createSurfaceGui(props: SurfaceGuiProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `surfaceGuiProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `SurfaceGuiProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createSurfaceGui({
-	adornee = panelPart,
-	pixelsPerStud = 100,
+local Element = Reactily.createSurfaceGui({
+	Adornee = panelPart,
+	PixelsPerStud = 100,
 })
 ```

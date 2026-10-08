@@ -1,8 +1,8 @@
 ---
 title: Reactily.Component
-sidebar_label: Component
+sidebar_label: component
 sidebar_position: 3
-description: Public Reactily Component module.
+description: Public Reactily component module.
 ---
 
 # `Reactily.Component`
@@ -16,7 +16,7 @@ description: Public Reactily Component module.
 Creates a reusable function component with optional default props.
 
 ```luau
-Reactily.Component.create<P>( render: (props: P) -> elementModule.element?, options: componentOptions<P>? ): elementModule.component<P>
+Reactily.Component.create<P>( render: (props: P) -> elementModule.Element?, options: ComponentOptions<P>? ): elementModule.Component<P>
 ```
 
 ### `Component.withDefaults`
@@ -24,5 +24,5 @@ Reactily.Component.create<P>( render: (props: P) -> elementModule.element?, opti
 Wraps a component with default props while preserving function-component behavior.
 
 ```luau
-Reactily.Component.withDefaults<P>(componentValue: elementModule.component<P>, defaults: P): elementModule.component<P>
+Reactily.Component.withDefaults<P>(componentValue: elementModule.Component<P>, defaults: P): elementModule.Component<P>
 ```

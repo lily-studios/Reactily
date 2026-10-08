@@ -15,4 +15,4 @@ if Reactily.features["optimistic-state"] then
 end
 ```
 
-The unreleased Reactily 1.4.0 development runtime exposes flags for action state, Effect Events, optimistic state, external-store synchronization, Suspense, transitions, virtualization, and host metadata. DOM-only concepts such as browser View Transitions are explicitly reported as unsupported.
+Reactily v2.1.0 (API v1) exposes these capability flags: `action-state`, `activity`, `concurrent-priorities`, `effect-events`, `fragment-refs`, `host-metadata`, `insertion-effects`, `optimistic-state`, `profiler-Component`, `strict-mode-checks`, `suspense`, `sync-external-Store`, `transitions`, `use-api`, `view-transitions`, `virtual-grid`, `virtual-list`, and `virtual-window`. Check a flag before depending on an optional capability.

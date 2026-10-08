@@ -7,12 +7,12 @@ description: Reserved namespace for unstable future Reactily APIs.
 
 # `Reactily.Experimental`
 
-Reserved namespace for future APIs that are intentionally not covered by the stable 1.x compatibility contract.
+Reserved namespace for future APIs that are intentionally not covered by the stable API v1 compatibility contract.
 
-The unreleased Reactily 1.4.0 development runtime exports an empty frozen table:
+Reactily v2.1.0 (API v1) exports an empty frozen table:
 
 ```luau
 Reactily.Experimental
 ```
 
-When experimental features are introduced, they may change between minor releases. Stable APIs should graduate out of this namespace before production users depend on them.
+This namespace is currently empty in v2.1.0. Experimental features may change between releases; stable APIs should graduate out of this namespace before production users depend on them.

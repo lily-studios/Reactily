@@ -11,7 +11,7 @@ Provides numeric state plus increment/decrement/reset/set controls.
 
 ## Signature
 ```luau
-Reactily.useCounter(initialValue: number?): (number, counterControls)
+Reactily.useCounter(initialValue: number?): (number, CounterControls)
 ```
 ## Parameters
 
@@ -21,7 +21,7 @@ Reactily.useCounter(initialValue: number?): (number, counterControls)
 
 ## Returns
 
-`(number, counterControls)`.
+`(number, CounterControls)`.
 
 ## Usage
 ```luau

@@ -11,14 +11,12 @@ Returns a clone of an element with a stable key.
 
 ## Signature
 ```luau
-Reactily.key(key: string, elementValue: element): element
+Reactily.key(key: string, elementValue: Element): Element
 ```
 ## Usage
 ```luau
-local keyed = Reactily.key(
-	tostring(item.id),
-	element
-)
+local Element = Reactily.createTextLabel({ Text = item.name })
+local keyed = Reactily.key(tostring(item.id), Element)
 ```
 ## Works with
 

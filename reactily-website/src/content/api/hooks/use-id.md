@@ -15,7 +15,7 @@ Reactily.useId(): string
 ```
 ## Usage
 ```luau
-local id = Reactily.useId()
+local Id = Reactily.useId()
 ```
 ## Works with
 

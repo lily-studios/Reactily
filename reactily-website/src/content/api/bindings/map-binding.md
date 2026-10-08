@@ -11,18 +11,18 @@ Creates a derived binding by transforming the source value.
 
 ## Signature
 ```luau
-Reactily.mapBinding<A, B>(source: binding<A>, mapper: (value: A) -> B): binding<B>
+Reactily.mapBinding<A, B>(source: Binding<A>, mapper: (value: A) -> B): Binding<B>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `binding<A>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Binding<A>` | Yes | Source Reactily atom, binding, or signal. |
 | `mapper` | `(value: A) -> B` | Yes | Function that transforms one or more source values into the derived value. |
 
 ## Returns
 
-A `binding<B>`.
+A `Binding<B>`.
 
 ## Usage
 ```luau

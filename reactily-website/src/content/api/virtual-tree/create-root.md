@@ -11,7 +11,7 @@ Creates a Reactily render root under a Roblox parent.
 
 ## Signature
 ```luau
-Reactily.createRoot(parent: Instance): root
+Reactily.createRoot(parent: Instance): Root
 ```
 ## Parameters
 
@@ -25,6 +25,6 @@ A Reactily render root.
 
 ## Usage
 ```luau
-local root = Reactily.createRoot(playerGui)
-root.render(appElement)
+local Root = Reactily.createRoot(playerGui)
+Root.render(appElement)
 ```

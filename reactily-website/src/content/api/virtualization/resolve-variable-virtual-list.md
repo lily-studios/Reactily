@@ -11,7 +11,7 @@ Resolves a visible range for variable-size items.
 
 ## Signature
 ```luau
-Reactily.resolveVariableVirtualList(sizes: {number}, scrollOffset: number, viewportSize: number, overscan: number?): variableVirtualRange
+Reactily.resolveVariableVirtualList(sizes: {number}, scrollOffset: number, viewportSize: number, overscan: number?): VariableVirtualRange
 ```
 ## Usage
 ```luau

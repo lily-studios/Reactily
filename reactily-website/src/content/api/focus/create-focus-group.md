@@ -11,7 +11,7 @@ Creates a focus collection for keyboard/controller GUI selection.
 
 ## Signature
 ```luau
-Reactily.createFocusGroup(): focusGroup
+Reactily.createFocusGroup(): FocusGroup
 ```
 ## Parameters
 

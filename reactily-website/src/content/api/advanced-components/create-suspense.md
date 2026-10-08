@@ -11,7 +11,7 @@ Creates a Suspense boundary around one child element.
 
 ## Signature
 ```luau
-Reactily.createSuspense(fallback: element, child: element, key: string?): element
+Reactily.createSuspense(fallback: Element, child: Element, key: string?): Element
 ```
 ## Usage
 ```luau

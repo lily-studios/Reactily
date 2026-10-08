@@ -24,7 +24,7 @@ Reactily.Children.count(children: { any }): number
 Invokes a callback for every normalized child.
 
 ```luau
-Reactily.Children.forEach(children: { any }, callback: (child: elementModule.element, index: number) -> ())
+Reactily.Children.forEach(children: { any }, callback: (child: elementModule.Element, index: number) -> ())
 ```
 
 ### `Children.map`
@@ -32,7 +32,7 @@ Reactily.Children.forEach(children: { any }, callback: (child: elementModule.ele
 Maps normalized children and flattens returned child arrays.
 
 ```luau
-Reactily.Children.map( children: { any }, callback: (child: elementModule.element, index: number) -> any ): { elementModule.element }
+Reactily.Children.map( children: { any }, callback: (child: elementModule.Element, index: number) -> any ): { elementModule.Element }
 ```
 
 ### `Children.only`
@@ -40,7 +40,7 @@ Reactily.Children.map( children: { any }, callback: (child: elementModule.elemen
 Returns the only normalized child and errors when the count differs from one.
 
 ```luau
-Reactily.Children.only(children: { any }): elementModule.element
+Reactily.Children.only(children: { any }): elementModule.Element
 ```
 
 ### `Children.toArray`
@@ -48,5 +48,5 @@ Reactily.Children.only(children: { any }): elementModule.element
 Flattens nested children into a new ordered array.
 
 ```luau
-Reactily.Children.toArray(children: { any }): { elementModule.element }
+Reactily.Children.toArray(children: { any }): { elementModule.Element }
 ```

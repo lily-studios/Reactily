@@ -11,7 +11,7 @@ Creates a typed Reactily signal.
 
 ## Signature
 ```luau
-Reactily.createSignal<T>(): signal<T>
+Reactily.createSignal<T>(): Signal<T>
 ```
 ## Parameters
 
@@ -19,7 +19,7 @@ _No parameters._
 
 ## Returns
 
-A `signal<T>`.
+A `Signal<T>`.
 
 ## Usage
 ```luau

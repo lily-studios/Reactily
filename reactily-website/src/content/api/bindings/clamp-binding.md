@@ -12,22 +12,22 @@ Creates a derived numeric binding clamped between `minimum` and `maximum`.
 ## Signature
 ```luau
 Reactily.clampBinding(
-	source: binding<number>,
+	source: Binding<number>,
 	minimum: number,
 	maximum: number
-): binding<number>
+): Binding<number>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `source` | `binding<number>` | Yes | Source Reactily atom, binding, or signal. |
+| `source` | `Binding<number>` | Yes | Source Reactily atom, binding, or signal. |
 | `minimum` | `number` | Yes | Minimum allowed numeric value. |
 | `maximum` | `number` | Yes | Maximum allowed value or maximum number of signal emissions to forward. |
 
 ## Returns
 
-A `binding<number>`.
+A `Binding<number>`.
 
 ## Usage
 ```luau

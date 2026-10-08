@@ -11,7 +11,7 @@ Creates a bounded reusable pool for Roblox Instances of one class.
 
 ## Signature
 ```luau
-Reactily.createInstancePool(className: string, maximumSize: number): objectPool<Instance>
+Reactily.createInstancePool(className: string, maximumSize: number): ObjectPool<Instance>
 ```
 ## Parameters
 
@@ -22,7 +22,7 @@ Reactily.createInstancePool(className: string, maximumSize: number): objectPool<
 
 ## Returns
 
-A bounded `objectPool<Instance>`.
+A bounded `ObjectPool<Instance>`.
 
 ## Usage
 ```luau

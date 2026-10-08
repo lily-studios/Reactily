@@ -26,10 +26,10 @@ No value.
 ## Usage
 ```luau
 Reactily.useEffect(function()
-	local connection = signal:Connect(onChanged)
+	local Connection = Signal:Connect(onChanged)
 
 	return function()
-		connection:Disconnect()
+		Connection:Disconnect()
 	end
-end, {signal})
+end, {Signal})
 ```

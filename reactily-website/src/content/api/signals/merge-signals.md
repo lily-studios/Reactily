@@ -11,17 +11,17 @@ Creates a derived signal that forwards emissions from all supplied sources.
 
 ## Signature
 ```luau
-Reactily.mergeSignals<T>(sources: {signal<T>}): signal<T>
+Reactily.mergeSignals<T>(sources: {Signal<T>}): Signal<T>
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `sources` | `{signal<T>}` | Yes | Source signals to merge into one derived signal. |
+| `sources` | `{Signal<T>}` | Yes | Source signals to merge into one derived signal. |
 
 ## Returns
 
-A `signal<T>`.
+A `Signal<T>`.
 
 ## Usage
 ```luau

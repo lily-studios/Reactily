@@ -16,5 +16,5 @@ description: Public Reactily Layer module.
 Creates an owned ScreenGui layer manager for portals, overlays, modals, and tooltips.
 
 ```luau
-Reactily.Layer.create(parent: Instance, definitions: { [string]: layerDefinition }?): layerManager
+Reactily.Layer.create(parent: Instance, definitions: { [string]: LayerDefinition }?): LayerManager
 ```

@@ -11,7 +11,7 @@ Creates an error boundary around one child element.
 
 ## Signature
 ```luau
-Reactily.createErrorBoundary(fallback: element | ((failure: any) -> element), child: element, onError: ((failure: any) -> ())?, key: string?): element
+Reactily.createErrorBoundary(fallback: Element | ((failure: any) -> Element), child: Element, onError: ((failure: any) -> ())?, key: string?): Element
 ```
 ## Usage
 ```luau

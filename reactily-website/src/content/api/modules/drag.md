@@ -16,5 +16,5 @@ description: Public Reactily Drag module.
 Makes a GuiObject draggable using input events only while dragging.
 
 ```luau
-Reactily.Drag.bind(target: GuiObject, options: dragOptions?): dragController
+Reactily.Drag.bind(target: GuiObject, options: DragOptions?): DragController
 ```

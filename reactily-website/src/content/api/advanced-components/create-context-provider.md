@@ -11,12 +11,12 @@ Creates a provider element for a Reactily context.
 
 ## Signature
 ```luau
-Reactily.createContextProvider<T>(contextValue: context<T>, value: T, children: {any}, key: string?): element
+Reactily.createContextProvider<T>(contextValue: Context<T>, value: T, children: {any}, key: string?): Element
 ```
 ## Usage
 ```luau
 local provider = Reactily.createContextProvider(
-	context,
+	Context,
 	value,
 	{
 		child,

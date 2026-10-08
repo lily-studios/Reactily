@@ -20,12 +20,12 @@ function LuauTerminal() {
         <code>
           <span className="syntaxKeyword">type</span>{" "}
           <span className="syntaxType">CounterProps</span>{" = { "}
-          <span className="syntaxProperty">label</span>{": "}
+          <span className="syntaxProperty">Label</span>{": "}
           <span className="syntaxType">string</span>{" }\n"}
           <span className="syntaxKeyword">local function</span>{" "}
           <span className="syntaxFunction">Counter</span>{"(props: "}
           <span className="syntaxType">CounterProps</span>{"): "}
-          <span className="syntaxType">Reactily.element</span>{"\n"}
+          <span className="syntaxType">Reactily.Element</span>{"\n"}
           {"\t"}<span className="syntaxKeyword">local</span>{" count, setCount = "}
           <span className="syntaxType">Reactily</span>{"."}
           <span className="syntaxFunction">useState</span>{"("}
@@ -33,14 +33,14 @@ function LuauTerminal() {
           {"\t"}<span className="syntaxKeyword">return</span>{" "}
           <span className="syntaxType">Reactily</span>{"."}
           <span className="syntaxFunction">createTextButton</span>{"({\n"}
-          {"\t\t"}<span className="syntaxProperty">size</span>{" = "}
+          {"\t\t"}<span className="syntaxProperty">Size</span>{" = "}
           <span className="syntaxType">UDim2</span>{"."}
           <span className="syntaxFunction">fromOffset</span>{"("}
           <span className="syntaxNumber">220</span>{", "}
           <span className="syntaxNumber">48</span>{"),\n"}
-          {"\t\t"}<span className="syntaxProperty">text</span>{" = "}
-          <span className="syntaxString">{"`{props.label}: {count}`"}</span>{",\n"}
-          {"\t\t"}<span className="syntaxProperty">onActivated</span>{" = "}
+          {"\t\t"}<span className="syntaxProperty">Text</span>{" = "}
+          <span className="syntaxString">{"`{props.Label}: {count}`"}</span>{",\n"}
+          {"\t\t"}<span className="syntaxProperty">OnActivated</span>{" = "}
           <span className="syntaxKeyword">function</span>{"()\n"}
           {"\t\t\t"}<span className="syntaxFunction">setCount</span>{"(count + "}
           <span className="syntaxNumber">1</span>{")\n"}
@@ -66,7 +66,7 @@ export function HomePage() {
         <div className="container heroLayout">
           <div className="heroCopy">
             <span className="sectionEyebrow">
-              Development docs · API v{reactilyRuntime.apiVersion}
+              Reactily v{reactilyRuntime.version} · API v{reactilyRuntime.apiVersion}
             </span>
 
             <h1>
@@ -77,7 +77,7 @@ export function HomePage() {
             <p>
               Reactily gives strict Luau projects components, hooks, stores,
               signals, bindings, virtualization, diagnostics, and typed Roblox
-              creators in one runtime. The current API exposes {reactilyRuntime.apiExportCount} public exports.
+              creators in one runtime. Reactily v{reactilyRuntime.version} exposes {reactilyRuntime.apiExportCount} runtime exports and {reactilyRuntime.apiTypeCount} public types.
             </p>
 
             <div className="heroActions">
@@ -90,7 +90,7 @@ export function HomePage() {
             </div>
 
             <div className="heroFacts" aria-label="Reactily facts">
-              <span><strong>{reactilyRuntime.apiExportCount}</strong> public exports</span>
+              <span><strong>{reactilyRuntime.apiExportCount}</strong> runtime exports</span>
               <span><strong>{apiDocs.length}</strong> API pages</span>
               <span><strong>{docs.length}</strong> searchable docs</span>
             </div>

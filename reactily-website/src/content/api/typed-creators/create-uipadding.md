@@ -11,22 +11,22 @@ Creates a typed virtual `UIPadding` element with class-specific prop autocomplet
 
 ## Signature
 ```luau
-Reactily.createUIPadding(props: uiPaddingProps?): element
+Reactily.createUIPadding(props: UIPaddingProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiPaddingProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UIPaddingProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local padding = Reactily.createUIPadding({
-	paddingLeft = UDim.new(0, 12),
-	paddingRight = UDim.new(0, 12),
+local Padding = Reactily.createUIPadding({
+	PaddingLeft = UDim.new(0, 12),
+	PaddingRight = UDim.new(0, 12),
 })
 ```

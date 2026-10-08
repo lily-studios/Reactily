@@ -16,7 +16,7 @@ description: Public Reactily Props module.
 Returns a copy of props with missing values filled from defaults.
 
 ```luau
-Reactily.Props.defaults<T>(props: T, defaults: propMap): T
+Reactily.Props.defaults<T>(props: T, defaults: PropMap): T
 ```
 
 ### `Props.equal`
@@ -24,7 +24,7 @@ Reactily.Props.defaults<T>(props: T, defaults: propMap): T
 Returns whether two prop tables are shallowly equal.
 
 ```luau
-Reactily.Props.equal(first: propMap, second: propMap): boolean
+Reactily.Props.equal(first: PropMap, second: PropMap): boolean
 ```
 
 ### `Props.changed`
@@ -32,7 +32,7 @@ Reactily.Props.equal(first: propMap, second: propMap): boolean
 Returns changed current values plus keys that were removed.
 
 ```luau
-Reactily.Props.changed(previous: propMap, current: propMap): (propMap, { any })
+Reactily.Props.changed(previous: PropMap, current: PropMap): (PropMap, { any })
 ```
 
 ### `Props.merge`
@@ -40,7 +40,7 @@ Reactily.Props.changed(previous: propMap, current: propMap): (propMap, { any })
 Merges prop tables from left to right without mutating any input.
 
 ```luau
-Reactily.Props.merge(...: propMap): propMap
+Reactily.Props.merge(...: PropMap): PropMap
 ```
 
 ### `Props.omit`
@@ -48,7 +48,7 @@ Reactily.Props.merge(...: propMap): propMap
 Returns a copy without the supplied keys.
 
 ```luau
-Reactily.Props.omit(props: propMap, keys: { any }): propMap
+Reactily.Props.omit(props: PropMap, keys: { any }): PropMap
 ```
 
 ### `Props.pick`
@@ -56,5 +56,5 @@ Reactily.Props.omit(props: propMap, keys: { any }): propMap
 Returns a new table containing only the supplied keys.
 
 ```luau
-Reactily.Props.pick(props: propMap, keys: { any }): propMap
+Reactily.Props.pick(props: PropMap, keys: { any }): PropMap
 ```

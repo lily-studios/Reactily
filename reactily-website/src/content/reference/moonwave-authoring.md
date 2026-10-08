@@ -16,9 +16,9 @@ local Reactily = {}
 ```
 Document public functions directly above their definitions:
 ```luau
---- Creates a render root attached to a Roblox parent.
+--- Creates a render Root attached to a Roblox parent.
 --- @param parent Instance -- Parent that owns the rendered UI.
---- @return root -- New Reactily render root.
+--- @return Root -- New Reactily render Root.
 --- @within Reactily
 function Reactily.createRoot(parent: Instance)
 	-- implementation

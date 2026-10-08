@@ -15,7 +15,7 @@ Reactily.getRenderReason(componentValue: any): string?
 ```
 ## Usage
 ```luau
-local reason = Reactily.getRenderReason(component)
+local reason = Reactily.getRenderReason(Component)
 ```
 ## Works with
 

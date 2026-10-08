@@ -11,23 +11,23 @@ Creates a typed virtual `CanvasGroup` element with class-specific prop autocompl
 
 ## Signature
 ```luau
-Reactily.createCanvasGroup(props: canvasGroupProps?, children: {element}?): element
+Reactily.createCanvasGroup(props: CanvasGroupProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `canvasGroupProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `CanvasGroupProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createCanvasGroup({
-	size = UDim2.fromOffset(300, 180),
-	groupTransparency = 0,
+local Element = Reactily.createCanvasGroup({
+	Size = UDim2.fromOffset(300, 180),
+	GroupTransparency = 0,
 })
 ```

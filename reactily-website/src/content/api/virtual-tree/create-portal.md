@@ -11,19 +11,19 @@ Creates a virtual portal that reconciles children into another Roblox target.
 
 ## Signature
 ```luau
-Reactily.createPortal(target: Instance, children: {element}, key: string?): element
+Reactily.createPortal(target: Instance, children: {Element}, key: string?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
 | `target` | `Instance` | Yes | Roblox Instance that receives portal children. |
-| `children` | `{element}` | Yes | Optional child Reactily elements rendered beneath this element/component. |
+| `children` | `{Element}` | Yes | Optional child Reactily elements rendered beneath this element/component. |
 | `key` | `string?` | No | Optional stable identity key used by reconciliation. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau

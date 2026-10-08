@@ -11,27 +11,27 @@ Creates a typed virtual `ScreenGui` element with class-specific prop autocomplet
 
 ## Signature
 ```luau
-Reactily.createScreenGui(props: screenGuiProps?, children: {element}?): element
+Reactily.createScreenGui(props: ScreenGuiProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `screenGuiProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `ScreenGuiProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createScreenGui({
-	name = "Interface",
-	resetOnSpawn = false,
+local Element = Reactily.createScreenGui({
+	Name = "Interface",
+	ResetOnSpawn = false,
 }, {
 	Reactily.createFrame({
-		size = UDim2.fromScale(1, 1),
+		Size = UDim2.fromScale(1, 1),
 	}),
 })
 ```

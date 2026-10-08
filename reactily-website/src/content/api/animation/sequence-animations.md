@@ -11,7 +11,7 @@ Creates a group that plays each animation after the previous one completes.
 
 ## Signature
 ```luau
-Reactily.sequenceAnimations(animations: {animationPlayable}): animationGroup
+Reactily.sequenceAnimations(animations: {AnimationPlayable}): AnimationGroup
 ```
 ## Usage
 ```luau

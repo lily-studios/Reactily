@@ -11,21 +11,21 @@ Creates a typed virtual `UIGradient` element with class-specific prop autocomple
 
 ## Signature
 ```luau
-Reactily.createUIGradient(props: uiGradientProps?): element
+Reactily.createUIGradient(props: UIGradientProps?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `uiGradientProps?` | No | Typed property table for this Roblox host class. |
+| `props` | `UIGradientProps?` | No | Typed property table for this Roblox host class. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
 local gradient = Reactily.createUIGradient({
-	rotation = 90,
+	Rotation = 90,
 })
 ```

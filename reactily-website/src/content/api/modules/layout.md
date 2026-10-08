@@ -16,7 +16,7 @@ description: Public Reactily Layout module.
 Creates a transparent horizontal list container.
 
 ```luau
-Reactily.Layout.horizontal(options: listOptions?, children: { any }): elementModule.element
+Reactily.Layout.horizontal(options: ListOptions?, children: { any }): elementModule.Element
 ```
 
 ### `Layout.vertical`
@@ -24,7 +24,7 @@ Reactily.Layout.horizontal(options: listOptions?, children: { any }): elementMod
 Creates a transparent vertical list container.
 
 ```luau
-Reactily.Layout.vertical(options: listOptions?, children: { any }): elementModule.element
+Reactily.Layout.vertical(options: ListOptions?, children: { any }): elementModule.Element
 ```
 
 ### `Layout.wrap`
@@ -32,7 +32,7 @@ Reactily.Layout.vertical(options: listOptions?, children: { any }): elementModul
 Creates a transparent wrapping list container.
 
 ```luau
-Reactily.Layout.wrap(options: listOptions?, children: { any }): elementModule.element
+Reactily.Layout.wrap(options: ListOptions?, children: { any }): elementModule.Element
 ```
 
 ### `Layout.grid`
@@ -40,7 +40,7 @@ Reactily.Layout.wrap(options: listOptions?, children: { any }): elementModule.el
 Creates a grid container backed by UIGridLayout.
 
 ```luau
-Reactily.Layout.grid(options: gridOptions, children: { any }): elementModule.element
+Reactily.Layout.grid(options: GridOptions, children: { any }): elementModule.Element
 ```
 
 ### `Layout.stack`
@@ -48,7 +48,7 @@ Reactily.Layout.grid(options: gridOptions, children: { any }): elementModule.ele
 Creates a transparent stacking container where children share the same bounds.
 
 ```luau
-Reactily.Layout.stack(options: commonOptions?, children: { any }): elementModule.element
+Reactily.Layout.stack(options: CommonOptions?, children: { any }): elementModule.Element
 ```
 
 ### `Layout.center`
@@ -56,5 +56,5 @@ Reactily.Layout.stack(options: commonOptions?, children: { any }): elementModule
 Creates a container whose children are centered by UIListLayout.
 
 ```luau
-Reactily.Layout.center(options: commonOptions?, children: { any }): elementModule.element
+Reactily.Layout.center(options: CommonOptions?, children: { any }): elementModule.Element
 ```

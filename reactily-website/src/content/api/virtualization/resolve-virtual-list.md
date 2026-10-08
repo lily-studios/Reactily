@@ -17,7 +17,7 @@ Reactily.resolveVirtualList(
 	scrollOffset: number,
 	viewportSize: number,
 	overscan: number?
-): virtualRange
+): VirtualRange
 ```
 ## Parameters
 

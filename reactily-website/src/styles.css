@@ -1995,6 +1995,8 @@ kbd {
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--surface);
+  color: inherit;
+  text-decoration: none;
 }
 
 .desktopNav a {
@@ -2620,6 +2622,11 @@ kbd {
 .versionSelectorShell:hover {
   border-color: var(--border-strong);
   background: var(--surface-strong);
+}
+
+.versionSelectorShell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .versionSelectorCurrent {

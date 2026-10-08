@@ -11,23 +11,23 @@ Creates a typed virtual `ImageLabel` element with class-specific prop autocomple
 
 ## Signature
 ```luau
-Reactily.createImageLabel(props: imageLabelProps?, children: {element}?): element
+Reactily.createImageLabel(props: ImageLabelProps?, children: {Element}?): Element
 ```
 ## Parameters
 
 | Parameter | Type | Required | Description |
 | --- | --- | :---: | --- |
-| `props` | `imageLabelProps?` | No | Typed property table for this Roblox host class. |
-| `children` | `{element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
+| `props` | `ImageLabelProps?` | No | Typed property table for this Roblox host class. |
+| `children` | `{Element}?` | No | Optional child Reactily elements rendered beneath this element/component. |
 
 ## Returns
 
-A virtual `Reactily.element`.
+A virtual `Reactily.Element`.
 
 ## Usage
 ```luau
-local element = Reactily.createImageLabel({
-	size = UDim2.fromOffset(128, 128),
-	image = "rbxassetid://123456789",
+local Element = Reactily.createImageLabel({
+	Size = UDim2.fromOffset(128, 128),
+	Image = "rbxassetid://123456789",
 })
 ```

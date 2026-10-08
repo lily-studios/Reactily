@@ -11,7 +11,7 @@ Combines any number of bindings using an ordered value array.
 
 ## Signature
 ```luau
-Reactily.combineBindingsMany<R>(sources: {binding<any>}, mapper: (values: {any}) -> R): binding<R>
+Reactily.combineBindingsMany<R>(sources: {Binding<any>}, mapper: (values: {any}) -> R): Binding<R>
 ```
 ## Usage
 ```luau

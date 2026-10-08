@@ -11,7 +11,7 @@ Creates standalone change-only typed state.
 
 ## Signature
 ```luau
-Reactily.createAtom<T>(initialValue: T): atom<T>
+Reactily.createAtom<T>(initialValue: T): Atom<T>
 ```
 ## Parameters
 
@@ -21,7 +21,7 @@ Reactily.createAtom<T>(initialValue: T): atom<T>
 
 ## Returns
 
-A `atom<T>`.
+A `Atom<T>`.
 
 ## Usage
 ```luau
