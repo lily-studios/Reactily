@@ -5,6 +5,7 @@ import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   fetchChangelogReleases,
+  getReleaseChannel,
   releaseDate,
   releaseDescription,
 } from "../lib/changelog";
@@ -27,7 +28,7 @@ export function ChangelogPage() {
   const [status, setStatus] = useState<LoadStatus>("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [refreshCount, setRefreshCount] = useState(0);
-  const latestStable = releases.find((release) => !release.prerelease);
+  const latestStable = releases.find((release) => getReleaseChannel(release) === "stable");
 
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export function ChangelogPage() {
           Every update directly from the{" "}
           <a href="https://github.com/lily-studios/Reactily/releases" target="_blank" rel="noopener noreferrer">
             Reactily GitHub releases
-          </a>. Browse all published releases, including pre-releases and named versions.
+          </a>. Browse all published releases, including pre-releases, experimental builds, and named versions.
         </p>
       </header>
 
@@ -100,7 +101,9 @@ export function ChangelogPage() {
                 <li key={release.id}>
                   <a href={`#release-${release.id}`}>
                     <span>{release.tag_name}</span>
-                    {release.prerelease ? (
+                    {getReleaseChannel(release) === "experimental" ? (
+                      <span className="changelogExperimental">Experimental</span>
+                    ) : getReleaseChannel(release) === "prerelease" ? (
                       <span className="changelogPrerelease">Pre-release</span>
                     ) : release.id === latestStable?.id ? (
                       <span className="changelogLatest">Latest</span>
@@ -131,7 +134,9 @@ export function ChangelogPage() {
                   <div>
                     <div className="changelogEntryMeta">
                       <span>{releaseDate(release.published_at)}</span>
-                      {release.prerelease ? (
+                      {getReleaseChannel(release) === "experimental" ? (
+                        <span className="changelogExperimental">Experimental</span>
+                      ) : getReleaseChannel(release) === "prerelease" ? (
                         <span className="changelogPrerelease">Pre-release</span>
                       ) : release.id === latestStable?.id ? (
                         <span className="changelogLatest">Latest stable</span>

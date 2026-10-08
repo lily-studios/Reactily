@@ -595,3 +595,7 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
     transition: none;
   }
 }
+
+// Experimental is a separate release channel, styled as text without a background.
+:root .versionReleaseOptionStatus--experimental { color: #c6adff; }
+:root[data-theme="light"] .versionReleaseOptionStatus--experimental { color: #7251a8; }

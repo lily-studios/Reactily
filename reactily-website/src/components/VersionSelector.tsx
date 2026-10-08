@@ -1,6 +1,6 @@
 import { ChevronDown, ExternalLink } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { fetchChangelogReleases } from "../lib/changelog";
+import { fetchChangelogReleases, getReleaseChannel } from "../lib/changelog";
 import type { GitHubRelease } from "../lib/changelog";
 import { reactilyRuntime } from "../lib/runtime";
 
@@ -53,9 +53,10 @@ export function VersionSelector() {
     };
   }, [isOpen]);
 
-  // GitHub decides release type; tags can be numbers, words, or mixed formats.
-  const latestStable = releases.find((release) => !release.prerelease);
-  const latestPrerelease = releases.find((release) => release.prerelease);
+  // Keep experimental releases separate, regardless of GitHub's prerelease flag.
+  const latestStable = releases.find((release) => getReleaseChannel(release) === "stable");
+  const latestPrerelease = releases.find((release) => getReleaseChannel(release) === "prerelease");
+  const latestExperimental = releases.find((release) => getReleaseChannel(release) === "experimental");
   const shownTag = latestStable?.tag_name ?? fallbackTag;
 
   return (
@@ -109,7 +110,20 @@ export function VersionSelector() {
               <ExternalLink size={13} aria-hidden="true" />
             </a>
           ) : null}
-          {!latestStable && !latestPrerelease ? (
+          {latestExperimental ? (
+            <a
+              className="versionReleaseOption"
+              href={latestExperimental.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="versionReleaseOptionStatus versionReleaseOptionStatus--experimental">Experimental</span>
+              <span className="versionReleaseOptionTag">{latestExperimental.tag_name}</span>
+              <ExternalLink size={13} aria-hidden="true" />
+            </a>
+          ) : null}
+          {!latestStable && !latestPrerelease && !latestExperimental ? (
             <>
               {loading ? <span className="versionReleaseMenuInfo">Loading releases…</span> : null}
               <a

@@ -13,6 +13,18 @@ export type GitHubRelease = {
 const RELEASES_URL = "https://api.github.com/repos/lily-studios/Reactily/releases";
 const MAX_PAGES = 20;
 
+export type ReleaseChannel = "stable" | "prerelease" | "experimental";
+
+/** Experimental releases are separate from both stable and prerelease channels. */
+export function getReleaseChannel(release: GitHubRelease): ReleaseChannel {
+  const name = release.name ?? "";
+  if (name.toLowerCase().includes("experimental") ||
+    release.tag_name.toLowerCase().includes("experimental")) {
+    return "experimental";
+  }
+  return release.prerelease ? "prerelease" : "stable";
+}
+
 function isRelease(value: unknown): value is GitHubRelease {
   if (value === null || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
