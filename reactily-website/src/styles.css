@@ -3349,3 +3349,179 @@ body {
 :root[data-theme="light"] .heroSection .terminalCode {
   background: #1c1c1f;
 }
+
+
+/* Shared code palette: homepage and every Markdown code block, all themes. */
+:root {
+  --code-bg: #1c1c1f;
+  --code-header: #262629;
+  --code-border: #3b3b40;
+  --code-text: #e9edf4;
+}
+:root .terminalCard,
+:root .markdownBody .codeBlock {
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 16px;
+  box-shadow: none;
+  overflow: hidden;
+}
+:root .terminalTopbar,
+:root .markdownBody .codeChrome {
+  background: var(--code-header);
+  color: #c9ced8;
+  border-bottom: 1px solid var(--code-border);
+}
+:root .terminalCode,
+:root .terminalCode code,
+:root .markdownBody .codeBlock pre,
+:root .markdownBody .codeBlock pre code {
+  background: var(--code-bg);
+  color: var(--code-text);
+}
+:root .terminalCard .syntax-keyword,
+:root .markdownBody .codeBlock .syntax-keyword { color: #d4acff; }
+:root .terminalCard .syntax-type,
+:root .markdownBody .codeBlock .syntax-type { color: #93e4f3; }
+:root .terminalCard .syntax-function,
+:root .markdownBody .codeBlock .syntax-function { color: #8cc8ff; }
+:root .terminalCard .syntax-property,
+:root .markdownBody .codeBlock .syntax-property { color: #ffd29a; }
+:root .terminalCard .syntax-string,
+:root .markdownBody .codeBlock .syntax-string { color: #bde99e; }
+:root .terminalCard .syntax-number,
+:root .markdownBody .codeBlock .syntax-number { color: #ffb38a; }
+:root .terminalCard .syntax-comment,
+:root .markdownBody .codeBlock .syntax-comment { color: #a6b6c8; }
+:root .terminalCard .syntax-constant,
+:root .markdownBody .codeBlock .syntax-constant { color: #ff9ea4; }
+:root .terminalCard .syntax-punctuation,
+:root .markdownBody .codeBlock .syntax-punctuation { color: #dee5f0; }
+
+/* Compact header and consistent motion, without gradients. */
+:root { --header-height: 60px; }
+.siteHeader { height: var(--header-height); }
+.headerInner {
+  width: min(1200px, calc(100% - 32px));
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(12px, 2vw, 28px);
+}
+.brand { gap: 9px; }
+.brandMark { width: 32px; height: 32px; border-radius: 9px; }
+.brandName { font-size: 18px; }
+.desktopNav {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.desktopNav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 7px 13px;
+  border-radius: 7px;
+  font-size: 13px;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+.desktopNav a.active {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+.desktopNav a:hover { color: var(--text); background: var(--surface-strong); }
+.desktopNav a.active:hover { background: var(--accent-soft); }
+.headerActions { gap: 6px; }
+.versionSelectorShell { min-width: 174px; height: 36px; border-radius: 9px; transition: border-color 180ms ease, background-color 180ms ease; }
+.versionSelectorCurrent { font-size: 11px; gap: 5px; }
+.searchButton { min-width: 136px; height: 36px; border-radius: 9px; font-size: 12px; }
+.searchButton kbd { font-size: 10px; }
+.iconButton { width: 36px; height: 36px; border-radius: 9px; }
+.searchButton, .iconButton, .button, .apiGroupCard, .docPagination a, .sidebarLinks a, .sidebarNestedGroup button, .sidebarCategoryButton {
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+.searchButton:hover, .iconButton:hover { background: var(--surface-strong); border-color: var(--border-strong); }
+.button:hover { transform: translateY(-1px); }
+.button:active { transform: translateY(0); }
+.mobileNav { transform-origin: top center; animation: docs-menu-enter 200ms ease both; }
+.mobileNav a.active { color: var(--text); background: var(--accent-soft); }
+.searchBackdrop { animation: docs-overlay-enter 180ms ease both; }
+.searchDialog { border-radius: 14px; animation: docs-dialog-enter 220ms ease both; }
+@keyframes docs-menu-enter {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes docs-overlay-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes docs-dialog-enter {
+  from { opacity: 0; transform: translateY(8px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* More cohesive page spacing. */
+.heroSection .heroLayout {
+  min-height: 0;
+  gap: clamp(20px, 3vw, 40px);
+  padding-top: clamp(42px, 6vw, 70px);
+  padding-bottom: clamp(42px, 6vw, 70px);
+}
+.heroCopy h1 { margin-top: 17px; }
+.heroCopy h1 span { margin-top: 5px; }
+.heroSection .heroCopy > p { margin-top: 19px; }
+.heroSection .heroActions { margin-top: 21px; }
+.heroFacts { margin-top: 20px; gap: 8px; }
+.heroFacts span { padding: 7px 10px; }
+.apiHero { padding-top: 48px; padding-bottom: 32px; }
+.apiHeroGrid { gap: 25px; }
+.apiHero h1 { margin-top: 10px; font-size: clamp(43px, 5vw, 64px); }
+.apiHero p { margin-top: 12px; }
+.apiSearch { margin-top: 22px; height: 46px; }
+.apiGroupsGrid { padding-top: 26px; padding-bottom: 48px; gap: 12px; }
+.apiGroupCard { padding: 18px; }
+.apiGroupHeader { padding-bottom: 12px; }
+.apiFunctionList { margin-top: 7px; }
+.apiFunctionList a { min-height: 38px; }
+.docsArticle { padding-top: 31px; padding-bottom: 55px; }
+.docHeader { margin-top: 14px; margin-bottom: 20px; padding-bottom: 17px; }
+.markdownBody h2 { margin-top: 29px; margin-bottom: 10px; }
+.markdownBody h3 { margin-top: 21px; margin-bottom: 9px; }
+.markdownBody p { margin-bottom: 12px; }
+.markdownBody ul, .markdownBody ol { margin-bottom: 14px; }
+.markdownBody li { margin-top: 3px; margin-bottom: 3px; }
+.markdownBody .codeBlock { margin-top: 12px; margin-bottom: 14px; }
+.docPagination { margin-top: 42px; }
+.docsSidebar { padding: 20px 14px 28px; }
+.sidebarSection { margin-bottom: 16px; }
+.sidebarLinks { gap: 2px; }
+.sidebarLinks a { min-height: 36px; padding: 7px 10px; border-radius: 8px; }
+.sidebarCategoryButton { min-height: 38px; }
+.sidebarNestedGroup button { min-height: 35px; border-radius: 8px; }
+@media (max-width: 1180px) {
+  .searchButton { min-width: 36px; width: 36px; padding: 0; justify-content: center; }
+  .searchButton span, .searchButton kbd { display: none; }
+}
+@media (max-width: 980px) {
+  .desktopNav { display: none; }
+  .headerInner { grid-template-columns: minmax(0,1fr) auto; gap: 10px; }
+  .mobileNav { border-radius: 12px; }
+}
+@media (max-width: 720px) {
+  .versionSelectorShell { min-width: 124px; }
+  .versionSelectorCurrent { font-size: 10px; left: 8px; right: 20px; }
+  .versionSelectorChevron { right: 6px; }
+  .heroSection .heroLayout { gap: 22px; padding-block: 34px; }
+  .apiHero { padding-top: 35px; padding-bottom: 24px; }
+  .docsArticle { padding: 24px 18px 45px; }
+}
+@media (max-width: 470px) {
+  .versionSelectorShell { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobileNav, .searchBackdrop, .searchDialog { animation: none; }
+  .desktopNav a, .searchButton, .iconButton, .button, .apiGroupCard,
+  .docPagination a, .sidebarLinks a, .sidebarNestedGroup button,
+  .sidebarCategoryButton, .versionSelectorShell { transition: none; }
+  .button:hover { transform: none; }
+}
