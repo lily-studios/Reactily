@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local userInputService = game:GetService("UserInputService")
@@ -18,25 +19,22 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType DragAxis
-export type dragAxis = "Both" | "X" | "Y"
+export type DragAxis = "Both" | "X" | "Y"
 
---- @reactilyType DragOptions
-export type dragOptions = {
-	Axis: dragAxis?,
-	ClampToParent: boolean?,
-	Enabled: boolean?,
-	Handle: GuiObject?,
-	OnChanged: ((position: UDim2) -> ())?,
+export type DragOptions = {
+	axis: DragAxis?,
+	clampToParent: boolean?,
+	enabled: boolean?,
+	handle: GuiObject?,
+	onChanged: ((position: UDim2) -> ())?,
 }
 
---- @reactilyType DragController
-export type dragController = {
-	Delete: () -> boolean,
-	Disable: () -> boolean,
-	Enable: () -> boolean,
-	IsDeleted: () -> boolean,
-	IsEnabled: () -> boolean,
+export type DragController = {
+	delete: () -> boolean,
+	disable: () -> boolean,
+	enable: () -> boolean,
+	isDeleted: () -> boolean,
+	isEnabled: () -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -102,8 +100,8 @@ end
 --- @param target GuiObject Object whose Position is updated.
 --- @param options dragOptions? Drag behavior.
 --- @return dragController Owned drag controller.
-function module.Bind(target: GuiObject, options: dragOptions?): dragController
-	local settings: dragOptions
+function module.bind(target: GuiObject, options: DragOptions?): DragController
+	local settings: DragOptions
 
 	if options then
 		settings = options
@@ -111,9 +109,9 @@ function module.Bind(target: GuiObject, options: dragOptions?): dragController
 		settings = {}
 	end
 
-	local handle = settings.Handle or target
-	local axis = settings.Axis or "Both"
-	local enabled = settings.Enabled ~= false
+	local handle = settings.handle or target
+	local axis = settings.axis or "Both"
+	local enabled = settings.enabled ~= false
 
 	local isDeleted = false
 
@@ -229,7 +227,7 @@ function module.Bind(target: GuiObject, options: dragOptions?): dragController
 
 		local offset = getDragOffset(input)
 
-		if settings.ClampToParent == true then
+		if settings.clampToParent == true then
 			offset = clampDelta(target, startAbsolutePosition, offset)
 		end
 
@@ -246,7 +244,7 @@ function module.Bind(target: GuiObject, options: dragOptions?): dragController
 
 		target.Position = nextPosition
 
-		local onChanged = settings.OnChanged
+		local onChanged = settings.onChanged
 
 		if onChanged then
 			onChanged(nextPosition)
@@ -372,11 +370,11 @@ function module.Bind(target: GuiObject, options: dragOptions?): dragController
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		Delete = delete,
-		Disable = disable,
-		Enable = enable,
-		IsDeleted = getIsDeleted,
-		IsEnabled = getIsEnabled,
+		delete = delete,
+		disable = disable,
+		enable = enable,
+		isDeleted = getIsDeleted,
+		isEnabled = getIsEnabled,
 	}
 end
 

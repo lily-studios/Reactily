@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
@@ -18,26 +19,24 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType LayerDefinition
-export type layerDefinition = {
+export type LayerDefinition = {
 	DisplayOrder: number,
 	IgnoreGuiInset: boolean?,
 	ResetOnSpawn: boolean?,
 	ZIndexBehavior: Enum.ZIndexBehavior?,
 }
 
---- @reactilyType LayerManager
-export type layerManager = {
-	Delete: () -> boolean,
-	Get: (name: string) -> ScreenGui?,
-	GetOrCreate: (name: string, definition: layerDefinition?) -> ScreenGui,
-	IsDeleted: () -> boolean,
-	Portal: (name: string, children: { any }, key: string?) -> elementModule.element,
+export type LayerManager = {
+	delete: () -> boolean,
+	get: (name: string) -> ScreenGui?,
+	getOrCreate: (name: string, definition: LayerDefinition?) -> ScreenGui,
+	isDeleted: () -> boolean,
+	portal: (name: string, children: { any }, key: string?) -> elementModule.Element,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local defaultDefinition: layerDefinition = {
+local defaultDefinition: LayerDefinition = {
 	DisplayOrder = 0,
 	IgnoreGuiInset = true,
 	ResetOnSpawn = false,
@@ -46,7 +45,7 @@ local defaultDefinition: layerDefinition = {
 
 --————————————————————————————————————————————————————————————————————--
 
-local function resolveIgnoreGuiInset(definition: layerDefinition): boolean
+local function resolveIgnoreGuiInset(definition: LayerDefinition): boolean
 	if definition.IgnoreGuiInset == nil then
 		return true
 	end
@@ -56,7 +55,7 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function resolveResetOnSpawn(definition: layerDefinition): boolean
+local function resolveResetOnSpawn(definition: LayerDefinition): boolean
 	if definition.ResetOnSpawn == nil then
 		return false
 	end
@@ -66,7 +65,7 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function resolveZIndexBehavior(definition: layerDefinition): Enum.ZIndexBehavior
+local function resolveZIndexBehavior(definition: LayerDefinition): Enum.ZIndexBehavior
 	local zIndexBehavior = definition.ZIndexBehavior
 
 	if zIndexBehavior then
@@ -78,7 +77,7 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function configure(screenGui: ScreenGui, definition: layerDefinition)
+local function configure(screenGui: ScreenGui, definition: LayerDefinition)
 	local displayOrder = definition.DisplayOrder
 	local ignoreGuiInset = resolveIgnoreGuiInset(definition)
 	local resetOnSpawn = resolveResetOnSpawn(definition)
@@ -103,8 +102,8 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function copyDefinitions(definitions: { [string]: layerDefinition }?): { [string]: layerDefinition }
-	local result: { [string]: layerDefinition } = {}
+local function copyDefinitions(definitions: { [string]: LayerDefinition }?): { [string]: LayerDefinition }
+	local result: { [string]: LayerDefinition } = {}
 
 	if not definitions then
 		return result
@@ -123,7 +122,7 @@ end
 --- @param parent Instance Parent that receives generated ScreenGui layers.
 --- @param definitions {[string]: layerDefinition}? Initial named layers.
 --- @return layerManager New layer manager.
-function module.Create(parent: Instance, definitions: { [string]: layerDefinition }?): layerManager
+function module.create(parent: Instance, definitions: { [string]: LayerDefinition }?): LayerManager
 	assert(typeof(parent) == "Instance", "Reactily layer parent must be an Instance.")
 
 	local configuredDefinitions = copyDefinitions(definitions)
@@ -141,7 +140,7 @@ function module.Create(parent: Instance, definitions: { [string]: layerDefinitio
 
 	--——————————————————————————————————————————————————————————————————--
 
-	local function resolveDefinition(name: string, definition: layerDefinition?): layerDefinition
+	local function resolveDefinition(name: string, definition: LayerDefinition?): LayerDefinition
 		if definition then
 			return definition
 		end
@@ -157,7 +156,7 @@ function module.Create(parent: Instance, definitions: { [string]: layerDefinitio
 
 	--——————————————————————————————————————————————————————————————————--
 
-	local function getOrCreate(name: string, definition: layerDefinition?): ScreenGui
+	local function getOrCreate(name: string, definition: LayerDefinition?): ScreenGui
 		assert(not isDeleted, "Reactily layer manager is deleted.")
 		assert(name ~= "", "Reactily layer name cannot be empty.")
 
@@ -188,12 +187,12 @@ function module.Create(parent: Instance, definitions: { [string]: layerDefinitio
 
 	--——————————————————————————————————————————————————————————————————--
 
-	local function portal(name: string, children: { any }, key: string?): elementModule.element
+	local function portal(name: string, children: { any }, key: string?): elementModule.Element
 		assert(not isDeleted, "Reactily layer manager is deleted.")
 
 		local target = getOrCreate(name, nil)
 
-		return elementModule.CreatePortal(target, children, key)
+		return elementModule.createPortal(target, children, key)
 	end
 
 	--——————————————————————————————————————————————————————————————————--
@@ -230,11 +229,11 @@ function module.Create(parent: Instance, definitions: { [string]: layerDefinitio
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		Delete = delete,
-		Get = get,
-		GetOrCreate = getOrCreate,
-		IsDeleted = getIsDeleted,
-		Portal = portal,
+		delete = delete,
+		get = get,
+		getOrCreate = getOrCreate,
+		isDeleted = getIsDeleted,
+		portal = portal,
 	}
 end
 

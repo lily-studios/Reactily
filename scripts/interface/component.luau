@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
@@ -19,9 +20,8 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType ComponentOptions
-export type componentOptions<P> = {
-	Defaults: P?,
+export type ComponentOptions<P> = {
+	defaults: P?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -30,18 +30,18 @@ export type componentOptions<P> = {
 --- @param render (props: P) -> element? Component render callback.
 --- @param options componentOptions<P>? Component defaults.
 --- @return component<P> Reactily function component.
-function module.Create<P>(
-	render: (props: P) -> elementModule.element?,
-	options: componentOptions<P>?
-): elementModule.component<P>
-	if not options or options.Defaults == nil then
+function module.create<P>(
+	render: (props: P) -> elementModule.Element?,
+	options: ComponentOptions<P>?
+): elementModule.Component<P>
+	if not options or options.defaults == nil then
 		return render
 	end
 
-	local defaults = options.Defaults :: any
+	local defaults = options.defaults :: any
 
-	return function(props: P): elementModule.element?
-		local merged = propsModule.Defaults(props, defaults)
+	return function(props: P): elementModule.Element?
+		local merged = propsModule.defaults(props, defaults)
 		return render(merged)
 	end
 end
@@ -52,9 +52,9 @@ end
 --- @param componentValue component<P> Existing component.
 --- @param defaults P Defaults applied when a prop is absent.
 --- @return component<P> Wrapped component.
-function module.WithDefaults<P>(componentValue: elementModule.component<P>, defaults: P): elementModule.component<P>
-	return module.Create(componentValue, {
-		Defaults = defaults,
+function module.withDefaults<P>(componentValue: elementModule.Component<P>, defaults: P): elementModule.Component<P>
+	return module.create(componentValue, {
+		defaults = defaults,
 	})
 end
 

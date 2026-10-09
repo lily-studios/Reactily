@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local profilerModule = require(script.Parent.profiler)
@@ -24,11 +25,11 @@ local function appendTree(lines: { string }, node: any, depth: number)
 	end
 
 	local prefix = string.rep("  ", depth)
-	local kind = tostring(node.Kind or "unknown")
-	local name = tostring(node.ClassName or node.Key or kind)
+	local kind = tostring(node.kind or "unknown")
+	local name = tostring(node.ClassName or node.key or kind)
 	lines[#lines + 1] = `{prefix}{name} [{kind}]`
 
-	local children = node.Children
+	local children = node.children
 	if type(children) ~= "table" then
 		return
 	end
@@ -43,7 +44,7 @@ end
 --- Formats a root inspection snapshot as a readable tree.
 --- @param snapshot any Value returned by root.inspect().
 --- @return string Formatted tree.
-function module.FormatTree(snapshot: any): string
+function module.formatTree(snapshot: any): string
 	local lines: { string } = {}
 	appendTree(lines, snapshot, 0)
 	return table.concat(lines, "\n")
@@ -54,13 +55,13 @@ end
 --- Returns profiler information and a formatted runtime tree for a root.
 --- @param rootValue any Reactily root.
 --- @return any Debug snapshot.
-function module.Inspect(rootValue: any): any
-	local snapshot = rootValue.Inspect()
+function module.inspect(rootValue: any): any
+	local snapshot = rootValue.inspect()
 
 	return {
-		Profiler = profilerModule.Snapshot(),
+		Profiler = profilerModule.snapshot(),
 		Tree = snapshot,
-		TreeText = module.FormatTree(snapshot),
+		TreeText = module.formatTree(snapshot),
 	}
 end
 

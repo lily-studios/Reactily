@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local signalModule = require(script.Parent.Parent.core.signal)
@@ -18,18 +19,17 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType Selection<T>
-export type selection<T> = {
-	Clear: () -> boolean,
-	Delete: () -> boolean,
-	Deselect: (value: T) -> boolean,
-	IsDeleted: () -> boolean,
-	IsSelected: (value: T) -> boolean,
-	Select: (value: T) -> boolean,
-	SelectAll: (values: { T }) -> boolean,
-	Subscribe: (callback: (values: { T }) -> ()) -> signalModule.connection,
-	Toggle: (value: T) -> boolean,
-	Values: () -> { T },
+export type Selection<T> = {
+	clear: () -> boolean,
+	delete: () -> boolean,
+	deselect: (value: T) -> boolean,
+	isDeleted: () -> boolean,
+	isSelected: (value: T) -> boolean,
+	select: (value: T) -> boolean,
+	selectAll: (values: { T }) -> boolean,
+	subscribe: (callback: (values: { T }) -> ()) -> signalModule.Connection,
+	toggle: (value: T) -> boolean,
+	values: () -> { T },
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -37,8 +37,8 @@ export type selection<T> = {
 --- Creates a typed multi-selection controller.
 --- @param initialValues {T}? Initial selected values.
 --- @return selection<T> Owned selection controller.
-function module.Create<T>(initialValues: { T }?): selection<T>
-	local changed = signalModule.New()
+function module.create<T>(initialValues: { T }?): Selection<T>
+	local changed = signalModule.new()
 	local isDeleted = false
 	local order: { T } = {}
 	local selected: { [any]: boolean } = {}
@@ -48,7 +48,7 @@ function module.Create<T>(initialValues: { T }?): selection<T>
 	end
 
 	local function emit()
-		changed.Fire(snapshot())
+		changed.fire(snapshot())
 	end
 
 	local function selectValue(value: T): boolean
@@ -128,33 +128,33 @@ function module.Create<T>(initialValues: { T }?): selection<T>
 		isDeleted = true
 		table.clear(order)
 		table.clear(selected)
-		changed.Delete()
+		changed.delete()
 		return true
 	end
 
 	return {
-		Clear = clear,
-		Delete = delete,
-		Deselect = deselect,
-		IsDeleted = function(): boolean
+		clear = clear,
+		delete = delete,
+		deselect = deselect,
+		isDeleted = function(): boolean
 			return isDeleted
 		end,
-		IsSelected = function(value: T): boolean
+		isSelected = function(value: T): boolean
 			return selected[value] == true
 		end,
-		Select = selectValue,
-		SelectAll = selectAll,
-		Subscribe = function(callback: (values: { T }) -> ()): signalModule.connection
+		select = selectValue,
+		selectAll = selectAll,
+		subscribe = function(callback: (values: { T }) -> ()): signalModule.Connection
 			assert(not isDeleted, "Reactily selection is deleted.")
-			return changed.Connect(callback)
+			return changed.connect(callback)
 		end,
-		Toggle = function(value: T): boolean
+		toggle = function(value: T): boolean
 			if selected[value] then
 				return deselect(value)
 			end
 			return selectValue(value)
 		end,
-		Values = function(): { T }
+		values = function(): { T }
 			assert(not isDeleted, "Reactily selection is deleted.")
 			return snapshot()
 		end,

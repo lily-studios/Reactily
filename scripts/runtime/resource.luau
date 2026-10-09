@@ -18,38 +18,38 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type resourceStatus = "Idle" | "Pending" | "Rejected" | "Resolved"
+export type ResourceStatus = "Idle" | "Pending" | "Rejected" | "Resolved"
 
-export type suspension = {
+export type Suspension = {
 	__reactilySuspension: boolean,
-	Subscribe: (callback: () -> ()) -> () -> (),
+	subscribe: (callback: () -> ()) -> () -> (),
 }
 
-export type resource<T> = {
-	Delete: () -> boolean,
-	Get: () -> T?,
-	GetError: () -> any,
-	GetStatus: () -> resourceStatus,
-	IsDeleted: () -> boolean,
-	Preload: () -> (),
-	Read: () -> T,
-	Refresh: () -> (),
-	Subscribe: (callback: () -> ()) -> signalModule.connection,
+export type Resource<T> = {
+	delete: () -> boolean,
+	get: () -> T?,
+	getError: () -> any,
+	getStatus: () -> ResourceStatus,
+	isDeleted: () -> boolean,
+	preload: () -> (),
+	read: () -> T,
+	refresh: () -> (),
+	subscribe: (callback: () -> ()) -> signalModule.Connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function createSuspension(ready: signalModule.signal<boolean>): suspension
+local function createSuspension(ready: signalModule.Signal<boolean>): Suspension
 	return {
 		__reactilySuspension = true,
 
-		Subscribe = function(callback: () -> ()): () -> ()
-			local connection = ready.Connect(function(_value: boolean)
+		subscribe = function(callback: () -> ()): () -> ()
+			local connection = ready.connect(function(_value: boolean)
 				callback()
 			end)
 
 			return function()
-				connection.Disconnect()
+				connection.disconnect()
 			end
 		end,
 	}
@@ -60,14 +60,14 @@ end
 --- Returns whether an error value represents a Reactily suspension request.
 --- @param value any Error value to inspect.
 --- @return boolean True when the value is a suspension token.
-function module.IsSuspension(value: any): boolean
+function module.isSuspension(value: any): boolean
 	if type(value) ~= "table" then
 		return false
 	end
 	if value.__reactilySuspension ~= true then
 		return false
 	end
-	if type(value.Subscribe) ~= "function" then
+	if type(value.subscribe) ~= "function" then
 		return false
 	end
 
@@ -79,13 +79,13 @@ end
 --- Creates a lazy resource whose loader runs only when first requested.
 --- @param loader () -> T Loader that may yield and returns the resolved value.
 --- @return resource<T> New resource.
-function module.New<T>(loader: () -> T): resource<T>
-	local changed: signalModule.signal<boolean> = signalModule.New()
+function module.new<T>(loader: () -> T): Resource<T>
+	local changed: signalModule.Signal<boolean> = signalModule.new()
 
 	local errorValue: any = nil
 	local generation = 0
 	local isDeleted = false
-	local status: resourceStatus = "Idle"
+	local status: ResourceStatus = "Idle"
 	local value: T? = nil
 
 	local suspensionValue = createSuspension(changed)
@@ -120,14 +120,14 @@ function module.New<T>(loader: () -> T): resource<T>
 			if success then
 				value = result
 				status = "Resolved"
-				changed.Fire(true)
+				changed.fire(true)
 
 				return
 			end
 
 			errorValue = result
 			status = "Rejected"
-			changed.Fire(true)
+			changed.fire(true)
 		end)
 	end
 
@@ -139,7 +139,7 @@ function module.New<T>(loader: () -> T): resource<T>
 		isDeleted = true
 		generation += 1
 
-		changed.Delete()
+		changed.delete()
 
 		value = nil
 		errorValue = nil
@@ -157,7 +157,7 @@ function module.New<T>(loader: () -> T): resource<T>
 		return errorValue
 	end
 
-	local function getStatus(): resourceStatus
+	local function getStatus(): ResourceStatus
 		return status
 	end
 
@@ -201,27 +201,31 @@ function module.New<T>(loader: () -> T): resource<T>
 		startLoad()
 	end
 
-	local function subscribe(callback: () -> ()): signalModule.connection
+	local function subscribe(callback: () -> ()): signalModule.Connection
 		assert(not isDeleted, "Reactily resource is deleted.")
 
-		return changed.Connect(function(_value: boolean)
+		return changed.connect(function(_value: boolean)
 			callback()
 		end)
 	end
 
 	return {
-		Delete = delete,
-		Get = get,
-		GetError = getError,
-		GetStatus = getStatus,
-		IsDeleted = getIsDeleted,
-		Preload = preload,
-		Read = read,
-		Refresh = refresh,
-		Subscribe = subscribe,
+		delete = delete,
+		get = get,
+		getError = getError,
+		getStatus = getStatus,
+		isDeleted = getIsDeleted,
+		preload = preload,
+		read = read,
+		refresh = refresh,
+		subscribe = subscribe,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createResource = module.new
 
 return module

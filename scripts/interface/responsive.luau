@@ -8,24 +8,23 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType ResponsiveValues
-export type breakpointValues<T> = {
-	Desktop: T?,
-	Fallback: T,
-	Mobile: T?,
-	Tablet: T?,
+export type BreakpointValues<T> = {
+	desktop: T?,
+	fallback: T,
+	mobile: T?,
+	tablet: T?,
 }
 
---- @reactilyType ResponsiveBreakpoints
-export type breakpoints = {
-	MobileMax: number?,
-	TabletMax: number?,
+export type Breakpoints = {
+	mobileMax: number?,
+	tabletMax: number?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -35,17 +34,17 @@ export type breakpoints = {
 --- @param values breakpointValues<T> Responsive values.
 --- @param options breakpoints? Width thresholds.
 --- @return T Selected value.
-function module.Resolve<T>(viewportSize: Vector2, values: breakpointValues<T>, options: breakpoints?): T
+function module.resolve<T>(viewportSize: Vector2, values: BreakpointValues<T>, options: Breakpoints?): T
 	local mobileMax = 640
 	local tabletMax = 1024
 
 	if options then
-		if options.MobileMax ~= nil then
-			mobileMax = options.MobileMax
+		if options.mobileMax ~= nil then
+			mobileMax = options.mobileMax
 		end
 
-		if options.TabletMax ~= nil then
-			tabletMax = options.TabletMax
+		if options.tabletMax ~= nil then
+			tabletMax = options.tabletMax
 		end
 	end
 
@@ -54,7 +53,7 @@ function module.Resolve<T>(viewportSize: Vector2, values: breakpointValues<T>, o
 	local width = viewportSize.X
 
 	if width <= mobileMax then
-		local mobile = values.Mobile
+		local mobile = values.mobile
 
 		if mobile ~= nil then
 			return mobile
@@ -62,22 +61,27 @@ function module.Resolve<T>(viewportSize: Vector2, values: breakpointValues<T>, o
 	end
 
 	if width <= tabletMax then
-		local tablet = values.Tablet
+		local tablet = values.tablet
 
 		if tablet ~= nil then
 			return tablet
 		end
 	end
 
-	local desktop = values.Desktop
+	local desktop = values.desktop
 
 	if desktop ~= nil then
 		return desktop
 	end
 
-	return values.Fallback
+	return values.fallback
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+export type ResponsiveBreakpoints = Breakpoints
+export type ResponsiveValues<T> = BreakpointValues<T>
 
 return module

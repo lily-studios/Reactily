@@ -8,22 +8,22 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type style = {
+export type Style = {
 	[string]: any,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType VariantStyle
-export type variantStyle = {
-	Base: style?,
-	Variants: { [string]: style }?,
+export type VariantStyle = {
+	base: Style?,
+	variants: { [string]: Style }?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -31,7 +31,7 @@ export type variantStyle = {
 --- Creates a frozen reusable style table.
 --- @param values style Style values.
 --- @return style Frozen style.
-function module.Create(values: style): style
+function module.create(values: Style): Style
 	return table.freeze(table.clone(values))
 end
 
@@ -41,20 +41,20 @@ end
 --- @param definition variantStyle Style definition.
 --- @param variant string? Variant name.
 --- @return style Resolved style.
-function module.Variant(definition: variantStyle, variant: string?): style
-	local output: style = {}
+function module.variant(definition: VariantStyle, variant: string?): Style
+	local output: Style = {}
 
-	if definition.Base then
-		for property, value in definition.Base do
+	if definition.base then
+		for property, value in definition.base do
 			output[property] = value
 		end
 	end
 
-	if variant == nil or definition.Variants == nil then
+	if variant == nil or definition.variants == nil then
 		return output
 	end
 
-	local selected = definition.Variants[variant]
+	local selected = definition.variants[variant]
 	if not selected then
 		return output
 	end
@@ -72,7 +72,7 @@ end
 --- @param properties T Property table to copy.
 --- @param styleValue style Style values to apply to the copied table.
 --- @return T Copied property table with the style applied.
-function module.Apply<T>(properties: T, styleValue: style): T
+function module.apply<T>(properties: T, styleValue: Style): T
 	local output: any = table.clone(properties :: any)
 
 	for property, value in styleValue do
@@ -87,8 +87,8 @@ end
 --- Merges multiple style tables without mutating the input styles.
 --- @param styles {style} Ordered style tables to merge.
 --- @return style New style containing the merged properties.
-function module.Merge(styles: { style }): style
-	local output: style = {}
+function module.merge(styles: { Style }): Style
+	local output: Style = {}
 
 	for _, styleValue in styles do
 		for property, value in styleValue do
@@ -105,7 +105,7 @@ end
 --- @param condition boolean Whether the style should be included.
 --- @param styleValue style Style to conditionally return.
 --- @return style Supplied style when enabled, otherwise an empty style.
-function module.When(condition: boolean, styleValue: style): style
+function module.when(condition: boolean, styleValue: Style): Style
 	if not condition then
 		return {}
 	end
@@ -119,7 +119,7 @@ end
 --- @param styleValue style Style to copy.
 --- @param property string Property to omit from the copied style.
 --- @return style Copied style without the specified property.
-function module.Without(styleValue: style, property: string): style
+function module.without(styleValue: Style, property: string): Style
 	local output = table.clone(styleValue)
 
 	output[property] = nil
@@ -134,7 +134,7 @@ end
 --- @param property string Property to assign.
 --- @param value any Value to assign to the property.
 --- @return style Copied style containing the new property value.
-function module.WithProperty(styleValue: style, property: string, value: any): style
+function module.withProperty(styleValue: Style, property: string, value: any): Style
 	local output = table.clone(styleValue)
 
 	output[property] = value
@@ -143,5 +143,10 @@ function module.WithProperty(styleValue: style, property: string, value: any): s
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.applyStyle = module.apply
+module.createStyle = module.merge
 
 return module

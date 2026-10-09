@@ -11,23 +11,23 @@ local contextModule = require(script.Parent.context)
 local module = {}
 
 local function isContext(value: any): boolean
-	return type(value) == "table" and value.__reactilyContext == true and type(value.Id) == "number"
+	return type(value) == "table" and value.__reactilyContext == true and type(value.id) == "number"
 end
 
 local function isResource(value: any): boolean
-	return type(value) == "table" and type(value.Read) == "function" and type(value.GetStatus) == "function"
+	return type(value) == "table" and type(value.read) == "function" and type(value.getStatus) == "function"
 end
 
 --- Reads a Reactily context or Suspense resource during render.
 --- Unlike slot-based hooks, this may be called conditionally.
 --- @param readable any Context or resource.
 --- @return T Current value.
-function module.Use<T>(readable: any): T
+function module.use<T>(readable: any): T
 	if isResource(readable) then
-		return readable.Read() :: T
+		return readable.read() :: T
 	end
 	if isContext(readable) then
-		return contextModule.Get(readable) :: T
+		return contextModule.get(readable) :: T
 	end
 	error("Reactily.use() expects a Reactily context or resource.", 2)
 end

@@ -8,35 +8,33 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType InteractionStyle
-export type interactionStyle = { [string]: any }
+export type InteractionStyle = { [string]: any }
 
---- @reactilyType InteractionOptions
-export type interactionOptions = {
-	Disabled: interactionStyle?,
-	Focused: interactionStyle?,
-	Hover: interactionStyle?,
-	Normal: interactionStyle?,
-	Pressed: interactionStyle?,
+export type InteractionOptions = {
+	disabled: InteractionStyle?,
+	focused: InteractionStyle?,
+	hover: InteractionStyle?,
+	normal: InteractionStyle?,
+	pressed: InteractionStyle?,
 }
 
---- @reactilyType InteractionController
-export type interactionController = {
-	Delete: () -> boolean,
-	IsDeleted: () -> boolean,
-	Refresh: () -> (),
-	SetDisabled: (disabled: boolean) -> boolean,
+export type InteractionController = {
+	delete: () -> boolean,
+	isDeleted: () -> boolean,
+	refresh: () -> (),
+	setDisabled: (disabled: boolean) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyStyle(object: GuiObject, style: interactionStyle?)
+local function applyStyle(object: GuiObject, style: InteractionStyle?)
 	if not style then
 		return
 	end
@@ -58,7 +56,7 @@ end
 --- @param object GuiObject Target UI object.
 --- @param options interactionOptions Visual-state definitions.
 --- @return interactionController Owned interaction controller.
-function module.Bind(object: GuiObject, options: interactionOptions): interactionController
+function module.bind(object: GuiObject, options: InteractionOptions): InteractionController
 	local connections: { RBXScriptConnection } = {}
 	local disabled = false
 	local focused = false
@@ -71,22 +69,22 @@ function module.Bind(object: GuiObject, options: interactionOptions): interactio
 			return
 		end
 
-		applyStyle(object, options.Normal)
+		applyStyle(object, options.normal)
 
 		if disabled then
-			applyStyle(object, options.Disabled)
+			applyStyle(object, options.disabled)
 			return
 		end
 		if pressed then
-			applyStyle(object, options.Pressed)
+			applyStyle(object, options.pressed)
 			return
 		end
 		if focused then
-			applyStyle(object, options.Focused)
+			applyStyle(object, options.focused)
 			return
 		end
 		if hovered then
-			applyStyle(object, options.Hover)
+			applyStyle(object, options.hover)
 		end
 	end
 
@@ -157,10 +155,10 @@ function module.Bind(object: GuiObject, options: interactionOptions): interactio
 	refresh()
 
 	return {
-		Delete = delete,
-		IsDeleted = getIsDeleted,
-		Refresh = refresh,
-		SetDisabled = setDisabled,
+		delete = delete,
+		isDeleted = getIsDeleted,
+		refresh = refresh,
+		setDisabled = setDisabled,
 	}
 end
 

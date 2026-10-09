@@ -22,21 +22,21 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type springOptions = {
-	Damping: number?,
-	Epsilon: number?,
-	Frequency: number?,
+export type SpringOptions = {
+	damping: number?,
+	epsilon: number?,
+	frequency: number?,
 }
 
-export type spring<T> = {
-	Delete: () -> boolean,
-	Get: () -> T,
-	GetTarget: () -> T,
-	IsDeleted: () -> boolean,
-	IsSettled: () -> boolean,
-	Set: (value: T) -> boolean,
-	SetTarget: (value: T) -> boolean,
-	Subscribe: (callback: (value: T) -> ()) -> signalModule.connection,
+export type Spring<T> = {
+	delete: () -> boolean,
+	get: () -> T,
+	getTarget: () -> T,
+	isDeleted: () -> boolean,
+	isSettled: () -> boolean,
+	set: (value: T) -> boolean,
+	setTarget: (value: T) -> boolean,
+	subscribe: (callback: (value: T) -> ()) -> signalModule.Connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -85,23 +85,23 @@ end
 --- @param initialValue T Initial spring value.
 --- @param options springOptions? Frequency, damping, and settle epsilon.
 --- @return spring<T> New spring controller.
-function module.New<T>(initialValue: T, options: springOptions?): spring<T>
-	local settings: springOptions = options or {}
+function module.new<T>(initialValue: T, options: SpringOptions?): Spring<T>
+	local settings: SpringOptions = options or {}
 
 	local damping = 1
 	local epsilon = 0.0001
 	local frequency = 5
 
-	if settings.Damping ~= nil then
-		damping = settings.Damping
+	if settings.damping ~= nil then
+		damping = settings.damping
 	end
 
-	if settings.Epsilon ~= nil then
-		epsilon = settings.Epsilon
+	if settings.epsilon ~= nil then
+		epsilon = settings.epsilon
 	end
 
-	if settings.Frequency ~= nil then
-		frequency = settings.Frequency
+	if settings.frequency ~= nil then
+		frequency = settings.frequency
 	end
 
 	damping = math.max(damping, 0)
@@ -109,7 +109,7 @@ function module.New<T>(initialValue: T, options: springOptions?): spring<T>
 	frequency = math.max(frequency, 0.001)
 
 	local angularFrequency = frequency * math.pi * 2
-	local changed: signalModule.signal<T> = signalModule.New()
+	local changed: signalModule.Signal<T> = signalModule.new()
 
 	local connection: RBXScriptConnection? = nil
 	local isDeleted = false
@@ -156,7 +156,7 @@ function module.New<T>(initialValue: T, options: springOptions?): spring<T>
 
 		if nextValue ~= value then
 			value = nextValue
-			changed.Fire(value)
+			changed.fire(value)
 		end
 
 		if not settled() then
@@ -165,7 +165,7 @@ function module.New<T>(initialValue: T, options: springOptions?): spring<T>
 
 		if value ~= target then
 			value = target
-			changed.Fire(value)
+			changed.fire(value)
 		end
 
 		velocity = zeroLike(value)
@@ -192,7 +192,7 @@ function module.New<T>(initialValue: T, options: springOptions?): spring<T>
 		isDeleted = true
 
 		disconnectHeartbeat()
-		changed.Delete()
+		changed.delete()
 
 		return true
 	end
@@ -229,7 +229,7 @@ function module.New<T>(initialValue: T, options: springOptions?): spring<T>
 		velocity = zeroLike(nextValue)
 
 		disconnectHeartbeat()
-		changed.Fire(nextValue)
+		changed.fire(nextValue)
 
 		return true
 	end
@@ -248,24 +248,28 @@ function module.New<T>(initialValue: T, options: springOptions?): spring<T>
 		return true
 	end
 
-	local function subscribe(callback: (value: T) -> ()): signalModule.connection
+	local function subscribe(callback: (value: T) -> ()): signalModule.Connection
 		assert(not isDeleted, "Reactily spring is deleted.")
 
-		return changed.Connect(callback)
+		return changed.connect(callback)
 	end
 
 	return {
-		Delete = delete,
-		Get = get,
-		GetTarget = getTarget,
-		IsDeleted = getIsDeleted,
-		IsSettled = getIsSettled,
-		Set = set,
-		SetTarget = setTarget,
-		Subscribe = subscribe,
+		delete = delete,
+		get = get,
+		getTarget = getTarget,
+		isDeleted = getIsDeleted,
+		isSettled = getIsSettled,
+		set = set,
+		setTarget = setTarget,
+		subscribe = subscribe,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createSpring = module.new
 
 return module

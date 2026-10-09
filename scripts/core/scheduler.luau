@@ -21,57 +21,57 @@ local module = {}
 -- Luau does not support numeric singleton/literal union types such as
 -- `1 | 2 | 3 | 4 | 5`, so priority is represented as a number and is
 -- validated at every public boundary that accepts one.
-export type priority = number
+export type Priority = number
 
-export type schedulerOptions = {
-	TimeSliceSeconds: number?,
+export type SchedulerOptions = {
+	timeSliceSeconds: number?,
 }
 
-export type scheduler = {
-	Cancel: (taskId: number) -> boolean,
-	CancelKey: (key: string) -> boolean,
-	Clear: () -> (),
-	Delete: () -> boolean,
-	Enqueue: (callback: () -> ()) -> number,
-	EnqueueKeyed: (key: string, callback: () -> ()) -> number,
-	EnqueueKeyedPriority: (key: string, priorityValue: priority, callback: () -> ()) -> number,
-	EnqueuePriority: (priorityValue: priority, callback: () -> ()) -> number,
-	Flush: () -> (),
-	FlushPriority: (priorityValue: priority) -> (),
-	GetPendingCount: () -> number,
-	GetPendingCountByPriority: (priorityValue: priority) -> number,
-	IsDeleted: () -> boolean,
-	IsPending: (key: string) -> boolean,
+export type Scheduler = {
+	cancel: (taskId: number) -> boolean,
+	cancelKey: (key: string) -> boolean,
+	clear: () -> (),
+	delete: () -> boolean,
+	enqueue: (callback: () -> ()) -> number,
+	enqueueKeyed: (key: string, callback: () -> ()) -> number,
+	enqueueKeyedPriority: (key: string, priorityValue: Priority, callback: () -> ()) -> number,
+	enqueuePriority: (priorityValue: Priority, callback: () -> ()) -> number,
+	flush: () -> (),
+	flushPriority: (priorityValue: Priority) -> (),
+	getPendingCount: () -> number,
+	getPendingCountByPriority: (priorityValue: Priority) -> number,
+	isDeleted: () -> boolean,
+	isPending: (key: string) -> boolean,
 }
 
-type scheduledTask = {
+type ScheduledTask = {
 	callback: () -> (),
-	Key: string?,
-	priority: priority,
+	key: string?,
+	priority: Priority,
 }
 
-type priorityTable = {
-	Immediate: priority,
-	UserBlocking: priority,
-	Normal: priority,
-	Transition: priority,
-	Idle: priority,
+type PriorityTable = {
+	immediate: Priority,
+	userBlocking: Priority,
+	normal: Priority,
+	transition: Priority,
+	idle: Priority,
 }
 
 -- Lower values are more urgent.
-local priorityValues: priorityTable = table.freeze({
-	Immediate = 1,
-	UserBlocking = 2,
-	Normal = 3,
-	Transition = 4,
-	Idle = 5,
+local priorityValues: PriorityTable = table.freeze({
+	immediate = 1,
+	userBlocking = 2,
+	normal = 3,
+	transition = 4,
+	idle = 5,
 })
 
 module.Priority = priorityValues
 
 -- Priority state is coroutine-local so a yielding transition never changes the
 -- priority of unrelated Roblox threads.
-local currentPriorities: { [thread]: priority } = {}
+local currentPriorities: { [thread]: Priority } = {}
 
 do
 	local weakCurrentPriorities: any = currentPriorities
@@ -83,13 +83,13 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function isValidPriority(priorityValue: priority): boolean
+local function isValidPriority(priorityValue: Priority): boolean
 	return priorityValue == math.floor(priorityValue)
-		and priorityValue >= priorityValues.Immediate
-		and priorityValue <= priorityValues.Idle
+		and priorityValue >= priorityValues.immediate
+		and priorityValue <= priorityValues.idle
 end
 
-local function assertPriority(priorityValue: priority)
+local function assertPriority(priorityValue: Priority)
 	assert(isValidPriority(priorityValue), "Invalid Reactily priority.")
 end
 
@@ -103,16 +103,16 @@ end
 
 --- Returns the priority currently associated with this coroutine.
 --- @return priority Current scheduling priority.
-function module.GetCurrentPriority(): priority
+function module.getCurrentPriority(): Priority
 	local thread = currentThread()
 
-	return currentPriorities[thread] or priorityValues.Normal
+	return currentPriorities[thread] or priorityValues.normal
 end
 
 --- Returns whether the current coroutine is executing transition-priority work.
 --- @return boolean True while inside transition work.
-function module.IsTransitionPriority(): boolean
-	return module.GetCurrentPriority() == priorityValues.Transition
+function module.isTransitionPriority(): boolean
+	return module.getCurrentPriority() == priorityValues.transition
 end
 
 --- Executes a callback with a coroutine-local scheduling priority.
@@ -121,7 +121,7 @@ end
 --- @param priorityValue priority Priority visible to state/render requests.
 --- @param callback () -> T... Work to execute.
 --- @return T... Callback results.
-function module.RunWithPriority<T...>(priorityValue: priority, callback: () -> T...): T...
+function module.runWithPriority<T...>(priorityValue: Priority, callback: () -> T...): T...
 	assertPriority(priorityValue)
 	assert(type(callback) == "function", "Reactily priority callback must be a function.")
 
@@ -149,13 +149,13 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function createQueues(): { [priority]: { number } }
+local function createQueues(): { [Priority]: { number } }
 	return {
-		[priorityValues.Immediate] = {},
-		[priorityValues.UserBlocking] = {},
-		[priorityValues.Normal] = {},
-		[priorityValues.Transition] = {},
-		[priorityValues.Idle] = {},
+		[priorityValues.immediate] = {},
+		[priorityValues.userBlocking] = {},
+		[priorityValues.normal] = {},
+		[priorityValues.transition] = {},
+		[priorityValues.idle] = {},
 	}
 end
 
@@ -164,27 +164,27 @@ end
 --- time-sliced so urgent work can be inserted before the next slice.
 --- @param options schedulerOptions? Scheduler configuration.
 --- @return scheduler New scheduler.
-function module.New(options: schedulerOptions?): scheduler
+function module.new(options: SchedulerOptions?): Scheduler
 	local heartbeatConnection: RBXScriptConnection? = nil
 	local isDeleted = false
 	local isFlushing = false
 	local keyedTasks: { [string]: number } = {}
 	local nextTaskId = 0
 	local pendingCount = 0
-	local pendingByPriority: { [priority]: number } = {
-		[priorityValues.Immediate] = 0,
-		[priorityValues.UserBlocking] = 0,
-		[priorityValues.Normal] = 0,
-		[priorityValues.Transition] = 0,
-		[priorityValues.Idle] = 0,
+	local pendingByPriority: { [Priority]: number } = {
+		[priorityValues.immediate] = 0,
+		[priorityValues.userBlocking] = 0,
+		[priorityValues.normal] = 0,
+		[priorityValues.transition] = 0,
+		[priorityValues.idle] = 0,
 	}
 	local queues = createQueues()
-	local tasks: { [number]: scheduledTask } = {}
+	local tasks: { [number]: ScheduledTask } = {}
 
 	local timeSliceSeconds = 0.004
 
-	if options ~= nil and options.TimeSliceSeconds ~= nil then
-		local requestedTimeSlice = options.TimeSliceSeconds
+	if options ~= nil and options.timeSliceSeconds ~= nil then
+		local requestedTimeSlice = options.timeSliceSeconds
 
 		assert(
 			requestedTimeSlice == requestedTimeSlice and requestedTimeSlice >= 0,
@@ -208,12 +208,12 @@ function module.New(options: schedulerOptions?): scheduler
 		heartbeatConnection = nil
 	end
 
-	local function removeTaskRecord(taskId: number, taskValue: scheduledTask)
+	local function removeTaskRecord(taskId: number, taskValue: ScheduledTask)
 		tasks[taskId] = nil
 		pendingCount = math.max(pendingCount - 1, 0)
 		pendingByPriority[taskValue.priority] = math.max((pendingByPriority[taskValue.priority] or 0) - 1, 0)
 
-		local key = taskValue.Key
+		local key = taskValue.key
 
 		if key ~= nil and keyedTasks[key] == taskId then
 			keyedTasks[key] = nil
@@ -236,7 +236,7 @@ function module.New(options: schedulerOptions?): scheduler
 		pendingCount = 0
 	end
 
-	local function enqueueTask(callback: () -> (), key: string?, priorityValue: priority): number
+	local function enqueueTask(callback: () -> (), key: string?, priorityValue: Priority): number
 		assertPriority(priorityValue)
 
 		nextTaskId += 1
@@ -245,7 +245,7 @@ function module.New(options: schedulerOptions?): scheduler
 
 		tasks[taskId] = {
 			callback = callback,
-			Key = key,
+			key = key,
 			priority = priorityValue,
 		}
 
@@ -324,7 +324,7 @@ function module.New(options: schedulerOptions?): scheduler
 		return true
 	end
 
-	local function enqueuePriority(priorityValue: priority, callback: () -> ()): number
+	local function enqueuePriority(priorityValue: Priority, callback: () -> ()): number
 		assert(not isDeleted, "Reactily scheduler is deleted.")
 		assertPriority(priorityValue)
 		assert(type(callback) == "function", "Reactily scheduler callback must be a function.")
@@ -333,10 +333,10 @@ function module.New(options: schedulerOptions?): scheduler
 	end
 
 	local function enqueue(callback: () -> ()): number
-		return enqueuePriority(module.GetCurrentPriority(), callback)
+		return enqueuePriority(module.getCurrentPriority(), callback)
 	end
 
-	local function enqueueKeyedPriority(key: string, priorityValue: priority, callback: () -> ()): number
+	local function enqueueKeyedPriority(key: string, priorityValue: Priority, callback: () -> ()): number
 		assert(not isDeleted, "Reactily scheduler is deleted.")
 		assert(key ~= "", "Reactily scheduler key must not be empty.")
 		assertPriority(priorityValue)
@@ -369,7 +369,7 @@ function module.New(options: schedulerOptions?): scheduler
 	end
 
 	local function enqueueKeyed(key: string, callback: () -> ()): number
-		return enqueueKeyedPriority(key, module.GetCurrentPriority(), callback)
+		return enqueueKeyedPriority(key, module.getCurrentPriority(), callback)
 	end
 
 	local function runTask(taskId: number)
@@ -382,7 +382,7 @@ function module.New(options: schedulerOptions?): scheduler
 		removeTaskRecord(taskId, taskValue)
 
 		local success, failure = pcall(function()
-			module.RunWithPriority(taskValue.priority, taskValue.callback)
+			module.runWithPriority(taskValue.priority, taskValue.callback)
 		end)
 
 		if not success then
@@ -390,7 +390,7 @@ function module.New(options: schedulerOptions?): scheduler
 		end
 	end
 
-	local function flushOnePriority(priorityValue: priority, startedAt: number, respectBudget: boolean): boolean
+	local function flushOnePriority(priorityValue: Priority, startedAt: number, respectBudget: boolean): boolean
 		assertPriority(priorityValue)
 
 		local queue = queues[priorityValue]
@@ -436,7 +436,7 @@ function module.New(options: schedulerOptions?): scheduler
 		return false
 	end
 
-	local function flushPriority(priorityValue: priority)
+	local function flushPriority(priorityValue: Priority)
 		assert(not isDeleted, "Reactily scheduler is deleted.")
 		assertPriority(priorityValue)
 
@@ -479,17 +479,17 @@ function module.New(options: schedulerOptions?): scheduler
 			local startedAt = os.clock()
 
 			-- Immediate and user-blocking work always drains in the current slice.
-			flushOnePriority(priorityValues.Immediate, startedAt, false)
-			flushOnePriority(priorityValues.UserBlocking, startedAt, false)
+			flushOnePriority(priorityValues.immediate, startedAt, false)
+			flushOnePriority(priorityValues.userBlocking, startedAt, false)
 
-			local yielded = flushOnePriority(priorityValues.Normal, startedAt, true)
+			local yielded = flushOnePriority(priorityValues.normal, startedAt, true)
 
 			if not yielded then
-				yielded = flushOnePriority(priorityValues.Transition, startedAt, true)
+				yielded = flushOnePriority(priorityValues.transition, startedAt, true)
 			end
 
 			if not yielded then
-				flushOnePriority(priorityValues.Idle, startedAt, true)
+				flushOnePriority(priorityValues.idle, startedAt, true)
 			end
 		end)
 
@@ -510,7 +510,7 @@ function module.New(options: schedulerOptions?): scheduler
 		return pendingCount
 	end
 
-	local function getPendingCountByPriority(priorityValue: priority): number
+	local function getPendingCountByPriority(priorityValue: Priority): number
 		assert(not isDeleted, "Reactily scheduler is deleted.")
 		assertPriority(priorityValue)
 
@@ -530,23 +530,27 @@ function module.New(options: schedulerOptions?): scheduler
 	end
 
 	return {
-		Cancel = cancel,
-		CancelKey = cancelKey,
-		Clear = clear,
-		Delete = delete,
-		Enqueue = enqueue,
-		EnqueueKeyed = enqueueKeyed,
-		EnqueueKeyedPriority = enqueueKeyedPriority,
-		EnqueuePriority = enqueuePriority,
-		Flush = flush,
-		FlushPriority = flushPriority,
-		GetPendingCount = getPendingCount,
-		GetPendingCountByPriority = getPendingCountByPriority,
-		IsDeleted = getIsDeleted,
-		IsPending = isPending,
+		cancel = cancel,
+		cancelKey = cancelKey,
+		clear = clear,
+		delete = delete,
+		enqueue = enqueue,
+		enqueueKeyed = enqueueKeyed,
+		enqueueKeyedPriority = enqueueKeyedPriority,
+		enqueuePriority = enqueuePriority,
+		flush = flush,
+		flushPriority = flushPriority,
+		getPendingCount = getPendingCount,
+		getPendingCountByPriority = getPendingCountByPriority,
+		isDeleted = getIsDeleted,
+		isPending = isPending,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createScheduler = module.new
 
 return module

@@ -14,14 +14,14 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type objectPool<T> = {
-	Acquire: () -> T,
-	Clear: () -> (),
-	Delete: () -> boolean,
-	GetAvailableCount: () -> number,
-	GetCreatedCount: () -> number,
-	IsDeleted: () -> boolean,
-	Release: (object: T) -> boolean,
+export type ObjectPool<T> = {
+	acquire: () -> T,
+	clear: () -> (),
+	delete: () -> boolean,
+	getAvailableCount: () -> number,
+	getCreatedCount: () -> number,
+	isDeleted: () -> boolean,
+	release: (object: T) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -30,8 +30,8 @@ export type objectPool<T> = {
 --- @param className string Roblox class name used to create new Instances.
 --- @param maximumSize number Maximum number of released Instances retained by the pool.
 --- @return objectPool<Instance> New Instance object pool.
-function module.Instance(className: string, maximumSize: number): objectPool<Instance>
-	return module.New(function(): Instance
+function module.instance(className: string, maximumSize: number): ObjectPool<Instance>
+	return module.new(function(): Instance
 		return Instance.new(className)
 	end, function(instance: Instance)
 		instance.Parent = nil
@@ -48,12 +48,12 @@ end
 --- @param deleteObject (object: T) -> () Permanently disposes of an object.
 --- @param maximumSize number Maximum number of released objects retained by the pool.
 --- @return objectPool<T> New object pool.
-function module.New<T>(
+function module.new<T>(
 	createObject: () -> T,
 	resetObject: (object: T) -> (),
 	deleteObject: (object: T) -> (),
 	maximumSize: number
-): objectPool<T>
+): ObjectPool<T>
 	assert(maximumSize >= 0, "Reactily object pool maximumSize must be non-negative.")
 
 	local available: { T } = {}
@@ -148,16 +148,21 @@ function module.New<T>(
 	end
 
 	return {
-		Acquire = acquire,
-		Clear = clear,
-		Delete = delete,
-		GetAvailableCount = getAvailableCount,
-		GetCreatedCount = getCreatedCount,
-		IsDeleted = getIsDeleted,
-		Release = release,
+		acquire = acquire,
+		clear = clear,
+		delete = delete,
+		getAvailableCount = getAvailableCount,
+		getCreatedCount = getCreatedCount,
+		isDeleted = getIsDeleted,
+		release = release,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createInstancePool = module.instance
+module.createObjectPool = module.new
 
 return module

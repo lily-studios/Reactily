@@ -16,7 +16,7 @@ local memoModule = require(script.Parent.memo)
 local profiler = require(script.Parent.Parent.diagnostics.profiler)
 local renderer = require(script.Parent.Parent.runtime.renderer)
 local resourceModule = require(script.Parent.Parent.runtime.resource)
-local strictModeModule = require(script.Parent.Parent.diagnostics.strictMode)
+local strictModeModule = require(script.Parent.Parent.diagnostics.strictModeDiagnostics)
 local viewTransitionModule = require(script.Parent.Parent.runtime.viewTransition)
 
 --————————————————————————————————————————————————————————————————————--
@@ -29,12 +29,12 @@ local internals: { [string]: any } = {}
 --- @field forceRender boolean? Forces component reconciliation even when memoized inputs are unchanged.
 --- @field renderReason string? Diagnostic reason recorded for the render.
 --- @field requestRender (reason: string?) -> () Callback used to request another root render.
-export type reconcileOptions = {
-	ForceRender: boolean?,
-	HiddenActivity: boolean?,
-	RenderReason: string?,
-	RequestRender: (reason: string?) -> (),
-	StrictMode: boolean?,
+export type ReconcileOptions = {
+	forceRender: boolean?,
+	hiddenActivity: boolean?,
+	renderReason: string?,
+	requestRender: (reason: string?) -> (),
+	strictMode: boolean?,
 }
 
 --- Runtime representation of a mounted Reactily element.
@@ -46,18 +46,18 @@ export type reconcileOptions = {
 --- @field isSuspended boolean Whether a Suspense node is currently showing its fallback.
 --- @field parent Instance Current Roblox parent used for reconciliation.
 --- @field suspenseCleanup (() -> ())? Cleanup for the active suspension subscription.
-export type runtimeNode = {
-	Children: { runtimeNode },
-	Element: elementModule.element,
-	ErrorValue: any,
-	FragmentHandle: fragmentRefModule.fragmentInstance?,
-	FragmentRefTarget: fragmentRefModule.refTarget?,
-	HookContext: hooks.componentContext?,
-	Host: renderer.hostHandle?,
-	IsSuspended: boolean,
-	Parent: Instance,
-	SuspenseCleanup: (() -> ())?,
-	ViewTweens: { Tween }?,
+export type RuntimeNode = {
+	children: { RuntimeNode },
+	element: elementModule.Element,
+	errorValue: any,
+	fragmentHandle: fragmentRefModule.FragmentInstance?,
+	fragmentRefTarget: fragmentRefModule.FragmentInstanceRefTarget?,
+	hookContext: hooks.ComponentContext?,
+	host: renderer.HostHandle?,
+	isSuspended: boolean,
+	parent: Instance,
+	suspenseCleanup: (() -> ())?,
+	viewTweens: { Tween }?,
 }
 
 --- Serializable diagnostic snapshot of a reconciled runtime node.
@@ -67,13 +67,13 @@ export type runtimeNode = {
 --- @field key string? Stable element key.
 --- @field kind string Element kind.
 --- @field suspended boolean? Whether the node is currently suspended.
-export type nodeSnapshot = {
-	Children: { nodeSnapshot },
-	ClassName: string?,
-	Instance: Instance?,
-	Key: string?,
-	Kind: string,
-	Suspended: boolean?,
+export type NodeSnapshot = {
+	children: { NodeSnapshot },
+	className: string?,
+	instance: Instance?,
+	key: string?,
+	kind: string,
+	suspended: boolean?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -81,8 +81,8 @@ export type nodeSnapshot = {
 --- Returns the reconciliation key assigned to an element.
 --- @param elementValue element Element whose key should be read.
 --- @return string? Stable key when one is present.
-local function getElementKey(elementValue: elementModule.element): string?
-	return elementValue.Key
+local function getElementKey(elementValue: elementModule.Element): string?
+	return elementValue.key
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -91,7 +91,7 @@ end
 --- @param first {element} First child array.
 --- @param second {element} Second child array.
 --- @return boolean Whether both arrays contain the same element references in the same order.
-local function childrenEqual(first: { elementModule.element }, second: { elementModule.element }): boolean
+local function childrenEqual(first: { elementModule.Element }, second: { elementModule.Element }): boolean
 	if first == second then
 		return true
 	end
@@ -112,24 +112,24 @@ end
 --- @param elementValue element Error-boundary element.
 --- @param failure any Captured failure passed to a functional fallback.
 --- @return element Resolved fallback element.
-local function resolveFallback(elementValue: elementModule.element, failure: any): elementModule.element
-	assert(elementValue.Kind == "errorBoundary", "Reactily error fallback requires an error boundary.")
-	if type(elementValue.Fallback) == "function" then
-		return (elementValue.Fallback :: (failure: any) -> elementModule.element)(failure)
+local function resolveFallback(elementValue: elementModule.Element, failure: any): elementModule.Element
+	assert(elementValue.kind == "errorBoundary", "Reactily error fallback requires an error boundary.")
+	if type(elementValue.fallback) == "function" then
+		return (elementValue.fallback :: (failure: any) -> elementModule.Element)(failure)
 	end
-	return elementValue.Fallback
+	return elementValue.fallback
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Disconnects the active suspension subscription owned by a runtime node.
 --- @param node runtimeNode Runtime node whose suspension subscription should be released.
-local function disconnectSuspense(node: runtimeNode)
-	if not node.SuspenseCleanup then
+local function disconnectSuspense(node: RuntimeNode)
+	if not node.suspenseCleanup then
 		return
 	end
-	node.SuspenseCleanup()
-	node.SuspenseCleanup = nil
+	node.suspenseCleanup()
+	node.suspenseCleanup = nil
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -138,11 +138,11 @@ end
 --- @param node runtimeNode Runtime node entering the suspended state.
 --- @param suspension suspension Suspension to observe.
 --- @param options reconcileOptions Reconciliation callbacks used to request the follow-up render.
-local function subscribeSuspense(node: runtimeNode, suspension: resourceModule.suspension, options: reconcileOptions)
+local function subscribeSuspense(node: RuntimeNode, suspension: resourceModule.Suspension, options: ReconcileOptions)
 	disconnectSuspense(node)
 	local connected = true
 	local cleanup: (() -> ())? = nil
-	cleanup = suspension.Subscribe(function()
+	cleanup = suspension.subscribe(function()
 		if not connected then
 			return
 		end
@@ -150,10 +150,10 @@ local function subscribeSuspense(node: runtimeNode, suspension: resourceModule.s
 		if cleanup then
 			cleanup()
 		end
-		node.SuspenseCleanup = nil
-		options.RequestRender("suspense resolved")
+		node.suspenseCleanup = nil
+		options.requestRender("suspense resolved")
 	end)
-	node.SuspenseCleanup = function()
+	node.suspenseCleanup = function()
 		if not connected then
 			return
 		end
@@ -172,9 +172,9 @@ end
 --- @param callback () -> T Callback executed inside the provider scope.
 --- @return T Callback result.
 local function withContext<T>(contextValue: any, providedValue: any, callback: () -> T): T
-	contextModule.Push(contextValue, providedValue)
+	contextModule.push(contextValue, providedValue)
 	local success, result = pcall(callback)
-	contextModule.Pop(contextValue)
+	contextModule.pop(contextValue)
 	if success then
 		return result :: T
 	end
@@ -185,27 +185,27 @@ end
 --- Recursively collects Roblox host instances from a mounted subtree.
 --- @param node runtimeNode Root runtime node to traverse.
 --- @param output {Instance} Mutable array receiving every discovered host instance.
-local function collectAllHostInstances(node: runtimeNode, output: { Instance })
-	if node.Host then
-		output[#output + 1] = node.Host.Instance
+local function collectAllHostInstances(node: RuntimeNode, output: { Instance })
+	if node.host then
+		output[#output + 1] = node.host.instance
 	end
-	for _, child in node.Children do
+	for _, child in node.children do
 		collectAllHostInstances(child, output)
 	end
 end
 --- Collects the first host instance along each branch of a runtime node list.
 --- @param nodes {runtimeNode} Runtime nodes to inspect.
 --- @return {Instance} First-level host instances in traversal order.
-local function collectFirstLevelHostInstances(nodes: { runtimeNode }): { Instance }
+local function collectFirstLevelHostInstances(nodes: { RuntimeNode }): { Instance }
 	local output: { Instance } = {}
 	--- Visits a subtree, stopping descent whenever a host instance is found.
 	--- @param node runtimeNode Runtime node to inspect.
-	local function visit(node: runtimeNode)
-		if node.Host then
-			output[#output + 1] = node.Host.Instance
+	local function visit(node: RuntimeNode)
+		if node.host then
+			output[#output + 1] = node.host.instance
 			return
 		end
-		for _, child in node.Children do
+		for _, child in node.children do
 			visit(child)
 		end
 	end
@@ -217,18 +217,18 @@ end
 --- Returns every host instance contained in a runtime subtree.
 --- @param node runtimeNode Subtree root.
 --- @return {Instance} Host instances found in the subtree.
-local function collectNodeInstances(node: runtimeNode): { Instance }
+local function collectNodeInstances(node: RuntimeNode): { Instance }
 	local output: { Instance } = {}
 	collectAllHostInstances(node, output)
 	return output
 end
 --- Replays host refs recursively for strict-mode validation.
 --- @param node runtimeNode Subtree containing refs to replay.
-local function replayHostRefs(node: runtimeNode)
-	if node.Host then
-		renderer.ReplayRef(node.Host)
+local function replayHostRefs(node: RuntimeNode)
+	if node.host then
+		renderer.replayRef(node.host)
 	end
-	for _, child in node.Children do
+	for _, child in node.children do
 		replayHostRefs(child)
 	end
 end
@@ -236,65 +236,65 @@ end
 --- @param node runtimeNode Subtree whose visibility is being updated.
 --- @param hidden boolean Whether the Activity subtree should be hidden.
 --- @param isBoundaryRoot boolean? Whether this node is the boundary being toggled.
-local function setActivityHidden(node: runtimeNode, hidden: boolean, isBoundaryRoot: boolean?)
+local function setActivityHidden(node: RuntimeNode, hidden: boolean, isBoundaryRoot: boolean?)
 	-- When revealing an outer Activity, preserve any nested Activity that is
 	-- independently hidden.
-	if not hidden and not isBoundaryRoot and node.Element.Kind == "activity" and node.Element.Mode == "hidden" then
+	if not hidden and not isBoundaryRoot and node.element.kind == "activity" and node.element.mode == "hidden" then
 		return
 	end
-	if node.Host then
+	if node.host then
 		if hidden then
-			activityModule.Hide(node.Host.Instance)
+			activityModule.hide(node.host.instance)
 		else
-			activityModule.Show(node.Host.Instance)
+			activityModule.show(node.host.instance)
 		end
 	end
-	if node.HookContext then
+	if node.hookContext then
 		if hidden then
-			hooks.PauseEffects(node.HookContext)
+			hooks.pauseEffects(node.hookContext)
 		else
-			hooks.ResumeEffects(node.HookContext)
+			hooks.resumeEffects(node.hookContext)
 		end
 	end
-	for _, child in node.Children do
+	for _, child in node.children do
 		setActivityHidden(child, hidden, false)
 	end
 end
 --- Updates a fragment ref and refreshes its mounted-instance view.
 --- @param node runtimeNode Fragment runtime node that owns the ref handle.
 --- @param target refTarget? Desired ref target, or nil to detach the old ref.
-local function syncFragmentRef(node: runtimeNode, target: fragmentRefModule.refTarget?)
-	if node.FragmentRefTarget == target and node.FragmentHandle then
-		node.FragmentHandle.Refresh()
+local function syncFragmentRef(node: RuntimeNode, target: fragmentRefModule.FragmentInstanceRefTarget?)
+	if node.fragmentRefTarget == target and node.fragmentHandle then
+		node.fragmentHandle.refresh()
 		return
 	end
-	if node.FragmentRefTarget then
-		fragmentRefModule.Assign(node.FragmentRefTarget, nil)
+	if node.fragmentRefTarget then
+		fragmentRefModule.assign(node.fragmentRefTarget, nil)
 	end
-	if not node.FragmentHandle then
-		node.FragmentHandle = fragmentRefModule.New(function(): { Instance }
-			return collectFirstLevelHostInstances(node.Children)
+	if not node.fragmentHandle then
+		node.fragmentHandle = fragmentRefModule.new(function(): { Instance }
+			return collectFirstLevelHostInstances(node.children)
 		end)
 	end
-	node.FragmentRefTarget = target
+	node.fragmentRefTarget = target
 	if target then
-		fragmentRefModule.Assign(target, node.FragmentHandle)
+		fragmentRefModule.assign(target, node.fragmentHandle)
 	end
 end
 --- Flushes component effects or pauses them for a hidden Activity.
 --- @param context componentContext Component hook state that owns the effects.
 --- @param options reconcileOptions Render options including Activity and StrictMode state.
 --- @param replayStrict boolean Whether StrictMode should replay effects on this flush.
-local function flushComponentEffects(context: hooks.componentContext, options: reconcileOptions, replayStrict: boolean)
-	if options.HiddenActivity then
-		hooks.PauseEffects(context)
+local function flushComponentEffects(context: hooks.ComponentContext, options: ReconcileOptions, replayStrict: boolean)
+	if options.hiddenActivity then
+		hooks.pauseEffects(context)
 		return
 	end
-	hooks.FlushInsertionEffects(context)
-	hooks.FlushLayoutEffects(context)
-	hooks.FlushEffects(context)
-	if replayStrict and options.StrictMode and strictModeModule.IsEnabled() then
-		hooks.ReplayEffects(context)
+	hooks.flushInsertionEffects(context)
+	hooks.flushLayoutEffects(context)
+	hooks.flushEffects(context)
+	if replayStrict and options.strictMode and strictModeModule.isEnabled() then
+		hooks.replayEffects(context)
 	end
 end
 
@@ -320,36 +320,36 @@ end
 
 --- Recursively deletes a runtime node and all resources owned by its subtree.
 --- @param node runtimeNode Runtime node to delete.
-function internals.DeleteNode(node: runtimeNode)
+function internals.DeleteNode(node: RuntimeNode)
 	disconnectSuspense(node)
-	if node.Element.Kind == "viewTransition" then
-		runViewTransitionCallback(node.Element.OnExit, "onExit")
-		if node.ViewTweens then
-			viewTransitionModule.Cancel(node.ViewTweens)
-			node.ViewTweens = nil
+	if node.element.kind == "viewTransition" then
+		runViewTransitionCallback(node.element.onExit, "onExit")
+		if node.viewTweens then
+			viewTransitionModule.cancel(node.viewTweens)
+			node.viewTweens = nil
 		end
 	end
-	if node.FragmentRefTarget then
-		fragmentRefModule.Assign(node.FragmentRefTarget, nil)
-		node.FragmentRefTarget = nil
+	if node.fragmentRefTarget then
+		fragmentRefModule.assign(node.fragmentRefTarget, nil)
+		node.fragmentRefTarget = nil
 	end
-	if node.FragmentHandle then
-		node.FragmentHandle.Delete()
-		node.FragmentHandle = nil
+	if node.fragmentHandle then
+		node.fragmentHandle.delete()
+		node.fragmentHandle = nil
 	end
-	for index = #node.Children, 1, -1 do
-		internals.DeleteNode(node.Children[index])
+	for index = #node.children, 1, -1 do
+		internals.DeleteNode(node.children[index])
 	end
-	table.clear(node.Children)
-	if node.HookContext then
-		hooks.DeleteContext(node.HookContext)
-		node.HookContext = nil
+	table.clear(node.children)
+	if node.hookContext then
+		hooks.deleteContext(node.hookContext)
+		node.hookContext = nil
 	end
-	if node.Host then
-		renderer.DeleteHost(node.Host)
-		node.Host = nil
+	if node.host then
+		renderer.deleteHost(node.host)
+		node.host = nil
 	end
-	node.ErrorValue = nil
+	node.errorValue = nil
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -361,16 +361,16 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountHostNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "host", "Reactily host mount requires the matching element kind.")
-	local host = renderer.CreateHost(parent, elementValue)
-	node.Host = host
-	for _, child in elementValue.Children do
-		node.Children[#node.Children + 1] = internals.mount(host.Instance, child, options)
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "host", "Reactily host mount requires the matching element kind.")
+	local host = renderer.createHost(parent, elementValue)
+	node.host = host
+	for _, child in elementValue.children do
+		node.children[#node.children + 1] = internals.mount(host.instance, child, options)
 	end
 	return node
 end
@@ -382,18 +382,18 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountComponentNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "component", "Reactily component mount requires the matching element kind.")
-	local hookContext = hooks.NewContext(options.RequestRender)
-	node.HookContext = hookContext
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "component", "Reactily component mount requires the matching element kind.")
+	local hookContext = hooks.newContext(options.requestRender)
+	node.hookContext = hookContext
 	local rendered =
-		internals.RenderComponent(elementValue, hookContext, options.RenderReason or "mount", options.StrictMode == true)
+		internals.RenderComponent(elementValue, hookContext, options.renderReason or "mount", options.strictMode == true)
 	if rendered then
-		node.Children[1] = internals.mount(parent, rendered, options)
+		node.children[1] = internals.mount(parent, rendered, options)
 	end
 	flushComponentEffects(hookContext, options, true)
 	return node
@@ -406,14 +406,14 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountPortalNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	_parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "portal", "Reactily portal mount requires the matching element kind.")
-	for _, child in elementValue.Children do
-		node.Children[#node.Children + 1] = internals.mount(elementValue.target, child, options)
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "portal", "Reactily portal mount requires the matching element kind.")
+	for _, child in elementValue.children do
+		node.children[#node.children + 1] = internals.mount(elementValue.target, child, options)
 	end
 	return node
 end
@@ -425,15 +425,15 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountProviderNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "provider", "Reactily provider mount requires the matching element kind.")
-	node.Children = withContext(elementValue.ContextValue, elementValue.ProvidedValue, function(): { runtimeNode }
-		local output: { runtimeNode } = {}
-		for _, child in elementValue.Children do
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "provider", "Reactily provider mount requires the matching element kind.")
+	node.children = withContext(elementValue.contextValue, elementValue.providedValue, function(): { RuntimeNode }
+		local output: { RuntimeNode } = {}
+		for _, child in elementValue.children do
 			output[#output + 1] = internals.mount(parent, child, options)
 		end
 		return output
@@ -448,29 +448,29 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountErrorBoundaryNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "errorBoundary", "Reactily errorBoundary mount requires the matching element kind.")
-	local child = elementValue.Children[1]
-	local childSuccess, childResult = pcall(function(): runtimeNode
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "errorBoundary", "Reactily errorBoundary mount requires the matching element kind.")
+	local child = elementValue.children[1]
+	local childSuccess, childResult = pcall(function(): RuntimeNode
 		return internals.mount(parent, child, options)
 	end)
 	local childOrFailure: any = childResult
 	if childSuccess then
-		node.Children[1] = childOrFailure :: runtimeNode
+		node.children[1] = childOrFailure :: RuntimeNode
 		return node
 	end
-	if resourceModule.IsSuspension(childOrFailure) then
+	if resourceModule.isSuspension(childOrFailure) then
 		error(childOrFailure, 0)
 	end
-	node.ErrorValue = childOrFailure
-	if elementValue.OnError then
-		elementValue.OnError(childOrFailure)
+	node.errorValue = childOrFailure
+	if elementValue.onError then
+		elementValue.onError(childOrFailure)
 	end
-	node.Children[1] = internals.mount(parent, resolveFallback(elementValue, childOrFailure), options)
+	node.children[1] = internals.mount(parent, resolveFallback(elementValue, childOrFailure), options)
 	return node
 end
 
@@ -481,28 +481,28 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountSuspenseNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "suspense", "Reactily suspense mount requires the matching element kind.")
-	local child = elementValue.Children[1]
-	local suspenseSuccess, suspenseResult = pcall(function(): runtimeNode
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "suspense", "Reactily suspense mount requires the matching element kind.")
+	local child = elementValue.children[1]
+	local suspenseSuccess, suspenseResult = pcall(function(): RuntimeNode
 		return internals.mount(parent, child, options)
 	end)
 	local childOrFailure: any = suspenseResult
 	if suspenseSuccess then
-		node.Children[1] = childOrFailure :: runtimeNode
+		node.children[1] = childOrFailure :: RuntimeNode
 		return node
 	end
-	if not resourceModule.IsSuspension(childOrFailure) then
+	if not resourceModule.isSuspension(childOrFailure) then
 		error(childOrFailure, 0)
 	end
-	local suspension: resourceModule.suspension = childOrFailure
-	node.IsSuspended = true
+	local suspension: resourceModule.Suspension = childOrFailure
+	node.isSuspended = true
 	subscribeSuspense(node, suspension, options)
-	node.Children[1] = internals.mount(parent, elementValue.Fallback, options)
+	node.children[1] = internals.mount(parent, elementValue.fallback, options)
 	return node
 end
 
@@ -513,18 +513,18 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountActivityNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "activity", "Reactily activity mount requires the matching element kind.")
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "activity", "Reactily activity mount requires the matching element kind.")
 	local childOptions = table.clone(options)
-	childOptions.HiddenActivity = options.HiddenActivity == true or elementValue.Mode == "hidden"
-	for _, child in elementValue.Children do
-		node.Children[#node.Children + 1] = internals.mount(parent, child, childOptions)
+	childOptions.hiddenActivity = options.hiddenActivity == true or elementValue.mode == "hidden"
+	for _, child in elementValue.children do
+		node.children[#node.children + 1] = internals.mount(parent, child, childOptions)
 	end
-	if childOptions.HiddenActivity then
+	if childOptions.hiddenActivity then
 		setActivityHidden(node, true, true)
 	end
 	return node
@@ -537,18 +537,18 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountProfilerNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "profiler", "Reactily profiler mount requires the matching element kind.")
-	local child = elementValue.Children[1]
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "profiler", "Reactily profiler mount requires the matching element kind.")
+	local child = elementValue.children[1]
 	local started = os.clock()
-	node.Children[1] = internals.mount(parent, child, options)
+	node.children[1] = internals.mount(parent, child, options)
 	local duration = os.clock() - started
-	if elementValue.OnRender then
-		elementValue.OnRender(elementValue.Id, "mount", duration, options.RenderReason or "mount")
+	if elementValue.onRender then
+		elementValue.onRender(elementValue.id, "mount", duration, options.renderReason or "mount")
 	end
 	return node
 end
@@ -560,19 +560,19 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountStrictModeNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "strictMode", "Reactily strictMode mount requires the matching element kind.")
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "strictMode", "Reactily strictMode mount requires the matching element kind.")
 	local childOptions = table.clone(options)
-	childOptions.StrictMode = true
-	for _, child in elementValue.Children do
-		node.Children[#node.Children + 1] = internals.mount(parent, child, childOptions)
+	childOptions.strictMode = true
+	for _, child in elementValue.children do
+		node.children[#node.children + 1] = internals.mount(parent, child, childOptions)
 	end
-	if strictModeModule.IsEnabled() then
-		for _, childNode in node.Children do
+	if strictModeModule.isEnabled() then
+		for _, childNode in node.children do
 			replayHostRefs(childNode)
 		end
 	end
@@ -586,17 +586,17 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountViewTransitionNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "viewTransition", "Reactily viewTransition mount requires the matching element kind.")
-	local child = elementValue.Children[1]
-	node.Children[1] = internals.mount(parent, child, options)
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "viewTransition", "Reactily viewTransition mount requires the matching element kind.")
+	local child = elementValue.children[1]
+	node.children[1] = internals.mount(parent, child, options)
 	local instances = collectNodeInstances(node)
-	node.ViewTweens = viewTransitionModule.PlayEnter(instances, elementValue.Config)
-	runViewTransitionCallback(elementValue.OnEnter, "onEnter")
+	node.viewTweens = viewTransitionModule.playEnter(instances, elementValue.config)
+	runViewTransitionCallback(elementValue.onEnter, "onEnter")
 	return node
 end
 
@@ -607,16 +607,16 @@ end
 --- @param options reconcileOptions Render request options and lifecycle callbacks.
 --- @return runtimeNode Mounted runtime node.
 local function mountFragmentNode(
-	node: runtimeNode,
+	node: RuntimeNode,
 	parent: Instance,
-	elementValue: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(elementValue.Kind == "fragment", "Reactily fragment mount requires the matching element kind.")
-	for _, child in elementValue.Children do
-		node.Children[#node.Children + 1] = internals.mount(parent, child, options)
+	elementValue: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(elementValue.kind == "fragment", "Reactily fragment mount requires the matching element kind.")
+	for _, child in elementValue.children do
+		node.children[#node.children + 1] = internals.mount(parent, child, options)
 	end
-	syncFragmentRef(node, elementValue.RefTarget)
+	syncFragmentRef(node, elementValue.refTarget)
 	return node
 end
 
@@ -625,72 +625,72 @@ end
 --- @param elementValue element Virtual element to mount.
 --- @param options reconcileOptions Reconciliation callbacks and render metadata.
 --- @return runtimeNode Newly mounted runtime node.
-function internals.mount(parent: Instance, elementValue: elementModule.element, options: reconcileOptions): runtimeNode
-	local node: runtimeNode = {
-		Children = {},
-		Element = elementValue,
-		ErrorValue = nil,
-		FragmentHandle = nil,
-		FragmentRefTarget = nil,
-		HookContext = nil,
-		Host = nil,
-		IsSuspended = false,
-		Parent = parent,
-		SuspenseCleanup = nil,
-		ViewTweens = nil,
+function internals.mount(parent: Instance, elementValue: elementModule.Element, options: ReconcileOptions): RuntimeNode
+	local node: RuntimeNode = {
+		children = {},
+		element = elementValue,
+		errorValue = nil,
+		fragmentHandle = nil,
+		fragmentRefTarget = nil,
+		hookContext = nil,
+		host = nil,
+		isSuspended = false,
+		parent = parent,
+		suspenseCleanup = nil,
+		viewTweens = nil,
 	}
-	local success, result = pcall(function(): runtimeNode
-		if elementValue.Kind == "host" then
+	local success, result = pcall(function(): RuntimeNode
+		if elementValue.kind == "host" then
 			return mountHostNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "component" then
+		if elementValue.kind == "component" then
 			return mountComponentNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "portal" then
+		if elementValue.kind == "portal" then
 			return mountPortalNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "provider" then
+		if elementValue.kind == "provider" then
 			return mountProviderNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "errorBoundary" then
+		if elementValue.kind == "errorBoundary" then
 			return mountErrorBoundaryNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "suspense" then
+		if elementValue.kind == "suspense" then
 			return mountSuspenseNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "activity" then
+		if elementValue.kind == "activity" then
 			return mountActivityNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "profiler" then
+		if elementValue.kind == "profiler" then
 			return mountProfilerNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "strictMode" then
+		if elementValue.kind == "strictMode" then
 			return mountStrictModeNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "viewTransition" then
+		if elementValue.kind == "viewTransition" then
 			return mountViewTransitionNode(node, parent, elementValue, options)
 		end
 
-		if elementValue.Kind == "fragment" then
+		if elementValue.kind == "fragment" then
 			return mountFragmentNode(node, parent, elementValue, options)
 		end
 
-		for _, child in elementValue.Children do
-			node.Children[#node.Children + 1] = internals.mount(parent, child, options)
+		for _, child in elementValue.children do
+			node.children[#node.children + 1] = internals.mount(parent, child, options)
 		end
 		return node
 	end)
 	if success then
-		return result :: runtimeNode
+		return result :: RuntimeNode
 	end
 	internals.DeleteNode(node)
 	error(result, 0)
@@ -707,21 +707,21 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileHostNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "host", "Reactily host reconcile requires the matching element kind.")
-	local host = currentNode.Host
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "host", "Reactily host reconcile requires the matching element kind.")
+	local host = currentNode.host
 	assert(host, "Reactily host runtime node is missing its host handle.")
-	assert(previousElement.Kind == "host", "Reactily host identity changed unexpectedly.")
-	if host.Instance.Parent ~= parent then
-		host.Instance.Parent = parent
+	assert(previousElement.kind == "host", "Reactily host identity changed unexpectedly.")
+	if host.instance.Parent ~= parent then
+		host.instance.Parent = parent
 	end
-	renderer.UpdateHost(host, previousElement.Props, nextElement.Props)
-	currentNode.Children =
-		internals.ReconcileChildren(host.Instance, currentNode.Children, nextElement.Children, options)
+	renderer.updateHost(host, previousElement.props, nextElement.props)
+	currentNode.children =
+		internals.ReconcileChildren(host.instance, currentNode.children, nextElement.children, options)
 	return currentNode
 end
 
@@ -734,39 +734,39 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileComponentNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "component", "Reactily component reconcile requires the matching element kind.")
-	local hookContext = currentNode.HookContext
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "component", "Reactily component reconcile requires the matching element kind.")
+	local hookContext = currentNode.hookContext
 	assert(hookContext, "Reactily component runtime node is missing hook context.")
-	assert(previousElement.Kind == "component", "Reactily component identity changed unexpectedly.")
-	local propsChanged = memoModule.ShouldUpdate(nextElement.component, previousElement.Props, nextElement.Props)
-	local childInputsChanged = not childrenEqual(previousElement.Children, nextElement.Children)
+	assert(previousElement.kind == "component", "Reactily component identity changed unexpectedly.")
+	local propsChanged = memoModule.shouldUpdate(nextElement.component, previousElement.props, nextElement.props)
+	local childInputsChanged = not childrenEqual(previousElement.children, nextElement.children)
 	if
-		memoModule.IsMemo(nextElement.component)
-		and not options.ForceRender
-		and not hookContext.NeedsRender
+		memoModule.isMemo(nextElement.component)
+		and not options.forceRender
+		and not hookContext.needsRender
 		and not propsChanged
 		and not childInputsChanged
 	then
 		return currentNode
 	end
-	local reason = options.RenderReason or "parent rendered"
+	local reason = options.renderReason or "parent rendered"
 	if propsChanged or childInputsChanged then
 		reason = "props changed"
 	end
-	if not propsChanged and not childInputsChanged and hookContext.NeedsRender then
+	if not propsChanged and not childInputsChanged and hookContext.needsRender then
 		reason = "component state changed"
 	end
-	local rendered = internals.RenderComponent(nextElement, hookContext, reason, options.StrictMode == true)
-	local currentChild = currentNode.Children[1]
-	local nextChild = internals.Reconcile(parent, currentChild, rendered, options)
-	table.clear(currentNode.Children)
+	local rendered = internals.RenderComponent(nextElement, hookContext, reason, options.strictMode == true)
+	local currentChild = currentNode.children[1]
+	local nextChild = internals.reconcile(parent, currentChild, rendered, options)
+	table.clear(currentNode.children)
 	if nextChild then
-		currentNode.Children[1] = nextChild
+		currentNode.children[1] = nextChild
 	end
 	flushComponentEffects(hookContext, options, false)
 	return currentNode
@@ -781,14 +781,14 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcilePortalNode(
 	_parent: Instance,
-	currentNode: runtimeNode,
-	_previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "portal", "Reactily portal reconcile requires the matching element kind.")
-	currentNode.Children =
-		internals.ReconcileChildren(nextElement.target, currentNode.Children, nextElement.Children, options)
+	currentNode: RuntimeNode,
+	_previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "portal", "Reactily portal reconcile requires the matching element kind.")
+	currentNode.children =
+		internals.ReconcileChildren(nextElement.target, currentNode.children, nextElement.children, options)
 	return currentNode
 end
 
@@ -801,21 +801,21 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileProviderNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "provider", "Reactily provider reconcile requires the matching element kind.")
-	assert(previousElement.Kind == "provider", "Reactily context-provider identity changed unexpectedly.")
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "provider", "Reactily provider reconcile requires the matching element kind.")
+	assert(previousElement.kind == "provider", "Reactily context-provider identity changed unexpectedly.")
 	local childOptions = options
-	if previousElement.ProvidedValue ~= nextElement.ProvidedValue then
+	if previousElement.providedValue ~= nextElement.providedValue then
 		childOptions = table.clone(options)
-		childOptions.ForceRender = true
-		childOptions.RenderReason = "context changed"
+		childOptions.forceRender = true
+		childOptions.renderReason = "context changed"
 	end
-	currentNode.Children = withContext(nextElement.ContextValue, nextElement.ProvidedValue, function(): { runtimeNode }
-		return internals.ReconcileChildren(parent, currentNode.Children, nextElement.Children, childOptions)
+	currentNode.children = withContext(nextElement.contextValue, nextElement.providedValue, function(): { RuntimeNode }
+		return internals.ReconcileChildren(parent, currentNode.children, nextElement.children, childOptions)
 	end)
 	return currentNode
 end
@@ -829,47 +829,47 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileErrorBoundaryNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "errorBoundary", "Reactily errorBoundary reconcile requires the matching element kind.")
-	assert(previousElement.Kind == "errorBoundary", "Reactily error-boundary identity changed unexpectedly.")
-	local child = nextElement.Children[1]
-	local success, result = pcall(function(): runtimeNode?
-		local currentChild: runtimeNode? = currentNode.Children[1]
-		if currentNode.ErrorValue ~= nil then
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "errorBoundary", "Reactily errorBoundary reconcile requires the matching element kind.")
+	assert(previousElement.kind == "errorBoundary", "Reactily error-boundary identity changed unexpectedly.")
+	local child = nextElement.children[1]
+	local success, result = pcall(function(): RuntimeNode?
+		local currentChild: RuntimeNode? = currentNode.children[1]
+		if currentNode.errorValue ~= nil then
 			currentChild = nil
 		end
-		return internals.Reconcile(parent, currentChild, child, options)
+		return internals.reconcile(parent, currentChild, child, options)
 	end)
 	local childOrFailure: any = result
 	if success then
-		if currentNode.ErrorValue then
-			for _, currentChild in currentNode.Children do
+		if currentNode.errorValue then
+			for _, currentChild in currentNode.children do
 				internals.DeleteNode(currentChild)
 			end
 		end
-		currentNode.ErrorValue = nil
-		table.clear(currentNode.Children)
+		currentNode.errorValue = nil
+		table.clear(currentNode.children)
 		if childOrFailure then
-			currentNode.Children[1] = childOrFailure :: runtimeNode
+			currentNode.children[1] = childOrFailure :: RuntimeNode
 		end
 		return currentNode
 	end
-	if resourceModule.IsSuspension(childOrFailure) then
+	if resourceModule.isSuspension(childOrFailure) then
 		error(childOrFailure, 0)
 	end
-	for _, currentChild in currentNode.Children do
+	for _, currentChild in currentNode.children do
 		internals.DeleteNode(currentChild)
 	end
-	table.clear(currentNode.Children)
-	currentNode.ErrorValue = childOrFailure
-	if nextElement.OnError then
-		nextElement.OnError(childOrFailure)
+	table.clear(currentNode.children)
+	currentNode.errorValue = childOrFailure
+	if nextElement.onError then
+		nextElement.onError(childOrFailure)
 	end
-	currentNode.Children[1] = internals.mount(parent, resolveFallback(nextElement, childOrFailure), options)
+	currentNode.children[1] = internals.mount(parent, resolveFallback(nextElement, childOrFailure), options)
 	return currentNode
 end
 
@@ -882,44 +882,44 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileSuspenseNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "suspense", "Reactily suspense reconcile requires the matching element kind.")
-	assert(previousElement.Kind == "suspense", "Reactily Suspense identity changed unexpectedly.")
-	local child = nextElement.Children[1]
-	local existing: runtimeNode? = currentNode.Children[1]
-	if currentNode.IsSuspended and existing then
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "suspense", "Reactily suspense reconcile requires the matching element kind.")
+	assert(previousElement.kind == "suspense", "Reactily Suspense identity changed unexpectedly.")
+	local child = nextElement.children[1]
+	local existing: RuntimeNode? = currentNode.children[1]
+	if currentNode.isSuspended and existing then
 		internals.DeleteNode(existing)
-		table.clear(currentNode.Children)
+		table.clear(currentNode.children)
 		existing = nil
 	end
-	local success, result = pcall(function(): runtimeNode?
-		return internals.Reconcile(parent, existing, child, options)
+	local success, result = pcall(function(): RuntimeNode?
+		return internals.reconcile(parent, existing, child, options)
 	end)
 	local childOrFailure: any = result
 	if success then
 		disconnectSuspense(currentNode)
-		currentNode.IsSuspended = false
-		table.clear(currentNode.Children)
+		currentNode.isSuspended = false
+		table.clear(currentNode.children)
 		if childOrFailure then
-			currentNode.Children[1] = childOrFailure :: runtimeNode
+			currentNode.children[1] = childOrFailure :: RuntimeNode
 		end
 		return currentNode
 	end
-	if not resourceModule.IsSuspension(childOrFailure) then
+	if not resourceModule.isSuspension(childOrFailure) then
 		error(childOrFailure, 0)
 	end
 	if existing then
 		internals.DeleteNode(existing)
 	end
-	table.clear(currentNode.Children)
-	local suspension: resourceModule.suspension = childOrFailure
-	currentNode.IsSuspended = true
+	table.clear(currentNode.children)
+	local suspension: resourceModule.Suspension = childOrFailure
+	currentNode.isSuspended = true
 	subscribeSuspense(currentNode, suspension, options)
-	currentNode.Children[1] = internals.mount(parent, nextElement.Fallback, options)
+	currentNode.children[1] = internals.mount(parent, nextElement.fallback, options)
 	return currentNode
 end
 
@@ -932,17 +932,17 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileActivityNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "activity", "Reactily activity reconcile requires the matching element kind.")
-	assert(previousElement.Kind == "activity", "Reactily Activity identity changed unexpectedly.")
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "activity", "Reactily activity reconcile requires the matching element kind.")
+	assert(previousElement.kind == "activity", "Reactily Activity identity changed unexpectedly.")
 	local childOptions = table.clone(options)
-	local hidden = options.HiddenActivity == true or nextElement.Mode == "hidden"
-	childOptions.HiddenActivity = hidden
-	currentNode.Children = internals.ReconcileChildren(parent, currentNode.Children, nextElement.Children, childOptions)
+	local hidden = options.hiddenActivity == true or nextElement.mode == "hidden"
+	childOptions.hiddenActivity = hidden
+	currentNode.children = internals.ReconcileChildren(parent, currentNode.children, nextElement.children, childOptions)
 	setActivityHidden(currentNode, hidden, true)
 	return currentNode
 end
@@ -956,24 +956,24 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileProfilerNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "profiler", "Reactily profiler reconcile requires the matching element kind.")
-	assert(previousElement.Kind == "profiler", "Reactily Profiler identity changed unexpectedly.")
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "profiler", "Reactily profiler reconcile requires the matching element kind.")
+	assert(previousElement.kind == "profiler", "Reactily Profiler identity changed unexpectedly.")
 	local started = os.clock()
-	local child = nextElement.Children[1]
-	local currentChild = currentNode.Children[1]
-	local nextChild = internals.Reconcile(parent, currentChild, child, options)
-	table.clear(currentNode.Children)
+	local child = nextElement.children[1]
+	local currentChild = currentNode.children[1]
+	local nextChild = internals.reconcile(parent, currentChild, child, options)
+	table.clear(currentNode.children)
 	if nextChild then
-		currentNode.Children[1] = nextChild
+		currentNode.children[1] = nextChild
 	end
 	local duration = os.clock() - started
-	if nextElement.OnRender then
-		nextElement.OnRender(nextElement.Id, "update", duration, options.RenderReason or "parent rendered")
+	if nextElement.onRender then
+		nextElement.onRender(nextElement.id, "update", duration, options.renderReason or "parent rendered")
 	end
 	return currentNode
 end
@@ -987,16 +987,16 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileStrictModeNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "strictMode", "Reactily strictMode reconcile requires the matching element kind.")
-	assert(previousElement.Kind == "strictMode", "Reactily StrictMode identity changed unexpectedly.")
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "strictMode", "Reactily strictMode reconcile requires the matching element kind.")
+	assert(previousElement.kind == "strictMode", "Reactily StrictMode identity changed unexpectedly.")
 	local childOptions = table.clone(options)
-	childOptions.StrictMode = true
-	currentNode.Children = internals.ReconcileChildren(parent, currentNode.Children, nextElement.Children, childOptions)
+	childOptions.strictMode = true
+	currentNode.children = internals.ReconcileChildren(parent, currentNode.children, nextElement.children, childOptions)
 	return currentNode
 end
 
@@ -1009,28 +1009,28 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileViewTransitionNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "viewTransition", "Reactily viewTransition reconcile requires the matching element kind.")
-	assert(previousElement.Kind == "viewTransition", "Reactily ViewTransition identity changed unexpectedly.")
-	if currentNode.ViewTweens then
-		viewTransitionModule.Cancel(currentNode.ViewTweens)
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "viewTransition", "Reactily viewTransition reconcile requires the matching element kind.")
+	assert(previousElement.kind == "viewTransition", "Reactily ViewTransition identity changed unexpectedly.")
+	if currentNode.viewTweens then
+		viewTransitionModule.cancel(currentNode.viewTweens)
 	end
 	local beforeInstances = collectNodeInstances(currentNode)
-	local before = viewTransitionModule.Capture(beforeInstances)
-	local child = nextElement.Children[1]
-	local currentChild = currentNode.Children[1]
-	local nextChild = internals.Reconcile(parent, currentChild, child, options)
-	table.clear(currentNode.Children)
+	local before = viewTransitionModule.capture(beforeInstances)
+	local child = nextElement.children[1]
+	local currentChild = currentNode.children[1]
+	local nextChild = internals.reconcile(parent, currentChild, child, options)
+	table.clear(currentNode.children)
 	if nextChild then
-		currentNode.Children[1] = nextChild
+		currentNode.children[1] = nextChild
 	end
 	local afterInstances = collectNodeInstances(currentNode)
-	currentNode.ViewTweens = viewTransitionModule.PlayUpdate(before, afterInstances, nextElement.Config)
-	runViewTransitionCallback(nextElement.OnUpdate, "onUpdate")
+	currentNode.viewTweens = viewTransitionModule.playUpdate(before, afterInstances, nextElement.config)
+	runViewTransitionCallback(nextElement.onUpdate, "onUpdate")
 	return currentNode
 end
 
@@ -1043,15 +1043,15 @@ end
 --- @return runtimeNode Updated runtime node.
 local function reconcileFragmentNode(
 	parent: Instance,
-	currentNode: runtimeNode,
-	previousElement: elementModule.element,
-	nextElement: elementModule.element,
-	options: reconcileOptions
-): runtimeNode
-	assert(nextElement.Kind == "fragment", "Reactily fragment reconcile requires the matching element kind.")
-	assert(previousElement.Kind == "fragment", "Reactily Fragment identity changed unexpectedly.")
-	currentNode.Children = internals.ReconcileChildren(parent, currentNode.Children, nextElement.Children, options)
-	syncFragmentRef(currentNode, nextElement.RefTarget)
+	currentNode: RuntimeNode,
+	previousElement: elementModule.Element,
+	nextElement: elementModule.Element,
+	options: ReconcileOptions
+): RuntimeNode
+	assert(nextElement.kind == "fragment", "Reactily fragment reconcile requires the matching element kind.")
+	assert(previousElement.kind == "fragment", "Reactily Fragment identity changed unexpectedly.")
+	currentNode.children = internals.ReconcileChildren(parent, currentNode.children, nextElement.children, options)
+	syncFragmentRef(currentNode, nextElement.refTarget)
 	return currentNode
 end
 
@@ -1061,12 +1061,12 @@ end
 --- @param nextElement element? Desired next element.
 --- @param options reconcileOptions Reconciliation callbacks and render metadata.
 --- @return runtimeNode? Reused, replaced, mounted, or removed runtime node.
-function internals.Reconcile(
+function internals.reconcile(
 	parent: Instance,
-	currentNode: runtimeNode?,
-	nextElement: elementModule.element?,
-	options: reconcileOptions
-): runtimeNode?
+	currentNode: RuntimeNode?,
+	nextElement: elementModule.Element?,
+	options: ReconcileOptions
+): RuntimeNode?
 	if not currentNode and not nextElement then
 		return nil
 	end
@@ -1078,58 +1078,58 @@ function internals.Reconcile(
 		internals.DeleteNode(currentNode)
 		return nil
 	end
-	if not internals.SameIdentity(currentNode.Element, nextElement) then
+	if not internals.SameIdentity(currentNode.element, nextElement) then
 		internals.DeleteNode(currentNode)
 		return internals.mount(parent, nextElement, options)
 	end
-	local previousElement = currentNode.Element
-	currentNode.Element = nextElement
-	currentNode.Parent = parent
-	if nextElement.Kind == "host" then
+	local previousElement = currentNode.element
+	currentNode.element = nextElement
+	currentNode.parent = parent
+	if nextElement.kind == "host" then
 		return reconcileHostNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "component" then
+	if nextElement.kind == "component" then
 		return reconcileComponentNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "portal" then
+	if nextElement.kind == "portal" then
 		return reconcilePortalNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "provider" then
+	if nextElement.kind == "provider" then
 		return reconcileProviderNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "errorBoundary" then
+	if nextElement.kind == "errorBoundary" then
 		return reconcileErrorBoundaryNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "suspense" then
+	if nextElement.kind == "suspense" then
 		return reconcileSuspenseNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "activity" then
+	if nextElement.kind == "activity" then
 		return reconcileActivityNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "profiler" then
+	if nextElement.kind == "profiler" then
 		return reconcileProfilerNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "strictMode" then
+	if nextElement.kind == "strictMode" then
 		return reconcileStrictModeNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "viewTransition" then
+	if nextElement.kind == "viewTransition" then
 		return reconcileViewTransitionNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	if nextElement.Kind == "fragment" then
+	if nextElement.kind == "fragment" then
 		return reconcileFragmentNode(parent, currentNode, previousElement, nextElement, options)
 	end
 
-	currentNode.Children = internals.ReconcileChildren(parent, currentNode.Children, nextElement.Children, options)
+	currentNode.children = internals.ReconcileChildren(parent, currentNode.children, nextElement.children, options)
 	return currentNode
 end
 
@@ -1143,19 +1143,19 @@ end
 --- @return {runtimeNode} Reconciled child runtime nodes.
 function internals.ReconcileChildren(
 	parent: Instance,
-	currentChildren: { runtimeNode },
-	nextChildren: { elementModule.element },
-	options: reconcileOptions
-): { runtimeNode }
-	local currentByKey: { [string]: runtimeNode } = {}
-	local currentWithoutKey: { runtimeNode } = {}
+	currentChildren: { RuntimeNode },
+	nextChildren: { elementModule.Element },
+	options: ReconcileOptions
+): { RuntimeNode }
+	local currentByKey: { [string]: RuntimeNode } = {}
+	local currentWithoutKey: { RuntimeNode } = {}
 	local nextKeys: { [string]: boolean } = {}
-	local originalNodes: { [runtimeNode]: boolean } = {}
-	local output: { runtimeNode } = table.create(#nextChildren)
-	local usedNodes: { [runtimeNode]: boolean } = {}
+	local originalNodes: { [RuntimeNode]: boolean } = {}
+	local output: { RuntimeNode } = table.create(#nextChildren)
+	local usedNodes: { [RuntimeNode]: boolean } = {}
 	for _, currentNode in currentChildren do
 		originalNodes[currentNode] = true
-		local key = getElementKey(currentNode.Element)
+		local key = getElementKey(currentNode.element)
 		if not key then
 			currentWithoutKey[#currentWithoutKey + 1] = currentNode
 			continue
@@ -1167,7 +1167,7 @@ function internals.ReconcileChildren(
 		local unkeyedIndex = 0
 		for _, nextElement in nextChildren do
 			local key = getElementKey(nextElement)
-			local currentNode: runtimeNode? = nil
+			local currentNode: RuntimeNode? = nil
 			if key then
 				assert(not nextKeys[key], `Reactily next children contain duplicate key "{key}".`)
 				nextKeys[key] = true
@@ -1180,7 +1180,7 @@ function internals.ReconcileChildren(
 			if currentNode then
 				usedNodes[currentNode] = true
 			end
-			local nextNode = internals.Reconcile(parent, currentNode, nextElement, options)
+			local nextNode = internals.reconcile(parent, currentNode, nextElement, options)
 			if nextNode then
 				output[#output + 1] = nextNode
 			end
@@ -1227,32 +1227,32 @@ end
 --- @param strictMode boolean? Whether this render is inside StrictMode.
 --- @return element? Element returned by the component.
 function internals.RenderComponent(
-	elementValue: elementModule.element,
-	context: hooks.componentContext,
+	elementValue: elementModule.Element,
+	context: hooks.ComponentContext,
 	reason: string,
 	strictMode: boolean?
-): elementModule.element?
-	assert(elementValue.Kind == "component", "Reactily component renderer requires a component element.")
-	local props = table.clone(elementValue.Props)
-	props.Children = elementValue.Children
-	if strictMode and strictModeModule.IsEnabled() and not context.IsRendered then
-		local previewContext = hooks.NewContext(function()
-			strictModeModule.Warn("A component requested state during the StrictMode preview render.")
+): elementModule.Element?
+	assert(elementValue.kind == "component", "Reactily component renderer requires a component element.")
+	local props = table.clone(elementValue.props)
+	props.children = elementValue.children
+	if strictMode and strictModeModule.isEnabled() and not context.isRendered then
+		local previewContext = hooks.newContext(function()
+			strictModeModule.warn("A component requested state during the StrictMode preview render.")
 		end)
-		hooks.BeginRender(previewContext)
+		hooks.beginRender(previewContext)
 		local previewSuccess, previewResult = pcall(elementValue.component, table.clone(props))
-		hooks.EndRender(previewContext, previewSuccess)
-		hooks.DeleteContext(previewContext)
+		hooks.endRender(previewContext, previewSuccess)
+		hooks.deleteContext(previewContext)
 		if not previewSuccess then
 			error(previewResult, 0)
 		end
 	end
-	hooks.BeginRender(context)
+	hooks.beginRender(context)
 	local started = os.clock()
 	local success, result = pcall(elementValue.component, props)
 	local duration = os.clock() - started
-	hooks.EndRender(context, success)
-	profiler.Record(elementValue.component, duration, reason)
+	hooks.endRender(context, success)
+	profiler.record(elementValue.component, duration, reason)
 	if not success then
 		error(result, 0)
 	end
@@ -1265,21 +1265,21 @@ end
 --- @param current element Currently mounted element.
 --- @param nextValue element Desired next element.
 --- @return boolean Whether reconciliation may preserve the existing runtime identity.
-function internals.SameIdentity(current: elementModule.element, nextValue: elementModule.element): boolean
-	if current.Kind ~= nextValue.Kind then
+function internals.SameIdentity(current: elementModule.Element, nextValue: elementModule.Element): boolean
+	if current.kind ~= nextValue.kind then
 		return false
 	end
-	if current.Key ~= nextValue.Key then
+	if current.key ~= nextValue.key then
 		return false
 	end
-	if current.Kind == "host" and nextValue.Kind == "host" then
-		return current.ClassName == nextValue.ClassName
+	if current.kind == "host" and nextValue.kind == "host" then
+		return current.className == nextValue.className
 	end
-	if current.Kind == "component" and nextValue.Kind == "component" then
+	if current.kind == "component" and nextValue.kind == "component" then
 		return current.component == nextValue.component
 	end
-	if current.Kind == "provider" and nextValue.Kind == "provider" then
-		return current.ContextValue == nextValue.ContextValue
+	if current.kind == "provider" and nextValue.kind == "provider" then
+		return current.contextValue == nextValue.contextValue
 	end
 	return true
 end
@@ -1289,7 +1289,7 @@ end
 --- Deletes a reconciled runtime tree.
 --- @param node runtimeNode? Root runtime node.
 --- @return boolean True when a node was deleted.
-function module.Delete(node: runtimeNode?): boolean
+function module.delete(node: RuntimeNode?): boolean
 	if not node then
 		return false
 	end
@@ -1302,26 +1302,26 @@ end
 --- Returns a recursive diagnostic snapshot of a runtime tree.
 --- @param node runtimeNode? Root runtime node.
 --- @return nodeSnapshot? Snapshot suitable for development tooling.
-function module.Inspect(node: runtimeNode?): nodeSnapshot?
+function module.inspect(node: RuntimeNode?): NodeSnapshot?
 	if not node then
 		return nil
 	end
-	local snapshot: nodeSnapshot = {
-		Children = {},
-		Key = node.Element.Key,
-		Kind = node.Element.Kind,
-		Suspended = node.IsSuspended,
+	local snapshot: NodeSnapshot = {
+		children = {},
+		key = node.element.key,
+		kind = node.element.kind,
+		suspended = node.isSuspended,
 	}
-	if node.Element.Kind == "host" then
-		snapshot.ClassName = node.Element.ClassName
-		if node.Host then
-			snapshot.Instance = node.Host.Instance
+	if node.element.kind == "host" then
+		snapshot.className = node.element.className
+		if node.host then
+			snapshot.instance = node.host.instance
 		end
 	end
-	for _, child in node.Children do
-		local childSnapshot = module.Inspect(child)
+	for _, child in node.children do
+		local childSnapshot = module.inspect(child)
 		if childSnapshot then
-			snapshot.Children[#snapshot.Children + 1] = childSnapshot
+			snapshot.children[#snapshot.children + 1] = childSnapshot
 		end
 	end
 	return snapshot
@@ -1335,13 +1335,13 @@ end
 --- @param nextElement element? Desired virtual element.
 --- @param options reconcileOptions Reconciliation callbacks and diagnostics.
 --- @return runtimeNode? Updated runtime node.
-function module.Reconcile(
+function module.reconcile(
 	parent: Instance,
-	currentNode: runtimeNode?,
-	nextElement: elementModule.element?,
-	options: reconcileOptions
-): runtimeNode?
-	return internals.Reconcile(parent, currentNode, nextElement, options)
+	currentNode: RuntimeNode?,
+	nextElement: elementModule.Element?,
+	options: ReconcileOptions
+): RuntimeNode?
+	return internals.reconcile(parent, currentNode, nextElement, options)
 end
 
 --————————————————————————————————————————————————————————————————————--

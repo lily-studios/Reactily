@@ -8,14 +8,14 @@
 
 local module = {}
 
-export type mode = "visible" | "hidden"
+export type Mode = "visible" | "hidden"
 
-type visibilitySnapshot = {
-	PropertyName: string,
-	Value: boolean,
+type VisibilitySnapshot = {
+	propertyName: string,
+	value: boolean,
 }
 
-local snapshots: { [Instance]: visibilitySnapshot } = {}
+local snapshots: { [Instance]: VisibilitySnapshot } = {}
 do
 	local weak: any = snapshots
 	setmetatable(weak, { __mode = "k" })
@@ -34,7 +34,7 @@ local function resolveVisibilityProperty(instance: Instance): string?
 	return nil
 end
 
-function module.Hide(instance: Instance)
+function module.hide(instance: Instance)
 	local propertyName = resolveVisibilityProperty(instance)
 	if not propertyName then
 		return
@@ -52,8 +52,8 @@ function module.Hide(instance: Instance)
 	end
 
 	snapshots[instance] = {
-		PropertyName = propertyName,
-		Value = current,
+		propertyName = propertyName,
+		value = current,
 	}
 
 	pcall(function()
@@ -61,7 +61,7 @@ function module.Hide(instance: Instance)
 	end)
 end
 
-function module.Show(instance: Instance)
+function module.show(instance: Instance)
 	local snapshot = snapshots[instance]
 	if not snapshot then
 		return
@@ -70,11 +70,11 @@ function module.Show(instance: Instance)
 
 	local target = instance :: any
 	pcall(function()
-		target[snapshot.PropertyName] = snapshot.Value
+		target[snapshot.propertyName] = snapshot.value
 	end)
 end
 
-function module.Clear(instance: Instance)
+function module.clear(instance: Instance)
 	snapshots[instance] = nil
 end
 

@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local inputModule = require(script.Parent.input)
@@ -18,25 +19,24 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType ShortcutOptions
-export type shortcutOptions = {
-	AllowProcessed: boolean?,
-	Enabled: boolean?,
-	Key: Enum.KeyCode,
-	Modifiers: { Enum.KeyCode }?,
+export type ShortcutOptions = {
+	allowProcessed: boolean?,
+	enabled: boolean?,
+	key: Enum.KeyCode,
+	modifiers: { Enum.KeyCode }?,
 }
 
 --- Creates an owned keyboard shortcut.
 --- @param options shortcutOptions Shortcut configuration.
 --- @param callback () -> () Action invoked when the shortcut matches.
 --- @return inputBinding Owned shortcut binding.
-function module.Create(options: shortcutOptions, callback: () -> ()): inputModule.inputBinding
-	return inputModule.BindKey(options.Key, function()
+function module.create(options: ShortcutOptions, callback: () -> ()): inputModule.InputBinding
+	return inputModule.bindKey(options.key, function()
 		callback()
 	end, {
-		AllowProcessed = options.AllowProcessed,
-		Enabled = options.Enabled,
-		Modifiers = options.Modifiers,
+		allowProcessed = options.allowProcessed,
+		enabled = options.enabled,
+		modifiers = options.modifiers,
 	})
 end
 

@@ -18,17 +18,17 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type animation = {
-	Cancel: () -> boolean,
-	Delete: () -> boolean,
-	IsDeleted: () -> boolean,
-	OnCompleted: (callback: (playbackState: Enum.PlaybackState) -> ()) -> RBXScriptConnection,
-	Play: () -> (),
-	Tween: Tween,
+export type Animation = {
+	cancel: () -> boolean,
+	delete: () -> boolean,
+	isDeleted: () -> boolean,
+	onCompleted: (callback: (playbackState: Enum.PlaybackState) -> ()) -> RBXScriptConnection,
+	play: () -> (),
+	tween: Tween,
 }
 
-export type tweenOptions = {
-	DelayTime: number?,
+export type TweenOptions = {
+	delayTime: number?,
 	EasingDirection: Enum.EasingDirection?,
 	EasingStyle: Enum.EasingStyle?,
 	RepeatCount: number?,
@@ -38,7 +38,7 @@ export type tweenOptions = {
 
 --————————————————————————————————————————————————————————————————————--
 
-local function resolveTweenInfo(options: tweenOptions): TweenInfo
+local function resolveTweenInfo(options: TweenOptions): TweenInfo
 	assert(options.Time >= 0, "Reactily tween time must be non-negative.")
 
 	local delayTime = 0
@@ -47,8 +47,8 @@ local function resolveTweenInfo(options: tweenOptions): TweenInfo
 	local repeatCount = 0
 	local reverses = false
 
-	if options.DelayTime ~= nil then
-		delayTime = options.DelayTime
+	if options.delayTime ~= nil then
+		delayTime = options.delayTime
 	end
 
 	if options.EasingDirection ~= nil then
@@ -77,10 +77,10 @@ end
 --- @param goals {[string]: any} Property goals passed to TweenService.
 --- @param options tweenOptions Tween configuration.
 --- @return animation Owned Reactily animation.
-function module.Play(instance: Instance, goals: { [string]: any }, options: tweenOptions): animation
-	local animationValue = module.Tween(instance, goals, options)
+function module.play(instance: Instance, goals: { [string]: any }, options: TweenOptions): Animation
+	local animationValue = module.tween(instance, goals, options)
 
-	animationValue.Play()
+	animationValue.play()
 
 	return animationValue
 end
@@ -92,7 +92,7 @@ end
 --- @param goals {[string]: any} Property goals passed to TweenService.
 --- @param options tweenOptions Tween configuration.
 --- @return animation Owned Reactily animation.
-function module.Tween(instance: Instance, goals: { [string]: any }, options: tweenOptions): animation
+function module.tween(instance: Instance, goals: { [string]: any }, options: TweenOptions): Animation
 	local completionConnections: { RBXScriptConnection } = {}
 
 	local isDeleted = false
@@ -152,15 +152,20 @@ function module.Tween(instance: Instance, goals: { [string]: any }, options: twe
 	end
 
 	return {
-		Cancel = cancel,
-		Delete = delete,
-		IsDeleted = getIsDeleted,
-		OnCompleted = onCompleted,
-		Play = play,
-		Tween = tween,
+		cancel = cancel,
+		delete = delete,
+		isDeleted = getIsDeleted,
+		onCompleted = onCompleted,
+		play = play,
+		tween = tween,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createTween = module.tween
+module.playTween = module.play
 
 return module

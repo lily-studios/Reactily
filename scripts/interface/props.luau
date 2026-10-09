@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local compareModule = require(script.Parent.Parent.core.compare)
@@ -18,12 +19,11 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType PropMap
-export type propMap = { [any]: any }
+export type PropMap = { [any]: any }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function copy(source: propMap?): propMap
+local function copy(source: PropMap?): PropMap
 	if not source then
 		return {}
 	end
@@ -37,7 +37,7 @@ end
 --- @param props T Source props.
 --- @param defaults propMap Default values used only when a key is absent.
 --- @return T Copied props with defaults applied.
-function module.Defaults<T>(props: T, defaults: propMap): T
+function module.defaults<T>(props: T, defaults: PropMap): T
 	local output: any = copy(props :: any)
 
 	for key, value in defaults do
@@ -57,8 +57,8 @@ end
 --- @param first propMap First prop table.
 --- @param second propMap Second prop table.
 --- @return boolean Whether both tables contain the same shallow values.
-function module.Equal(first: propMap, second: propMap): boolean
-	return compareModule.ShallowEqual(first, second)
+function module.equal(first: PropMap, second: PropMap): boolean
+	return compareModule.shallowEqual(first, second)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -68,8 +68,8 @@ end
 --- @param current propMap Current props.
 --- @return propMap Map of changed or added keys to their current values.
 --- @return {any} Keys that existed previously and are now absent.
-function module.Changed(previous: propMap, current: propMap): (propMap, { any })
-	local output: propMap = {}
+function module.changed(previous: PropMap, current: PropMap): (PropMap, { any })
+	local output: PropMap = {}
 	local removed: { any } = {}
 	local seen: { [any]: boolean } = {}
 
@@ -104,8 +104,8 @@ end
 --- Merges prop tables from left to right without mutating any input.
 --- @param ... propMap Prop tables to merge.
 --- @return propMap New merged prop table.
-function module.Merge(...: propMap): propMap
-	local output: propMap = {}
+function module.merge(...: PropMap): PropMap
+	local output: PropMap = {}
 
 	for _, source in { ... } do
 		for key, value in source do
@@ -122,7 +122,7 @@ end
 --- @param props propMap Source props.
 --- @param keys {any} Keys to remove.
 --- @return propMap Copied props without omitted keys.
-function module.Omit(props: propMap, keys: { any }): propMap
+function module.omit(props: PropMap, keys: { any }): PropMap
 	local output = copy(props)
 
 	for _, key in keys do
@@ -138,8 +138,8 @@ end
 --- @param props propMap Source props.
 --- @param keys {any} Keys to include.
 --- @return propMap Picked prop values.
-function module.Pick(props: propMap, keys: { any }): propMap
-	local output: propMap = {}
+function module.pick(props: PropMap, keys: { any }): PropMap
+	local output: PropMap = {}
 
 	for _, key in keys do
 		local value = props[key]

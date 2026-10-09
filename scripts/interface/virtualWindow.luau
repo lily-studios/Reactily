@@ -8,27 +8,28 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type variableRange = {
-	First: number,
-	Last: number,
-	Offset: number,
-	TotalSize: number,
+export type VariableRange = {
+	first: number,
+	last: number,
+	offset: number,
+	totalSize: number,
 }
 
-export type variableVirtualList = {
-	Delete: () -> boolean,
-	GetRange: () -> variableRange,
-	IsDeleted: () -> boolean,
-	SetScrollOffset: (scrollOffset: number) -> boolean,
-	SetSize: (index: number, size: number) -> boolean,
-	SetSizes: (sizes: { number }) -> boolean,
-	SetViewportSize: (viewportSize: number) -> boolean,
+export type VariableVirtualList = {
+	delete: () -> boolean,
+	getRange: () -> VariableRange,
+	isDeleted: () -> boolean,
+	setScrollOffset: (scrollOffset: number) -> boolean,
+	setSize: (index: number, size: number) -> boolean,
+	setSizes: (sizes: { number }) -> boolean,
+	setViewportSize: (viewportSize: number) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -83,15 +84,15 @@ local function resolveFromOffsets(
 	scrollOffset: number,
 	viewportSize: number,
 	overscan: number?
-): variableRange
+): VariableRange
 	local count = #sizes
 
 	if count == 0 then
 		return {
-			First = 0,
-			Last = 0,
-			Offset = 0,
-			TotalSize = 0,
+			first = 0,
+			last = 0,
+			offset = 0,
+			totalSize = 0,
 		}
 	end
 
@@ -102,10 +103,10 @@ local function resolveFromOffsets(
 	local last = math.min(findIndex(offsets, finish, count) + extra, count)
 
 	return {
-		First = first,
-		Last = last,
-		Offset = offsets[first],
-		TotalSize = totalSize,
+		first = first,
+		last = last,
+		offset = offsets[first],
+		totalSize = totalSize,
 	}
 end
 
@@ -116,7 +117,7 @@ end
 --- @param viewportSize number Initial visible viewport size.
 --- @param overscan number? Extra items before and after the viewport.
 --- @return variableVirtualList Cached variable-size virtual-list controller.
-function module.New(sizes: { number }, viewportSize: number, overscan: number?): variableVirtualList
+function module.new(sizes: { number }, viewportSize: number, overscan: number?): VariableVirtualList
 	assert(viewportSize >= 0, "Reactily virtual viewportSize must be non-negative.")
 
 	local itemSizes = table.clone(sizes)
@@ -129,7 +130,7 @@ function module.New(sizes: { number }, viewportSize: number, overscan: number?):
 		offsets, totalSize = buildOffsets(itemSizes)
 	end
 
-	local function getRange(): variableRange
+	local function getRange(): VariableRange
 		assert(not isDeleted, "Reactily variable virtual list is deleted.")
 		return resolveFromOffsets(itemSizes, offsets, totalSize, scrollOffset, viewport, overscan)
 	end
@@ -193,7 +194,7 @@ function module.New(sizes: { number }, viewportSize: number, overscan: number?):
 	end
 
 	return {
-		Delete = function(): boolean
+		delete = function(): boolean
 			if isDeleted then
 				return false
 			end
@@ -203,14 +204,14 @@ function module.New(sizes: { number }, viewportSize: number, overscan: number?):
 			table.clear(offsets)
 			return true
 		end,
-		GetRange = getRange,
-		IsDeleted = function(): boolean
+		getRange = getRange,
+		isDeleted = function(): boolean
 			return isDeleted
 		end,
-		SetScrollOffset = setScrollOffset,
-		SetSize = setSize,
-		SetSizes = setSizes,
-		SetViewportSize = setViewportSize,
+		setScrollOffset = setScrollOffset,
+		setSize = setSize,
+		setSizes = setSizes,
+		setViewportSize = setViewportSize,
 	}
 end
 
@@ -222,7 +223,7 @@ end
 --- @param viewportSize number Visible viewport size.
 --- @param overscan number? Extra item count before and after the visible range.
 --- @return variableRange Calculated virtual range.
-function module.Resolve(sizes: { number }, scrollOffset: number, viewportSize: number, overscan: number?): variableRange
+function module.resolve(sizes: { number }, scrollOffset: number, viewportSize: number, overscan: number?): VariableRange
 	assert(viewportSize >= 0, "Reactily virtual viewportSize must be non-negative.")
 
 	local offsets, totalSize = buildOffsets(sizes)
@@ -230,5 +231,11 @@ function module.Resolve(sizes: { number }, scrollOffset: number, viewportSize: n
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createVariableVirtualList = module.new
+module.resolveVariableVirtualList = module.resolve
+export type VariableVirtualRange = VariableRange
 
 return module

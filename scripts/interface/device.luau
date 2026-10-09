@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local userInputService = game:GetService("UserInputService")
@@ -23,25 +24,23 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType DeviceState
-export type deviceState = {
-	HasGamepad: boolean,
-	HasKeyboard: boolean,
-	HasMouse: boolean,
-	HasTouch: boolean,
-	IsConsole: boolean,
-	IsDesktop: boolean,
-	IsMobile: boolean,
-	Orientation: "Landscape" | "Portrait",
-	ViewportSize: Vector2,
+export type DeviceState = {
+	hasGamepad: boolean,
+	hasKeyboard: boolean,
+	hasMouse: boolean,
+	hasTouch: boolean,
+	isConsole: boolean,
+	isDesktop: boolean,
+	isMobile: boolean,
+	orientation: "Landscape" | "Portrait",
+	viewportSize: Vector2,
 }
 
---- @reactilyType DeviceMonitor
-export type deviceMonitor = {
-	Delete: () -> boolean,
-	Get: () -> deviceState,
-	IsDeleted: () -> boolean,
-	Subscribe: (callback: (value: deviceState) -> ()) -> signalModule.connection,
+export type DeviceMonitor = {
+	delete: () -> boolean,
+	get: () -> DeviceState,
+	isDeleted: () -> boolean,
+	subscribe: (callback: (value: DeviceState) -> ()) -> signalModule.Connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -57,7 +56,7 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function read(): deviceState
+local function read(): DeviceState
 	local viewportSize = getViewportSize()
 	local hasTouch = userInputService.TouchEnabled
 	local hasKeyboard = userInputService.KeyboardEnabled
@@ -72,38 +71,38 @@ local function read(): deviceState
 	end
 
 	return {
-		HasGamepad = hasGamepad,
-		HasKeyboard = hasKeyboard,
-		HasMouse = hasMouse,
-		HasTouch = hasTouch,
-		IsConsole = isConsole,
-		IsDesktop = not isConsole and not isMobile,
-		IsMobile = isMobile,
-		Orientation = orientation,
-		ViewportSize = viewportSize,
+		hasGamepad = hasGamepad,
+		hasKeyboard = hasKeyboard,
+		hasMouse = hasMouse,
+		hasTouch = hasTouch,
+		isConsole = isConsole,
+		isDesktop = not isConsole and not isMobile,
+		isMobile = isMobile,
+		orientation = orientation,
+		viewportSize = viewportSize,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function statesEqual(first: deviceState, second: deviceState): boolean
-	return first.HasGamepad == second.HasGamepad
-		and first.HasKeyboard == second.HasKeyboard
-		and first.HasMouse == second.HasMouse
-		and first.HasTouch == second.HasTouch
-		and first.IsConsole == second.IsConsole
-		and first.IsDesktop == second.IsDesktop
-		and first.IsMobile == second.IsMobile
-		and first.Orientation == second.Orientation
-		and first.ViewportSize == second.ViewportSize
+local function statesEqual(first: DeviceState, second: DeviceState): boolean
+	return first.hasGamepad == second.hasGamepad
+		and first.hasKeyboard == second.hasKeyboard
+		and first.hasMouse == second.hasMouse
+		and first.hasTouch == second.hasTouch
+		and first.isConsole == second.isConsole
+		and first.isDesktop == second.isDesktop
+		and first.isMobile == second.isMobile
+		and first.orientation == second.orientation
+		and first.viewportSize == second.viewportSize
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Creates an event-driven monitor for Roblox device and viewport capabilities.
 --- @return deviceMonitor Owned device monitor.
-function module.Create(): deviceMonitor
-	local changed = signalModule.New()
+function module.create(): DeviceMonitor
+	local changed = signalModule.new()
 	local connections: { RBXScriptConnection } = {}
 	local isDeleted = false
 	local cameraConnection: RBXScriptConnection? = nil
@@ -120,7 +119,7 @@ function module.Create(): deviceMonitor
 		end
 
 		value = nextValue
-		changed.Fire(nextValue)
+		changed.fire(nextValue)
 	end
 
 	local function connectCamera()
@@ -165,22 +164,22 @@ function module.Create(): deviceMonitor
 			cameraConnection = nil
 		end
 
-		changed.Delete()
+		changed.delete()
 		return true
 	end
 
 	return {
-		Delete = delete,
-		Get = function(): deviceState
+		delete = delete,
+		get = function(): DeviceState
 			assert(not isDeleted, "Reactily device monitor is deleted.")
 			return value
 		end,
-		IsDeleted = function(): boolean
+		isDeleted = function(): boolean
 			return isDeleted
 		end,
-		Subscribe = function(callback: (value: deviceState) -> ()): signalModule.connection
+		subscribe = function(callback: (value: DeviceState) -> ()): signalModule.Connection
 			assert(not isDeleted, "Reactily device monitor is deleted.")
-			return changed.Connect(callback)
+			return changed.connect(callback)
 		end,
 	}
 end

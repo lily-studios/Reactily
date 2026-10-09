@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local userInputService = game:GetService("UserInputService")
@@ -18,24 +19,21 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType InputOptions
-export type inputOptions = {
-	AllowProcessed: boolean?,
-	Enabled: boolean?,
+export type InputOptions = {
+	allowProcessed: boolean?,
+	enabled: boolean?,
 }
 
---- @reactilyType KeyOptions
-export type keyOptions = inputOptions & {
-	Modifiers: { Enum.KeyCode }?,
+export type KeyOptions = InputOptions & {
+	modifiers: { Enum.KeyCode }?,
 }
 
---- @reactilyType InputBinding
-export type inputBinding = {
-	Delete: () -> boolean,
-	Disable: () -> boolean,
-	Enable: () -> boolean,
-	IsDeleted: () -> boolean,
-	IsEnabled: () -> boolean,
+export type InputBinding = {
+	delete: () -> boolean,
+	disable: () -> boolean,
+	enable: () -> boolean,
+	isDeleted: () -> boolean,
+	isEnabled: () -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -63,17 +61,17 @@ end
 --- @param callback (input: InputObject) -> () Callback for matching input.
 --- @param options inputOptions? Binding options.
 --- @return inputBinding Owned input binding.
-function module.Bind(
+function module.bind(
 	predicate: (input: InputObject) -> boolean,
 	callback: (input: InputObject) -> (),
-	options: inputOptions?
-): inputBinding
+	options: InputOptions?
+): InputBinding
 	local allowProcessed = false
 	local enabled = true
 
 	if options then
-		allowProcessed = options.AllowProcessed == true
-		enabled = options.Enabled ~= false
+		allowProcessed = options.allowProcessed == true
+		enabled = options.enabled ~= false
 	end
 
 	local isDeleted = false
@@ -169,11 +167,11 @@ function module.Bind(
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		Delete = delete,
-		Disable = disable,
-		Enable = enable,
-		IsDeleted = getIsDeleted,
-		IsEnabled = getIsEnabled,
+		delete = delete,
+		disable = disable,
+		enable = enable,
+		isDeleted = getIsDeleted,
+		isEnabled = getIsEnabled,
 	}
 end
 
@@ -184,16 +182,16 @@ end
 --- @param callback (input: InputObject) -> () Callback for the key.
 --- @param options keyOptions? Key binding options.
 --- @return inputBinding Owned input binding.
-function module.BindKey(keyCode: Enum.KeyCode, callback: (input: InputObject) -> (), options: keyOptions?): inputBinding
+function module.bindKey(keyCode: Enum.KeyCode, callback: (input: InputObject) -> (), options: KeyOptions?): InputBinding
 	local modifiers: { Enum.KeyCode }? = nil
-	local bindOptions: inputOptions? = nil
+	local bindOptions: InputOptions? = nil
 
 	if options then
-		modifiers = options.Modifiers
+		modifiers = options.modifiers
 
 		bindOptions = {
-			AllowProcessed = options.AllowProcessed,
-			Enabled = options.Enabled,
+			allowProcessed = options.allowProcessed,
+			enabled = options.enabled,
 		}
 	end
 
@@ -205,7 +203,7 @@ function module.BindKey(keyCode: Enum.KeyCode, callback: (input: InputObject) ->
 		return modifiersPressed(modifiers)
 	end
 
-	return module.Bind(matchesKey, callback, bindOptions)
+	return module.bind(matchesKey, callback, bindOptions)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -215,18 +213,22 @@ end
 --- @param callback (input: InputObject) -> () Callback for the input.
 --- @param options inputOptions? Binding options.
 --- @return inputBinding Owned input binding.
-function module.BindType(
+function module.bindType(
 	inputType: Enum.UserInputType,
 	callback: (input: InputObject) -> (),
-	options: inputOptions?
-): inputBinding
+	options: InputOptions?
+): InputBinding
 	local function matchesInputType(input: InputObject): boolean
 		return input.UserInputType == inputType
 	end
 
-	return module.Bind(matchesInputType, callback, options)
+	return module.bind(matchesInputType, callback, options)
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+export type KeyInputOptions = KeyOptions
 
 return module

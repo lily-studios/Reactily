@@ -22,19 +22,19 @@ local module = {}
 --- Properties for the StrictMode component.
 --- @field children {any}? Child elements rendered inside StrictMode.
 --- @field key string? Optional reconciliation key.
-export type strictModeProps = {
-	Children: { any }?,
-	Key: string?,
+export type StrictModeProps = {
+	children: { any }?,
+	key: string?,
 }
 
 --- Properties for the Suspense component.
 --- @field fallback element Element displayed while the child is suspended.
 --- @field children {any}? Child elements managed by Suspense.
 --- @field key string? Optional reconciliation key.
-export type suspenseProps = {
-	Fallback: elementModule.element,
-	Children: { any }?,
-	Key: string?,
+export type SuspenseProps = {
+	fallback: elementModule.Element,
+	children: { any }?,
+	key: string?,
 }
 
 --- Properties for the ErrorBoundary component.
@@ -42,21 +42,21 @@ export type suspenseProps = {
 --- @field onError function? Callback invoked when a child error is captured.
 --- @field children {any}? Child elements protected by the error boundary.
 --- @field key string? Optional reconciliation key.
-export type errorBoundaryProps = {
-	Fallback: elementModule.element | ((failure: any) -> elementModule.element),
-	OnError: ((failure: any) -> ())?,
-	Children: { any }?,
-	Key: string?,
+export type ErrorBoundaryProps = {
+	fallback: elementModule.Element | ((failure: any) -> elementModule.Element),
+	onError: ((failure: any) -> ())?,
+	children: { any }?,
+	key: string?,
 }
 
 --- Properties for the Activity component.
 --- @field children {any}? Child elements managed by Activity.
 --- @field key string? Optional reconciliation key.
 --- @field mode activityMode? Visibility mode for the subtree.
-export type activityProps = {
-	Children: { any }?,
-	Key: string?,
-	Mode: elementModule.activityMode?,
+export type ActivityProps = {
+	children: { any }?,
+	key: string?,
+	mode: elementModule.ActivityMode?,
 }
 
 --- Properties for the Profiler component.
@@ -64,11 +64,11 @@ export type activityProps = {
 --- @field id string Identifier used in profiler reports.
 --- @field key string? Optional reconciliation key.
 --- @field onRender profilerOnRender? Callback invoked after rendering.
-export type profilerProps = {
-	Children: { any }?,
-	Id: string,
-	Key: string?,
-	OnRender: elementModule.profilerOnRender?,
+export type ProfilerProps = {
+	children: { any }?,
+	id: string,
+	key: string?,
+	onRender: elementModule.ProfilerOnRender?,
 }
 
 --- Properties for the ViewTransition component.
@@ -78,13 +78,13 @@ export type profilerProps = {
 --- @field onEnter function? Callback invoked when the transition enters.
 --- @field onExit function? Callback invoked when the transition exits.
 --- @field onUpdate function? Callback invoked when the transition updates.
-export type viewTransitionProps = {
-	Children: { any }?,
-	Config: elementModule.viewTransitionConfig?,
-	Key: string?,
-	OnEnter: (() -> ())?,
-	OnExit: (() -> ())?,
-	OnUpdate: (() -> ())?,
+export type ViewTransitionProps = {
+	children: { any }?,
+	config: elementModule.ViewTransitionConfig?,
+	key: string?,
+	onEnter: (() -> ())?,
+	onExit: (() -> ())?,
+	onUpdate: (() -> ())?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -92,8 +92,8 @@ export type viewTransitionProps = {
 --- React-style StrictMode wrapper with development-only purity/effect checks.
 --- @param props strictModeProps StrictMode component properties.
 --- @return element Created StrictMode element.
-function module.StrictMode(props: strictModeProps): elementModule.element
-	return elementModule.CreateStrictMode(props.Children or {}, props.Key)
+function module.StrictMode(props: StrictModeProps): elementModule.Element
+	return elementModule.createStrictMode(props.children or {}, props.key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -101,9 +101,9 @@ end
 --- React-style Suspense function component wrapper.
 --- @param props suspenseProps Suspense component properties.
 --- @return element Created Suspense element.
-function module.Suspense(props: suspenseProps): elementModule.element
-	local child = childrenModule.Only(props.Children or {})
-	return elementModule.CreateSuspense(props.Fallback, child, props.Key)
+function module.Suspense(props: SuspenseProps): elementModule.Element
+	local child = childrenModule.only(props.children or {})
+	return elementModule.createSuspense(props.fallback, child, props.key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -111,9 +111,9 @@ end
 --- Reactily error-boundary function component wrapper.
 --- @param props errorBoundaryProps ErrorBoundary component properties.
 --- @return element Created error-boundary element.
-function module.ErrorBoundary(props: errorBoundaryProps): elementModule.element
-	local child = childrenModule.Only(props.Children or {})
-	return elementModule.CreateErrorBoundary(props.Fallback, child, props.OnError, props.Key)
+function module.ErrorBoundary(props: ErrorBoundaryProps): elementModule.Element
+	local child = childrenModule.only(props.children or {})
+	return elementModule.createErrorBoundary(props.fallback, child, props.onError, props.key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -121,8 +121,8 @@ end
 --- Hides/restores a subtree while preserving mounted hook state.
 --- @param props activityProps Activity component properties.
 --- @return element Created Activity element.
-function module.Activity(props: activityProps): elementModule.element
-	return elementModule.CreateActivity(props.Mode or "visible", props.Children or {}, props.Key)
+function module.Activity(props: ActivityProps): elementModule.Element
+	return elementModule.createActivity(props.mode or "visible", props.children or {}, props.key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -130,9 +130,9 @@ end
 --- Measures render/reconciliation time for one subtree.
 --- @param props profilerProps Profiler component properties.
 --- @return element Created Profiler element.
-function module.Profiler(props: profilerProps): elementModule.element
-	local child = childrenModule.Only(props.Children or {})
-	return elementModule.CreateProfiler(props.Id, child, props.OnRender, props.Key)
+function module.Profiler(props: ProfilerProps): elementModule.Element
+	local child = childrenModule.only(props.children or {})
+	return elementModule.createProfiler(props.id, child, props.onRender, props.key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -140,15 +140,15 @@ end
 --- Roblox-native ViewTransition wrapper for animated host mutations.
 --- @param props viewTransitionProps ViewTransition component properties.
 --- @return element Created ViewTransition element.
-function module.ViewTransition(props: viewTransitionProps): elementModule.element
-	local child = childrenModule.Only(props.Children or {})
-	return elementModule.CreateViewTransition(
+function module.ViewTransition(props: ViewTransitionProps): elementModule.Element
+	local child = childrenModule.only(props.children or {})
+	return elementModule.createViewTransition(
 		child,
-		props.Config,
-		props.OnEnter,
-		props.OnExit,
-		props.OnUpdate,
-		props.Key
+		props.config,
+		props.onEnter,
+		props.onExit,
+		props.onUpdate,
+		props.key
 	)
 end
 
