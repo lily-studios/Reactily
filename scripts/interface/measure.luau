@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local signalModule = require(script.Parent.Parent.core.signal)
@@ -18,23 +19,21 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType MeasureBounds
-export type bounds = {
+export type Bounds = {
 	AbsolutePosition: Vector2,
 	AbsoluteSize: Vector2,
 }
 
---- @reactilyType Measure
-export type measure = {
-	Delete: () -> boolean,
-	Get: () -> bounds,
-	IsDeleted: () -> boolean,
-	Subscribe: (callback: (value: bounds) -> ()) -> signalModule.connection,
+export type Measure = {
+	delete: () -> boolean,
+	get: () -> Bounds,
+	isDeleted: () -> boolean,
+	subscribe: (callback: (value: Bounds) -> ()) -> signalModule.Connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function read(object: GuiObject): bounds
+local function read(object: GuiObject): Bounds
 	return {
 		AbsolutePosition = object.AbsolutePosition,
 		AbsoluteSize = object.AbsoluteSize,
@@ -46,8 +45,8 @@ end
 --- Observes AbsolutePosition and AbsoluteSize for a GuiObject.
 --- @param object GuiObject Object to measure.
 --- @return measure Owned measurement observer.
-function module.Create(object: GuiObject): measure
-	local changed = signalModule.New()
+function module.create(object: GuiObject): Measure
+	local changed = signalModule.new()
 	local isDeleted = false
 	local value = read(object)
 
@@ -62,7 +61,7 @@ function module.Create(object: GuiObject): measure
 		end
 
 		value = nextValue
-		changed.Fire(nextValue)
+		changed.fire(nextValue)
 	end
 
 	local positionConnection = object:GetPropertyChangedSignal("AbsolutePosition"):Connect(update)
@@ -76,26 +75,30 @@ function module.Create(object: GuiObject): measure
 		isDeleted = true
 		positionConnection:Disconnect()
 		sizeConnection:Disconnect()
-		changed.Delete()
+		changed.delete()
 		return true
 	end
 
 	return {
-		Delete = delete,
-		Get = function(): bounds
+		delete = delete,
+		get = function(): Bounds
 			assert(not isDeleted, "Reactily measure is deleted.")
 			return value
 		end,
-		IsDeleted = function(): boolean
+		isDeleted = function(): boolean
 			return isDeleted
 		end,
-		Subscribe = function(callback: (value: bounds) -> ()): signalModule.connection
+		subscribe = function(callback: (value: Bounds) -> ()): signalModule.Connection
 			assert(not isDeleted, "Reactily measure is deleted.")
-			return changed.Connect(callback)
+			return changed.connect(callback)
 		end,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+export type MeasureBounds = Bounds
 
 return module

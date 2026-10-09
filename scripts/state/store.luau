@@ -19,36 +19,36 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type change<T> = {
-	Current: T,
-	Previous: T,
+export type Change<T> = {
+	current: T,
+	previous: T,
 }
 
-export type middleware<T> = (previous: T, nextValue: T) -> T
+export type Middleware<T> = (previous: T, nextValue: T) -> T
 
-export type selector<T> = {
-	Delete: () -> boolean,
-	Get: () -> T,
-	IsDeleted: () -> boolean,
-	Subscribe: (callback: (change: change<T>) -> ()) -> signalModule.connection,
+export type Selector<T> = {
+	delete: () -> boolean,
+	get: () -> T,
+	isDeleted: () -> boolean,
+	subscribe: (callback: (Change: Change<T>) -> ()) -> signalModule.Connection,
 }
 
-export type store<T> = {
-	Batch: (callback: () -> ()) -> (),
-	Delete: () -> boolean,
-	Get: () -> T,
-	IsDeleted: () -> boolean,
-	Reset: () -> boolean,
-	Select: <R>((state: T) -> R) -> selector<R>,
-	Set: (state: T) -> boolean,
-	Subscribe: (callback: (change: change<T>) -> ()) -> signalModule.connection,
-	Transaction: (callback: () -> ()) -> (),
-	Update: (updater: (state: T) -> T) -> boolean,
-	Use: (middlewareValue: middleware<T>) -> () -> (),
+export type Store<T> = {
+	batch: (callback: () -> ()) -> (),
+	delete: () -> boolean,
+	get: () -> T,
+	isDeleted: () -> boolean,
+	reset: () -> boolean,
+	select: <R>((state: T) -> R) -> Selector<R>,
+	set: (state: T) -> boolean,
+	subscribe: (callback: (Change: Change<T>) -> ()) -> signalModule.Connection,
+	transaction: (callback: () -> ()) -> (),
+	update: (updater: (state: T) -> T) -> boolean,
+	use: (middlewareValue: Middleware<T>) -> () -> (),
 }
 
-type previousState<T> = {
-	Value: T,
+type PreviousState<T> = {
+	value: T,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -57,16 +57,16 @@ type previousState<T> = {
 --- @param stores {store<any>} Source stores.
 --- @param selectorFunction (values: {any}) -> R Function deriving the combined value.
 --- @return selector<R> Derived selector that updates only when its output changes.
-function module.Combine<R>(stores: { store<any> }, selectorFunction: (values: { any }) -> R): selector<R>
-	local changed: signalModule.signal<change<R>> = signalModule.New()
-	local connections: { signalModule.connection } = {}
+function module.combine<R>(stores: { Store<any> }, selectorFunction: (values: { any }) -> R): Selector<R>
+	local changed: signalModule.Signal<Change<R>> = signalModule.new()
+	local connections: { signalModule.Connection } = {}
 	local isDeleted = false
 
 	local function getValues(): { any }
 		local values = table.create(#stores)
 
 		for index, storeValue in stores do
-			values[index] = storeValue.Get()
+			values[index] = storeValue.get()
 		end
 
 		return values
@@ -87,14 +87,14 @@ function module.Combine<R>(stores: { store<any> }, selectorFunction: (values: { 
 		local previous = selected
 		selected = nextValue
 
-		changed.Fire({
-			Current = nextValue,
-			Previous = previous,
+		changed.fire({
+			current = nextValue,
+			previous = previous,
 		})
 	end
 
 	for _, storeValue in stores do
-		connections[#connections + 1] = storeValue.Subscribe(function()
+		connections[#connections + 1] = storeValue.subscribe(function()
 			update()
 		end)
 	end
@@ -107,11 +107,11 @@ function module.Combine<R>(stores: { store<any> }, selectorFunction: (values: { 
 		isDeleted = true
 
 		for _, connection in connections do
-			connection.Disconnect()
+			connection.disconnect()
 		end
 
 		table.clear(connections)
-		changed.Delete()
+		changed.delete()
 
 		return true
 	end
@@ -126,17 +126,17 @@ function module.Combine<R>(stores: { store<any> }, selectorFunction: (values: { 
 		return isDeleted
 	end
 
-	local function subscribe(callback: (change: change<R>) -> ()): signalModule.connection
+	local function subscribe(callback: (Change: Change<R>) -> ()): signalModule.Connection
 		assert(not isDeleted, "Reactily combined selector is deleted.")
 
-		return changed.Connect(callback)
+		return changed.connect(callback)
 	end
 
 	return {
-		Delete = delete,
-		Get = get,
-		IsDeleted = getIsDeleted,
-		Subscribe = subscribe,
+		delete = delete,
+		get = get,
+		isDeleted = getIsDeleted,
+		subscribe = subscribe,
 	}
 end
 
@@ -145,13 +145,13 @@ end
 --- Creates a typed Reactily store.
 --- @param initialState T Initial store state.
 --- @return store<T> New store with selectors, transactions, and middleware.
-function module.New<T>(initialState: T): store<T>
+function module.new<T>(initialState: T): Store<T>
 	local activeSelectors: { () -> boolean } = {}
 	local batchDepth = 0
-	local batchedPrevious: previousState<T>? = nil
-	local changed: signalModule.signal<change<T>> = signalModule.New()
+	local batchedPrevious: PreviousState<T>? = nil
+	local changed: signalModule.Signal<Change<T>> = signalModule.new()
 	local isDeleted = false
-	local middlewares: { middleware<T> } = {}
+	local middlewares: { Middleware<T> } = {}
 	local state = initialState
 	local flushGlobalBatch: () -> ()
 
@@ -167,9 +167,9 @@ function module.New<T>(initialState: T): store<T>
 	end
 
 	local function fireChange(previous: T)
-		changed.Fire({
-			Current = state,
-			Previous = previous,
+		changed.fire({
+			current = state,
+			previous = previous,
 		})
 	end
 
@@ -180,11 +180,11 @@ function module.New<T>(initialState: T): store<T>
 		if not pending then
 			return
 		end
-		if pending.Value == state then
+		if pending.value == state then
 			return
 		end
 
-		fireChange(pending.Value)
+		fireChange(pending.value)
 	end
 
 	local function emit(previous: T)
@@ -194,20 +194,20 @@ function module.New<T>(initialState: T): store<T>
 			end
 
 			batchedPrevious = {
-				Value = previous,
+				value = previous,
 			}
 
 			return
 		end
 
-		if batching.IsBatching() then
+		if batching.isBatching() then
 			if not batchedPrevious then
 				batchedPrevious = {
-					Value = previous,
+					value = previous,
 				}
 			end
 
-			batching.Queue(flushGlobalBatch)
+			batching.queue(flushGlobalBatch)
 			return
 		end
 
@@ -254,11 +254,11 @@ function module.New<T>(initialState: T): store<T>
 		batchDepth -= 1
 
 		if batchDepth == 0 and batchedPrevious then
-			local previous = batchedPrevious.Value
+			local previous = batchedPrevious.value
 			batchedPrevious = nil
 
 			if previous ~= state then
-				if batching.IsBatching() then
+				if batching.isBatching() then
 					emit(previous)
 				else
 					fireChange(previous)
@@ -289,7 +289,7 @@ function module.New<T>(initialState: T): store<T>
 
 		table.clear(selectorDeletions)
 		table.clear(middlewares)
-		changed.Delete()
+		changed.delete()
 
 		batchedPrevious = nil
 
@@ -304,19 +304,19 @@ function module.New<T>(initialState: T): store<T>
 		return set(initialState)
 	end
 
-	local function select<R>(selectorFunction: (state: T) -> R): selector<R>
+	local function select<R>(selectorFunction: (state: T) -> R): Selector<R>
 		assert(not isDeleted, "Reactily store is deleted.")
 
-		local selectorChanged: signalModule.signal<change<R>> = signalModule.New()
+		local selectorChanged: signalModule.Signal<Change<R>> = signalModule.new()
 		local selectorIsDeleted = false
 		local selected = selectorFunction(state)
 
-		local storeConnection = changed.Connect(function(storeChange: change<T>)
+		local storeConnection = changed.connect(function(storeChange: Change<T>)
 			if selectorIsDeleted then
 				return
 			end
 
-			local nextValue = selectorFunction(storeChange.Current)
+			local nextValue = selectorFunction(storeChange.current)
 			if nextValue == selected then
 				return
 			end
@@ -324,9 +324,9 @@ function module.New<T>(initialState: T): store<T>
 			local previous = selected
 			selected = nextValue
 
-			selectorChanged.Fire({
-				Current = nextValue,
-				Previous = previous,
+			selectorChanged.fire({
+				current = nextValue,
+				previous = previous,
 			})
 		end)
 
@@ -339,8 +339,8 @@ function module.New<T>(initialState: T): store<T>
 
 			selectorIsDeleted = true
 
-			storeConnection.Disconnect()
-			selectorChanged.Delete()
+			storeConnection.disconnect()
+			selectorChanged.delete()
 			removeSelector(deleteSelector)
 
 			return true
@@ -356,26 +356,26 @@ function module.New<T>(initialState: T): store<T>
 			return selectorIsDeleted
 		end
 
-		local function subscribeSelector(callback: (change: change<R>) -> ()): signalModule.connection
+		local function subscribeSelector(callback: (Change: Change<R>) -> ()): signalModule.Connection
 			assert(not selectorIsDeleted, "Reactily selector is deleted.")
 
-			return selectorChanged.Connect(callback)
+			return selectorChanged.connect(callback)
 		end
 
 		activeSelectors[#activeSelectors + 1] = deleteSelector
 
 		return {
-			Delete = deleteSelector,
-			Get = getSelected,
-			IsDeleted = getSelectorIsDeleted,
-			Subscribe = subscribeSelector,
+			delete = deleteSelector,
+			get = getSelected,
+			isDeleted = getSelectorIsDeleted,
+			subscribe = subscribeSelector,
 		}
 	end
 
-	local function subscribe(callback: (change: change<T>) -> ()): signalModule.connection
+	local function subscribe(callback: (Change: Change<T>) -> ()): signalModule.Connection
 		assert(not isDeleted, "Reactily store is deleted.")
 
-		return changed.Connect(callback)
+		return changed.connect(callback)
 	end
 
 	local function update(updater: (state: T) -> T): boolean
@@ -384,7 +384,7 @@ function module.New<T>(initialState: T): store<T>
 		return set(updater(state))
 	end
 
-	local function use(middlewareValue: middleware<T>): () -> ()
+	local function use(middlewareValue: Middleware<T>): () -> ()
 		assert(not isDeleted, "Reactily store is deleted.")
 		assert(type(middlewareValue) == "function", "Reactily store middleware must be a function.")
 
@@ -409,17 +409,17 @@ function module.New<T>(initialState: T): store<T>
 	end
 
 	return {
-		Batch = batch,
-		Delete = delete,
-		Get = get,
-		IsDeleted = getIsDeleted,
-		Reset = reset,
-		Select = select,
-		Set = set,
-		Subscribe = subscribe,
-		Transaction = batch,
-		Update = update,
-		Use = use,
+		batch = batch,
+		delete = delete,
+		get = get,
+		isDeleted = getIsDeleted,
+		reset = reset,
+		select = select,
+		set = set,
+		subscribe = subscribe,
+		transaction = batch,
+		update = update,
+		use = use,
 	}
 end
 
@@ -429,10 +429,17 @@ end
 --- @param source store<T> Source store.
 --- @param selectorFunction (state: T) -> R Derivation callback.
 --- @return selector<R> Derived selector.
-function module.Select<T, R>(source: store<T>, selectorFunction: (state: T) -> R): selector<R>
-	return source.Select(selectorFunction)
+function module.select<T, R>(source: Store<T>, selectorFunction: (state: T) -> R): Selector<R>
+	return source.select(selectorFunction)
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.combineStores = module.combine
+module.createSelector = module.select
+module.createStore = module.new
+export type StoreMiddleware<T> = Middleware<T>
 
 return module

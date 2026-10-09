@@ -18,7 +18,7 @@ local module = {}
 --- @param first {[any]: any}? First table.
 --- @param second {[any]: any}? Second table.
 --- @return boolean True when both tables contain the same shallow keys and values.
-function module.ShallowEqual(first: { [any]: any }?, second: { [any]: any }?): boolean
+function module.shallowEqual(first: { [any]: any }?, second: { [any]: any }?): boolean
 	if first == second then
 		return true
 	end

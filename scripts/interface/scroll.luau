@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -28,7 +29,7 @@ end
 --- Scrolls by a pixel delta while clamping to the canvas bounds.
 --- @param frame ScrollingFrame Target scrolling frame.
 --- @param delta Vector2 Pixel delta.
-function module.By(frame: ScrollingFrame, delta: Vector2)
+function module.by(frame: ScrollingFrame, delta: Vector2)
 	local nextPosition = clampCanvasPosition(frame, frame.CanvasPosition + delta)
 	if frame.CanvasPosition == nextPosition then
 		return
@@ -41,7 +42,7 @@ end
 
 --- Scrolls to the bottom-right canvas limit.
 --- @param frame ScrollingFrame Target scrolling frame.
-function module.ToBottom(frame: ScrollingFrame)
+function module.toBottom(frame: ScrollingFrame)
 	local nextPosition = clampCanvasPosition(frame, Vector2.new(math.huge, math.huge))
 	if frame.CanvasPosition == nextPosition then
 		return
@@ -55,7 +56,7 @@ end
 --- Scrolls until a descendant GuiObject is visible.
 --- @param frame ScrollingFrame Target scrolling frame.
 --- @param object GuiObject Descendant to reveal.
-function module.ToObject(frame: ScrollingFrame, object: GuiObject)
+function module.toObject(frame: ScrollingFrame, object: GuiObject)
 	assert(object:IsDescendantOf(frame), "Reactily.Scroll.toObject target must be a descendant of the ScrollingFrame.")
 
 	local localPosition = object.AbsolutePosition - frame.AbsolutePosition + frame.CanvasPosition
@@ -72,7 +73,7 @@ end
 
 --- Scrolls to the top-left origin.
 --- @param frame ScrollingFrame Target scrolling frame.
-function module.ToTop(frame: ScrollingFrame)
+function module.toTop(frame: ScrollingFrame)
 	if frame.CanvasPosition == Vector2.zero then
 		return
 	end

@@ -1,9 +1,10 @@
---[[
-	Reactily · Lily Studios
 
-	Copyright (c) Lily Studios and contributors.
-	Licensed under the MIT License.
-	See LICENSE in the repository root for full terms.
+--[[
+  Reactily · Lily Studios
+
+  Copyright (c) Lily Studios and contributors.
+  Licensed under the MIT License.
+  See LICENSE in the repository root for full terms.
 ]]
 
 --!strict
@@ -14,27 +15,27 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type componentProfile = {
-	AverageTime: number,
-	LastReason: string,
-	LastTime: number,
-	MaximumTime: number,
-	RenderCount: number,
-	TotalTime: number,
+export type ComponentProfile = {
+	averageTime: number,
+	lastReason: string,
+	lastTime: number,
+	maximumTime: number,
+	renderCount: number,
+	totalTime: number,
 }
 
-type component = (props: any) -> any
-type profileMap = { [component]: componentProfile }
+type Component = (props: any) -> any
+type ProfileMap = { [Component]: ComponentProfile }
 
-type slowComponent = {
-	component: component,
-	profile: componentProfile,
+type SlowComponent = {
+	component: Component,
+	profile: ComponentProfile,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
 local enabled = false
-local profiles: profileMap = {}
+local profiles: ProfileMap = {}
 
 do
 	local weakProfiles: any = profiles
@@ -47,7 +48,7 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 --- Clears all collected profiler data.
-function module.Clear()
+function module.clear()
 	if next(profiles) == nil then
 		return
 	end
@@ -59,17 +60,18 @@ end
 
 --- Returns whether component profiling is enabled.
 --- @return boolean Current profiling state.
-function module.IsEnabled(): boolean
+function module.isEnabled(): boolean
 	return enabled
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Returns a copy of profile data for one component.
---- @param componentValue component Component function to inspect.
---- @return componentProfile? Profile data when available.
-function module.Get(componentValue: component): componentProfile?
+--- @param componentValue Component Component function to inspect.
+--- @return ComponentProfile? Profile data when available.
+function module.get(componentValue: Component): ComponentProfile?
 	local profile = profiles[componentValue]
+
 	if not profile then
 		return nil
 	end
@@ -80,9 +82,9 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 --- Returns all currently collected component profiles.
---- @return profileMap Independent snapshot of collected profiles.
-function module.Snapshot(): profileMap
-	local output: profileMap = {}
+--- @return ProfileMap Independent snapshot of collected profiles.
+function module.snapshot(): ProfileMap
+	local output: ProfileMap = {}
 
 	for componentValue, profile in profiles do
 		output[componentValue] = table.clone(profile)
@@ -95,9 +97,9 @@ end
 
 --- Returns the slowest recorded components ordered by average render time.
 --- @param limit number? Maximum number of entries to return.
---- @return {slowComponent} Ordered slow-component entries.
-function module.GetSlowComponents(limit: number?): { slowComponent }
-	local output: { slowComponent } = {}
+--- @return {SlowComponent} Ordered slow-component entries.
+function module.getSlowComponents(limit: number?): { SlowComponent }
+	local output: { SlowComponent } = {}
 
 	for componentValue, profile in profiles do
 		output[#output + 1] = {
@@ -106,8 +108,8 @@ function module.GetSlowComponents(limit: number?): { slowComponent }
 		}
 	end
 
-	table.sort(output, function(first: slowComponent, second: slowComponent): boolean
-		return first.profile.AverageTime > second.profile.AverageTime
+	table.sort(output, function(first: SlowComponent, second: SlowComponent): boolean
+		return first.profile.averageTime > second.profile.averageTime
 	end)
 
 	if limit == nil then
@@ -126,10 +128,10 @@ end
 --————————————————————————————————————————————————————————————————————--
 
 --- Records one component render when profiling is enabled.
---- @param componentValue component Component function that rendered.
+--- @param componentValue Component Component function that rendered.
 --- @param duration number Render duration in seconds.
 --- @param reason string Human-readable rerender reason.
-function module.Record(componentValue: component, duration: number, reason: string)
+function module.record(componentValue: Component, duration: number, reason: string)
 	if not enabled then
 		return
 	end
@@ -138,30 +140,30 @@ function module.Record(componentValue: component, duration: number, reason: stri
 
 	if not profile then
 		profile = {
-			AverageTime = 0,
-			LastReason = reason,
-			LastTime = duration,
-			MaximumTime = duration,
-			RenderCount = 0,
-			TotalTime = 0,
+			averageTime = 0,
+			lastReason = reason,
+			lastTime = duration,
+			maximumTime = duration,
+			renderCount = 0,
+			totalTime = 0,
 		}
 
 		profiles[componentValue] = profile
 	end
 
-	profile.RenderCount += 1
-	profile.TotalTime += duration
-	profile.AverageTime = profile.TotalTime / profile.RenderCount
-	profile.LastReason = reason
-	profile.LastTime = duration
-	profile.MaximumTime = math.max(profile.MaximumTime, duration)
+	profile.renderCount += 1
+	profile.totalTime += duration
+	profile.averageTime = profile.totalTime / profile.renderCount
+	profile.lastReason = reason
+	profile.lastTime = duration
+	profile.maximumTime = math.max(profile.maximumTime, duration)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Enables or disables component profiling.
 --- @param value boolean New profiling state.
-function module.SetEnabled(value: boolean)
+function module.setEnabled(value: boolean)
 	if enabled == value then
 		return
 	end
@@ -170,5 +172,23 @@ function module.SetEnabled(value: boolean)
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+--- Returns the most recent render reason for a component.
+--- @param componentValue Component Component function to inspect.
+--- @return string? Most recent render reason, when available.
+function module.getRenderReason(componentValue: Component): string?
+	local profile = module.get(componentValue)
+
+	return if profile then profile.lastReason else nil
+end
+
+--————————————————————————————————————————————————————————————————————--
+
+-- Canonical public API names (discoverable directly from Luau).
+
+module.getProfile = module.get
+module.getProfilerSnapshot = module.snapshot
+module.resetProfiler = module.clear
+module.setProfilingEnabled = module.setEnabled
 
 return module

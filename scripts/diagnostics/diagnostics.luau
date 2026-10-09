@@ -14,21 +14,21 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type diagnostics = {
-	Delete: () -> boolean,
-	Get: (name: string) -> number,
-	Increment: (name: string, amount: number?) -> number,
-	IsDeleted: () -> boolean,
-	Reset: (name: string) -> boolean,
-	ResetAll: () -> (),
-	Snapshot: () -> { [string]: number },
+export type Diagnostics = {
+	delete: () -> boolean,
+	get: (name: string) -> number,
+	increment: (name: string, amount: number?) -> number,
+	isDeleted: () -> boolean,
+	reset: (name: string) -> boolean,
+	resetAll: () -> (),
+	snapshot: () -> { [string]: number },
 }
 
 --————————————————————————————————————————————————————————————————————--
 
 --- Creates a Reactily diagnostics counter collection.
 --- @return diagnostics New diagnostics object for explicit runtime counters.
-function module.New(): diagnostics
+function module.new(): Diagnostics
 	local counters: { [string]: number } = {}
 	local isDeleted = false
 
@@ -96,16 +96,20 @@ function module.New(): diagnostics
 	end
 
 	return {
-		Delete = delete,
-		Get = get,
-		Increment = increment,
-		IsDeleted = getIsDeleted,
-		Reset = reset,
-		ResetAll = resetAll,
-		Snapshot = snapshot,
+		delete = delete,
+		get = get,
+		increment = increment,
+		isDeleted = getIsDeleted,
+		reset = reset,
+		resetAll = resetAll,
+		snapshot = snapshot,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createDiagnostics = module.new
 
 return module

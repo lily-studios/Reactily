@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local textService = game:GetService("TextService")
@@ -22,23 +23,21 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType TooltipOptions
-export type tooltipOptions = {
+export type TooltipOptions = {
 	BackgroundColor3: Color3?,
-	Delay: number?,
+	delay: number?,
 	Font: Enum.Font?,
-	Offset: number?,
-	Placement: popoverModule.placement?,
+	offset: number?,
+	placement: popoverModule.Placement?,
 	TextColor3: Color3?,
 	TextSize: number?,
 }
 
---- @reactilyType Tooltip
-export type tooltip = {
-	Delete: () -> boolean,
-	Hide: () -> (),
-	IsDeleted: () -> boolean,
-	Show: () -> (),
+export type Tooltip = {
+	delete: () -> boolean,
+	hide: () -> (),
+	isDeleted: () -> boolean,
+	show: () -> (),
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -59,12 +58,12 @@ end
 --- @param text string Tooltip text.
 --- @param options tooltipOptions? Tooltip appearance and placement.
 --- @return tooltip Owned tooltip controller.
-function module.Attach(parent: Instance, target: GuiObject, text: string, options: tooltipOptions?): tooltip
+function module.attach(parent: Instance, target: GuiObject, text: string, options: TooltipOptions?): Tooltip
 	local backgroundColor3 = Color3.fromRGB(24, 24, 24)
 	local delaySeconds = 0.35
 	local font = Enum.Font.Gotham
 	local offset = 8
-	local placement: popoverModule.placement = "Bottom"
+	local placement: popoverModule.Placement = "Bottom"
 	local textColor3 = Color3.new(1, 1, 1)
 	local textSize = 14
 
@@ -73,20 +72,20 @@ function module.Attach(parent: Instance, target: GuiObject, text: string, option
 			backgroundColor3 = options.BackgroundColor3
 		end
 
-		if options.Delay ~= nil then
-			delaySeconds = options.Delay
+		if options.delay ~= nil then
+			delaySeconds = options.delay
 		end
 
 		if options.Font ~= nil then
 			font = options.Font
 		end
 
-		if options.Offset ~= nil then
-			offset = options.Offset
+		if options.offset ~= nil then
+			offset = options.offset
 		end
 
-		if options.Placement ~= nil then
-			placement = options.Placement
+		if options.placement ~= nil then
+			placement = options.placement
 		end
 
 		if options.TextColor3 ~= nil then
@@ -151,9 +150,9 @@ function module.Attach(parent: Instance, target: GuiObject, text: string, option
 	--——————————————————————————————————————————————————————————————————--
 
 	local function positionTooltip()
-		popoverModule.Place(target, label, {
-			Offset = offset,
-			Placement = placement,
+		popoverModule.place(target, label, {
+			offset = offset,
+			placement = placement,
 		})
 	end
 
@@ -243,10 +242,10 @@ function module.Attach(parent: Instance, target: GuiObject, text: string, option
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		Delete = delete,
-		Hide = hide,
-		IsDeleted = getIsDeleted,
-		Show = show,
+		delete = delete,
+		hide = hide,
+		isDeleted = getIsDeleted,
+		show = show,
 	}
 end
 

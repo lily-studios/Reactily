@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
@@ -19,13 +20,12 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType ModalOptions
-export type modalOptions = {
+export type ModalOptions = {
 	BackgroundColor3: Color3?,
 	BackgroundTransparency: number?,
-	CloseOnBackground: boolean?,
+	closeOnBackground: boolean?,
 	Name: string?,
-	OnClose: (() -> ())?,
+	onClose: (() -> ())?,
 	ZIndex: number?,
 }
 
@@ -35,7 +35,7 @@ export type modalOptions = {
 --- @param options modalOptions? Overlay options.
 --- @param children {any} Modal content.
 --- @return element Modal overlay element.
-function module.Create(options: modalOptions?, children: { any }): elementModule.element
+function module.create(options: ModalOptions?, children: { any }): elementModule.Element
 	local backgroundColor3 = Color3.new(0, 0, 0)
 	local backgroundTransparency = 0.4
 	local closeOnBackground = true
@@ -52,16 +52,16 @@ function module.Create(options: modalOptions?, children: { any }): elementModule
 			backgroundTransparency = options.BackgroundTransparency
 		end
 
-		if options.CloseOnBackground ~= nil then
-			closeOnBackground = options.CloseOnBackground
+		if options.closeOnBackground ~= nil then
+			closeOnBackground = options.closeOnBackground
 		end
 
 		if options.Name ~= nil then
 			name = options.Name
 		end
 
-		if options.OnClose ~= nil then
-			onClose = options.OnClose
+		if options.onClose ~= nil then
+			onClose = options.onClose
 		end
 
 		if options.ZIndex ~= nil then
@@ -69,7 +69,7 @@ function module.Create(options: modalOptions?, children: { any }): elementModule
 		end
 	end
 
-	local props: elementModule.textButtonProps = {
+	local props: elementModule.TextButtonProps = {
 		AutoButtonColor = false,
 		BackgroundColor3 = backgroundColor3,
 		BackgroundTransparency = backgroundTransparency,
@@ -86,7 +86,7 @@ function module.Create(options: modalOptions?, children: { any }): elementModule
 		end
 	end
 
-	return elementModule.CreateTextButton(props, children)
+	return elementModule.createTextButton(props, children)
 end
 
 --————————————————————————————————————————————————————————————————————--

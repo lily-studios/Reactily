@@ -14,28 +14,28 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type context<T> = {
+export type Context<T> = {
 	__reactilyContext: true,
-	DefaultValue: T,
-	Id: number,
+	defaultValue: T,
+	id: number,
 }
 
-type contextStackValue = {
-	Value: any,
+type ContextStackValue = {
+	value: any,
 }
 
-type contextRecord = {
-	Stack: { contextStackValue },
+type ContextRecord = {
+	stack: { ContextStackValue },
 }
 
-type contextRecords = {
-	[any]: contextRecord,
+type ContextRecords = {
+	[any]: ContextRecord,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
 local nextContextId = 0
-local records: contextRecords = {}
+local records: ContextRecords = {}
 
 do
 	local weakRecords: any = records
@@ -50,20 +50,20 @@ end
 --- Returns the current value for a context, or its default outside a provider.
 --- @param contextValue context<T> Context to read.
 --- @return T Current context value.
-function module.Get<T>(contextValue: context<T>): T
+function module.get<T>(contextValue: Context<T>): T
 	local record = records[contextValue]
 
 	if not record then
-		return contextValue.DefaultValue
+		return contextValue.defaultValue
 	end
 
-	local entry = record.Stack[#record.Stack]
+	local entry = record.stack[#record.stack]
 
 	if not entry then
-		return contextValue.DefaultValue
+		return contextValue.defaultValue
 	end
 
-	return entry.Value :: T
+	return entry.value :: T
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -71,17 +71,17 @@ end
 --- Creates a typed Reactily context with a fallback value.
 --- @param defaultValue T Value returned when no provider is active.
 --- @return context<T> New context descriptor.
-function module.New<T>(defaultValue: T): context<T>
+function module.new<T>(defaultValue: T): Context<T>
 	nextContextId += 1
 
-	local contextValue: context<T> = {
+	local contextValue: Context<T> = {
 		__reactilyContext = true,
-		DefaultValue = defaultValue,
-		Id = nextContextId,
+		defaultValue = defaultValue,
+		id = nextContextId,
 	}
 
 	records[contextValue] = {
-		Stack = {},
+		stack = {},
 	}
 
 	return contextValue
@@ -91,13 +91,13 @@ end
 
 --- Removes the most recently pushed provider value.
 --- @param contextValue context<T> Context whose provider scope is ending.
-function module.Pop<T>(contextValue: context<T>)
+function module.pop<T>(contextValue: Context<T>)
 	local record = records[contextValue]
 
 	assert(record, "Reactily context is not registered.")
-	assert(#record.Stack > 0, "Reactily context provider stack is empty.")
+	assert(#record.stack > 0, "Reactily context provider stack is empty.")
 
-	record.Stack[#record.Stack] = nil
+	record.stack[#record.stack] = nil
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -105,16 +105,20 @@ end
 --- Pushes a provider value for the duration of descendant reconciliation.
 --- @param contextValue context<T> Context being provided.
 --- @param value T Value visible to descendants.
-function module.Push<T>(contextValue: context<T>, value: T)
+function module.push<T>(contextValue: Context<T>, value: T)
 	local record = records[contextValue]
 
 	assert(record, "Reactily context is not registered.")
 
-	record.Stack[#record.Stack + 1] = {
-		Value = value,
+	record.stack[#record.stack + 1] = {
+		value = value,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createContext = module.new
 
 return module

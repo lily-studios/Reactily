@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local interactionModule = require(script.Parent.interaction)
@@ -22,20 +23,20 @@ local module = {}
 --- @param object GuiObject Target UI object.
 --- @param style interactionStyle Properties applied while hovered.
 --- @return interactionController Owned hover controller.
-function module.Bind(
+function module.bind(
 	object: GuiObject,
-	style: interactionModule.interactionStyle
-): interactionModule.interactionController
-	local normal: interactionModule.interactionStyle = {}
+	style: interactionModule.InteractionStyle
+): interactionModule.InteractionController
+	local normal: interactionModule.InteractionStyle = {}
 	local target = object :: any
 
 	for propertyName in style do
 		normal[propertyName] = target[propertyName]
 	end
 
-	return interactionModule.Bind(object, {
+	return interactionModule.bind(object, {
 		Hover = style,
-		Normal = normal,
+		normal = normal,
 	})
 end
 

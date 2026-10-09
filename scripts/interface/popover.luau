@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local workspaceService = game:GetService("Workspace")
@@ -18,14 +19,12 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType PopoverPlacement
-export type placement = "Bottom" | "Left" | "Right" | "Top"
+export type Placement = "Bottom" | "Left" | "Right" | "Top"
 
---- @reactilyType PopoverOptions
-export type popoverOptions = {
-	ClampToViewport: boolean?,
-	Offset: number?,
-	Placement: placement?,
+export type PopoverOptions = {
+	clampToViewport: boolean?,
+	offset: number?,
+	placement: Placement?,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -49,7 +48,7 @@ end
 local function chooseAbsolutePosition(
 	anchor: GuiObject,
 	object: GuiObject,
-	placementValue: placement,
+	placementValue: Placement,
 	offset: number
 ): Vector2
 	local anchorPosition = anchor.AbsolutePosition
@@ -105,22 +104,22 @@ end
 --- @param object GuiObject Popover object to position.
 --- @param options popoverOptions? Placement options.
 --- @return UDim2 Applied object Position.
-function module.Place(anchor: GuiObject, object: GuiObject, options: popoverOptions?): UDim2
+function module.place(anchor: GuiObject, object: GuiObject, options: PopoverOptions?): UDim2
 	local clampToViewport = true
 	local offset = 8
-	local placementValue: placement = "Bottom"
+	local placementValue: Placement = "Bottom"
 
 	if options then
-		if options.ClampToViewport ~= nil then
-			clampToViewport = options.ClampToViewport
+		if options.clampToViewport ~= nil then
+			clampToViewport = options.clampToViewport
 		end
 
-		if options.Offset ~= nil then
-			offset = options.Offset
+		if options.offset ~= nil then
+			offset = options.offset
 		end
 
-		if options.Placement ~= nil then
-			placementValue = options.Placement
+		if options.placement ~= nil then
+			placementValue = options.placement
 		end
 	end
 
@@ -144,5 +143,9 @@ function module.Place(anchor: GuiObject, object: GuiObject, options: popoverOpti
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+export type PopoverPlacement = Placement
 
 return module

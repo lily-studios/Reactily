@@ -16,15 +16,15 @@ local module = {}
 --- @field easingDirection Enum.EasingDirection? Direction of the easing curve.
 --- @field easingStyle Enum.EasingStyle? Easing style applied to transitions.
 --- @field enterFrom {[string]: any}? Initial property values used for enter animations.
-export type options = {
-	Duration: number?,
+export type Options = {
+	duration: number?,
 	EasingDirection: Enum.EasingDirection?,
 	EasingStyle: Enum.EasingStyle?,
-	EnterFrom: { [string]: any }?,
+	enterFrom: { [string]: any }?,
 }
 
 --- Captured visual properties indexed by Roblox Instance.
-export type snapshot = { [Instance]: { [string]: any } }
+export type Snapshot = { [Instance]: { [string]: any } }
 
 local trackedProperties = table.freeze({
 	"Position",
@@ -65,8 +65,8 @@ end
 --- Captures tweenable visual state for a group of host instances.
 --- @param instances {Instance} Host instances whose visual properties should be captured.
 --- @return snapshot Captured property values indexed by Instance.
-function module.Capture(instances: { Instance }): snapshot
-	local output: snapshot = {}
+function module.capture(instances: { Instance }): Snapshot
+	local output: Snapshot = {}
 	for _, instance in instances do
 		local properties: { [string]: any } = {}
 		for _, propertyName in trackedProperties do
@@ -87,8 +87,8 @@ end
 --- Creates TweenInfo using the supplied transition configuration.
 --- @param config options? Optional duration and easing configuration.
 --- @return TweenInfo Tween information with configured or default values.
-local function createTweenInfo(config: options?): TweenInfo
-	local duration = if config and config.Duration ~= nil then math.max(config.Duration, 0) else 0.2
+local function createTweenInfo(config: Options?): TweenInfo
+	local duration = if config and config.duration ~= nil then math.max(config.duration, 0) else 0.2
 	local easingStyle = if config and config.EasingStyle then config.EasingStyle else Enum.EasingStyle.Quad
 	local easingDirection = if config and config.EasingDirection
 		then config.EasingDirection
@@ -102,7 +102,7 @@ end
 --- @param instances {Instance} Host instances whose changed properties should be animated.
 --- @param config options? Optional transition duration and easing configuration.
 --- @return {Tween} Created and started tween animations.
-function module.PlayUpdate(before: snapshot, instances: { Instance }, config: options?): { Tween }
+function module.playUpdate(before: Snapshot, instances: { Instance }, config: Options?): { Tween }
 	local tweens: { Tween } = {}
 	local tweenInfo = createTweenInfo(config)
 
@@ -142,8 +142,8 @@ end
 --- @param instances {Instance} Host instances entering the rendered subtree.
 --- @param config options? Optional transition configuration containing initial property values.
 --- @return {Tween} Created and started enter animations, or an empty array when disabled.
-function module.PlayEnter(instances: { Instance }, config: options?): { Tween }
-	if not config or not config.EnterFrom or next(config.EnterFrom) == nil then
+function module.playEnter(instances: { Instance }, config: Options?): { Tween }
+	if not config or not config.enterFrom or next(config.enterFrom) == nil then
 		return {}
 	end
 
@@ -152,7 +152,7 @@ function module.PlayEnter(instances: { Instance }, config: options?): { Tween }
 
 	for _, instance in instances do
 		local goals: { [string]: any } = {}
-		for propertyName, fromValue in config.EnterFrom do
+		for propertyName, fromValue in config.enterFrom do
 			local success, currentValue = readProperty(instance, propertyName)
 			if success then
 				goals[propertyName] = currentValue
@@ -181,7 +181,7 @@ end
 
 --- Cancels all active tweens and clears their collection.
 --- @param tweens {Tween} Tween animations to cancel and remove from the collection.
-function module.Cancel(tweens: { Tween })
+function module.cancel(tweens: { Tween })
 	for _, tween in tweens do
 		pcall(function()
 			tween:Cancel()

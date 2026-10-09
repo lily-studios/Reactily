@@ -8,6 +8,7 @@
 
 --!strict
 
+
 --————————————————————————————————————————————————————————————————————--
 
 local bindingModule = require(script.Parent.Parent.runtime.binding)
@@ -20,30 +21,28 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-type formRecord = { [string]: any }
+type FormRecord = { [string]: any }
 
---- @reactilyType ValidationMap
-export type validationMap = {
-	[string]: validatorModule.validator<any>,
+export type ValidationMap = {
+	[string]: validatorModule.Validator<any>,
 }
 
---- @reactilyType Form<T>
-export type form<T> = {
-	Delete: () -> boolean,
-	Field: (name: string) -> bindingModule.binding<any>,
-	Get: () -> T,
-	GetErrors: () -> { [string]: string },
-	IsDeleted: () -> boolean,
-	IsDirty: () -> boolean,
-	Reset: (nextInitial: T?) -> (),
-	Set: (name: string, value: any) -> boolean,
-	Subscribe: (callback: (value: T) -> ()) -> signalModule.connection,
-	Validate: (validators: validationMap) -> boolean,
+export type Form<T> = {
+	delete: () -> boolean,
+	field: (name: string) -> bindingModule.Binding<any>,
+	get: () -> T,
+	getErrors: () -> { [string]: string },
+	isDeleted: () -> boolean,
+	isDirty: () -> boolean,
+	reset: (nextInitial: T?) -> (),
+	set: (name: string, value: any) -> boolean,
+	subscribe: (callback: (value: T) -> ()) -> signalModule.Connection,
+	validate: (validators: ValidationMap) -> boolean,
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function cloneRecord(value: any): formRecord
+local function cloneRecord(value: any): FormRecord
 	return table.clone(value) :: any
 end
 
@@ -52,16 +51,16 @@ end
 --- Creates a reactive form with per-field bindings, reset, dirty state, and validation.
 --- @param initial T Initial form values.
 --- @return form<T> Owned form controller.
-function module.Create<T>(initial: T): form<T>
+function module.create<T>(initial: T): Form<T>
 	assert(type(initial) == "table", "Reactily form initial value must be a table.")
 
-	local changed = signalModule.New()
+	local changed = signalModule.new()
 	local errors: { [string]: string } = {}
-	local fields: { [string]: bindingModule.binding<any> } = {}
-	local fieldConnections: { [string]: signalModule.connection } = {}
+	local fields: { [string]: bindingModule.Binding<any> } = {}
+	local fieldConnections: { [string]: signalModule.Connection } = {}
 
-	local initialValues: formRecord = cloneRecord(initial)
-	local values: formRecord = cloneRecord(initial)
+	local initialValues: FormRecord = cloneRecord(initial)
+	local values: FormRecord = cloneRecord(initial)
 
 	local isDeleted = false
 
@@ -74,12 +73,12 @@ function module.Create<T>(initial: T): form<T>
 	--——————————————————————————————————————————————————————————————————--
 
 	local function emitChanged()
-		changed.Fire(cloneValue())
+		changed.fire(cloneValue())
 	end
 
 	--——————————————————————————————————————————————————————————————————--
 
-	local function field(name: string): bindingModule.binding<any>
+	local function field(name: string): bindingModule.Binding<any>
 		assert(not isDeleted, "Reactily form is deleted.")
 
 		local existing = fields[name]
@@ -88,20 +87,20 @@ function module.Create<T>(initial: T): form<T>
 			return existing
 		end
 
-		local source = bindingModule.New(values[name])
+		local source = bindingModule.new(values[name])
 
 		fields[name] = source
 
-		fieldConnections[name] = source.Subscribe(function(change)
+		fieldConnections[name] = source.subscribe(function(change)
 			if isDeleted then
 				return
 			end
 
-			if values[name] == change.Current then
+			if values[name] == change.current then
 				return
 			end
 
-			values[name] = change.Current
+			values[name] = change.current
 			errors[name] = nil
 
 			emitChanged()
@@ -125,8 +124,8 @@ function module.Create<T>(initial: T): form<T>
 		local source = fields[name]
 
 		if source then
-			if source.Get() ~= value then
-				source.Set(value)
+			if source.get() ~= value then
+				source.set(value)
 			end
 		end
 
@@ -153,11 +152,11 @@ function module.Create<T>(initial: T): form<T>
 		for name, source in fields do
 			local nextValue = values[name]
 
-			if source.Get() == nextValue then
+			if source.get() == nextValue then
 				continue
 			end
 
-			source.Set(nextValue)
+			source.set(nextValue)
 		end
 
 		emitChanged()
@@ -165,7 +164,7 @@ function module.Create<T>(initial: T): form<T>
 
 	--——————————————————————————————————————————————————————————————————--
 
-	local function validate(validators: validationMap): boolean
+	local function validate(validators: ValidationMap): boolean
 		assert(not isDeleted, "Reactily form is deleted.")
 
 		table.clear(errors)
@@ -193,18 +192,18 @@ function module.Create<T>(initial: T): form<T>
 		isDeleted = true
 
 		for _, connection in fieldConnections do
-			connection.Disconnect()
+			connection.disconnect()
 		end
 
 		for _, source in fields do
-			source.Delete()
+			source.delete()
 		end
 
 		table.clear(fieldConnections)
 		table.clear(fields)
 		table.clear(errors)
 
-		changed.Delete()
+		changed.delete()
 
 		return true
 	end
@@ -257,25 +256,25 @@ function module.Create<T>(initial: T): form<T>
 
 	--——————————————————————————————————————————————————————————————————--
 
-	local function subscribe(callback: (value: T) -> ()): signalModule.connection
+	local function subscribe(callback: (value: T) -> ()): signalModule.Connection
 		assert(not isDeleted, "Reactily form is deleted.")
 
-		return changed.Connect(callback)
+		return changed.connect(callback)
 	end
 
 	--——————————————————————————————————————————————————————————————————--
 
 	return {
-		Delete = delete,
-		Field = field,
-		Get = get,
-		GetErrors = getErrors,
-		IsDeleted = getIsDeleted,
-		IsDirty = getIsDirty,
-		Reset = reset,
-		Set = set,
-		Subscribe = subscribe,
-		Validate = validate,
+		delete = delete,
+		field = field,
+		get = get,
+		getErrors = getErrors,
+		isDeleted = getIsDeleted,
+		isDirty = getIsDirty,
+		reset = reset,
+		set = set,
+		subscribe = subscribe,
+		validate = validate,
 	}
 end
 

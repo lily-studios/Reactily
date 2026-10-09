@@ -18,14 +18,14 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type comparator = (previousProps: { [string]: any }, nextProps: { [string]: any }) -> boolean
+export type Comparator = (previousProps: { [string]: any }, nextProps: { [string]: any }) -> boolean
 
-type component = (props: any) -> any
-type comparatorMap = { [component]: comparator }
+type Component = (props: any) -> any
+type ComparatorMap = { [Component]: Comparator }
 
 --————————————————————————————————————————————————————————————————————--
 
-local comparators: comparatorMap = {}
+local comparators: ComparatorMap = {}
 
 do
 	local weakComparators: any = comparators
@@ -40,7 +40,7 @@ end
 --- Returns whether a component has been wrapped with Reactily.memo.
 --- @param componentValue component Component function to inspect.
 --- @return boolean True when the component has memo metadata.
-function module.IsMemo(componentValue: component): boolean
+function module.isMemo(componentValue: Component): boolean
 	return comparators[componentValue] ~= nil
 end
 
@@ -51,8 +51,8 @@ end
 --- @param previousProps {[string]: any} Previous props.
 --- @param nextProps {[string]: any} Next props.
 --- @return boolean True when reconciliation should rerender the component.
-function module.ShouldUpdate(
-	componentValue: component,
+function module.shouldUpdate(
+	componentValue: Component,
 	previousProps: { [string]: any },
 	nextProps: { [string]: any }
 ): boolean
@@ -70,7 +70,7 @@ end
 --- @param componentValue T Component function to memoize.
 --- @param comparatorValue comparator? Optional equality function. Defaults to shallow equality.
 --- @return T Stable memoized component wrapper.
-function module.Wrap<T>(componentValue: T, comparatorValue: comparator?): T
+function module.wrap<T>(componentValue: T, comparatorValue: Comparator?): T
 	assert(type(componentValue) == "function", "Reactily.memo expects a component function.")
 
 	local source: any = componentValue
@@ -78,11 +78,15 @@ function module.Wrap<T>(componentValue: T, comparatorValue: comparator?): T
 		return source(props)
 	end
 
-	comparators[wrapped] = comparatorValue or compare.ShallowEqual
+	comparators[wrapped] = comparatorValue or compare.shallowEqual
 
 	return wrapped
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.memo = module.wrap
 
 return module

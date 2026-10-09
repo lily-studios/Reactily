@@ -18,17 +18,17 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type bindingChange<T> = {
-	Current: T,
-	Previous: T,
+export type BindingChange<T> = {
+	current: T,
+	previous: T,
 }
 
-export type binding<T> = {
-	Delete: () -> boolean,
-	Get: () -> T,
-	IsDeleted: () -> boolean,
-	Set: (value: T) -> boolean,
-	Subscribe: (callback: (change: bindingChange<T>) -> ()) -> signalModule.connection,
+export type Binding<T> = {
+	delete: () -> boolean,
+	get: () -> T,
+	isDeleted: () -> boolean,
+	set: (value: T) -> boolean,
+	subscribe: (callback: (change: BindingChange<T>) -> ()) -> signalModule.Connection,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -38,24 +38,24 @@ export type binding<T> = {
 --- @param instance Instance Target Roblox Instance.
 --- @param propertyName string Roblox property name.
 --- @return () -> () Cleanup callback.
-function module.Attach<T>(source: binding<T>, instance: Instance, propertyName: string): () -> ()
+function module.attach<T>(source: Binding<T>, instance: Instance, propertyName: string): () -> ()
 	local target = instance :: any
-	local currentValue = source.Get()
+	local currentValue = source.get()
 
 	if target[propertyName] ~= currentValue then
 		target[propertyName] = currentValue
 	end
 
-	local connection = source.Subscribe(function(change: bindingChange<T>)
-		if target[propertyName] == change.Current then
+	local connection = source.subscribe(function(change: BindingChange<T>)
+		if target[propertyName] == change.current then
 			return
 		end
 
-		target[propertyName] = change.Current
+		target[propertyName] = change.current
 	end)
 
 	return function()
-		connection.Disconnect()
+		connection.disconnect()
 	end
 end
 
@@ -67,24 +67,24 @@ end
 --- @param attributeName string Attribute name.
 --- @param twoWay boolean? Whether external Attribute changes should update the binding.
 --- @return () -> () Cleanup callback.
-function module.AttachAttribute<T>(
-	source: binding<T>,
+function module.attachAttribute<T>(
+	source: Binding<T>,
 	instance: Instance,
 	attributeName: string,
 	twoWay: boolean?
 ): () -> ()
-	local currentValue = source.Get()
+	local currentValue = source.get()
 
 	if instance:GetAttribute(attributeName) ~= currentValue then
 		instance:SetAttribute(attributeName, currentValue :: any)
 	end
 
-	local sourceConnection = source.Subscribe(function(change: bindingChange<T>)
-		if instance:GetAttribute(attributeName) == change.Current then
+	local sourceConnection = source.subscribe(function(change: BindingChange<T>)
+		if instance:GetAttribute(attributeName) == change.current then
 			return
 		end
 
-		instance:SetAttribute(attributeName, change.Current :: any)
+		instance:SetAttribute(attributeName, change.current :: any)
 	end)
 
 	local attributeConnection: RBXScriptConnection? = nil
@@ -96,12 +96,12 @@ function module.AttachAttribute<T>(
 				return
 			end
 
-			source.Set(value :: T)
+			source.set(value :: T)
 		end)
 	end
 
 	return function()
-		sourceConnection.Disconnect()
+		sourceConnection.disconnect()
 
 		if attributeConnection and attributeConnection.Connected then
 			attributeConnection:Disconnect()
@@ -117,32 +117,32 @@ end
 --- @param propertyName string Roblox property name.
 --- @param twoWay boolean? Whether external property changes should update the binding.
 --- @return () -> () Cleanup callback.
-function module.AttachProperty<T>(source: binding<T>, instance: Instance, propertyName: string, twoWay: boolean?): () -> ()
+function module.attachProperty<T>(source: Binding<T>, instance: Instance, propertyName: string, twoWay: boolean?): () -> ()
 	local target = instance :: any
-	local currentValue = source.Get()
+	local currentValue = source.get()
 
 	if target[propertyName] ~= currentValue then
 		target[propertyName] = currentValue
 	end
 
-	local sourceConnection = source.Subscribe(function(change: bindingChange<T>)
-		if target[propertyName] == change.Current then
+	local sourceConnection = source.subscribe(function(change: BindingChange<T>)
+		if target[propertyName] == change.current then
 			return
 		end
 
-		target[propertyName] = change.Current
+		target[propertyName] = change.current
 	end)
 
 	local propertyConnection: RBXScriptConnection? = nil
 
 	if twoWay == true then
 		propertyConnection = instance:GetPropertyChangedSignal(propertyName):Connect(function()
-			source.Set(target[propertyName] :: T)
+			source.set(target[propertyName] :: T)
 		end)
 	end
 
 	return function()
-		sourceConnection.Disconnect()
+		sourceConnection.disconnect()
 
 		if propertyConnection and propertyConnection.Connected then
 			propertyConnection:Disconnect()
@@ -157,10 +157,10 @@ end
 --- @param minimum number Minimum output value.
 --- @param maximum number Maximum output value.
 --- @return binding<number> Derived binding.
-function module.Clamp(source: binding<number>, minimum: number, maximum: number): binding<number>
+function module.clamp(source: Binding<number>, minimum: number, maximum: number): Binding<number>
 	assert(minimum <= maximum, "Reactily binding minimum must not exceed maximum.")
 
-	return module.Map(source, function(value: number): number
+	return module.map(source, function(value: number): number
 		return math.clamp(value, minimum, maximum)
 	end)
 end
@@ -172,26 +172,26 @@ end
 --- @param second binding<B> Second source binding.
 --- @param mapper (firstValue: A, secondValue: B) -> R Derivation callback.
 --- @return binding<R> Derived binding.
-function module.Combine<A, B, R>(first: binding<A>, second: binding<B>, mapper: (firstValue: A, secondValue: B) -> R): binding<R>
-	local output = module.New(mapper(first.Get(), second.Get()))
+function module.combine<A, B, R>(first: Binding<A>, second: Binding<B>, mapper: (firstValue: A, secondValue: B) -> R): Binding<R>
+	local output = module.new(mapper(first.get(), second.get()))
 
 	local function update()
-		output.Set(mapper(first.Get(), second.Get()))
+		output.set(mapper(first.get(), second.get()))
 	end
 
-	local firstConnection = first.Subscribe(function()
+	local firstConnection = first.subscribe(function()
 		update()
 	end)
 
-	local secondConnection = second.Subscribe(function()
+	local secondConnection = second.subscribe(function()
 		update()
 	end)
 
-	local outputDelete = output.Delete
+	local outputDelete = output.delete
 
-	output.Delete = function(): boolean
-		firstConnection.Disconnect()
-		secondConnection.Disconnect()
+	output.delete = function(): boolean
+		firstConnection.disconnect()
+		secondConnection.disconnect()
 
 		return outputDelete()
 	end
@@ -205,31 +205,31 @@ end
 --- @param sources {binding<any>} Source bindings.
 --- @param mapper (values: {any}) -> R Derivation callback.
 --- @return binding<R> Derived binding.
-function module.CombineMany<R>(sources: { binding<any> }, mapper: (values: { any }) -> R): binding<R>
+function module.combineMany<R>(sources: { Binding<any> }, mapper: (values: { any }) -> R): Binding<R>
 	local function collect(): { any }
 		local values: { any } = table.create(#sources)
 
 		for index, source in sources do
-			values[index] = source.Get()
+			values[index] = source.get()
 		end
 
 		return values
 	end
 
-	local output = module.New(mapper(collect()))
-	local connections: { signalModule.connection } = {}
+	local output = module.new(mapper(collect()))
+	local connections: { signalModule.Connection } = {}
 
 	for _, source in sources do
-		connections[#connections + 1] = source.Subscribe(function()
-			output.Set(mapper(collect()))
+		connections[#connections + 1] = source.subscribe(function()
+			output.set(mapper(collect()))
 		end)
 	end
 
-	local outputDelete = output.Delete
+	local outputDelete = output.delete
 
-	output.Delete = function(): boolean
+	output.delete = function(): boolean
 		for _, connection in connections do
-			connection.Disconnect()
+			connection.disconnect()
 		end
 
 		table.clear(connections)
@@ -246,8 +246,8 @@ end
 --- @param source binding<T> Source binding.
 --- @param formatter (value: T) -> string Formatter callback.
 --- @return binding<string> Derived formatted binding.
-function module.Format<T>(source: binding<T>, formatter: (value: T) -> string): binding<string>
-	return module.Map(source, formatter)
+function module.format<T>(source: Binding<T>, formatter: (value: T) -> string): Binding<string>
+	return module.map(source, formatter)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -256,17 +256,17 @@ end
 --- @param source binding<A> Source binding.
 --- @param mapper (value: A) -> B Derivation callback.
 --- @return binding<B> Derived binding.
-function module.Map<A, B>(source: binding<A>, mapper: (value: A) -> B): binding<B>
-	local output = module.New(mapper(source.Get()))
+function module.map<A, B>(source: Binding<A>, mapper: (value: A) -> B): Binding<B>
+	local output = module.new(mapper(source.get()))
 
-	local sourceConnection = source.Subscribe(function(change: bindingChange<A>)
-		output.Set(mapper(change.Current))
+	local sourceConnection = source.subscribe(function(change: BindingChange<A>)
+		output.set(mapper(change.current))
 	end)
 
-	local outputDelete = output.Delete
+	local outputDelete = output.delete
 
-	output.Delete = function(): boolean
-		sourceConnection.Disconnect()
+	output.delete = function(): boolean
+		sourceConnection.disconnect()
 
 		return outputDelete()
 	end
@@ -279,8 +279,8 @@ end
 --- Creates a mutable typed reactive binding.
 --- @param initialValue T Initial binding value.
 --- @return binding<T> New reactive binding.
-function module.New<T>(initialValue: T): binding<T>
-	local changed: signalModule.signal<bindingChange<T>> = signalModule.New()
+function module.new<T>(initialValue: T): Binding<T>
+	local changed: signalModule.Signal<BindingChange<T>> = signalModule.new()
 
 	local isDeleted = false
 	local value = initialValue
@@ -291,7 +291,7 @@ function module.New<T>(initialValue: T): binding<T>
 		end
 
 		isDeleted = true
-		changed.Delete()
+		changed.delete()
 
 		return true
 	end
@@ -315,26 +315,26 @@ function module.New<T>(initialValue: T): binding<T>
 		local previous = value
 		value = nextValue
 
-		changed.Fire({
-			Current = nextValue,
-			Previous = previous,
+		changed.fire({
+			current = nextValue,
+			previous = previous,
 		})
 
 		return true
 	end
 
-	local function subscribe(callback: (change: bindingChange<T>) -> ()): signalModule.connection
+	local function subscribe(callback: (change: BindingChange<T>) -> ()): signalModule.Connection
 		assert(not isDeleted, "Reactily binding is deleted.")
 
-		return changed.Connect(callback)
+		return changed.connect(callback)
 	end
 
 	return {
-		Delete = delete,
-		Get = get,
-		IsDeleted = getIsDeleted,
-		Set = set,
-		Subscribe = subscribe,
+		delete = delete,
+		get = get,
+		isDeleted = getIsDeleted,
+		set = set,
+		subscribe = subscribe,
 	}
 end
 
@@ -344,14 +344,26 @@ end
 --- @param source binding<number> Source numeric binding.
 --- @param precision number Number of decimal places.
 --- @return binding<number> Rounded derived binding.
-function module.Round(source: binding<number>, precision: number): binding<number>
+function module.round(source: Binding<number>, precision: number): Binding<number>
 	local multiplier = 10 ^ precision
 
-	return module.Map(source, function(value: number): number
+	return module.map(source, function(value: number): number
 		return math.round(value * multiplier) / multiplier
 	end)
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.bindAttribute = module.attachAttribute
+module.bindProperty = module.attachProperty
+module.clampBinding = module.clamp
+module.combineBindings = module.combine
+module.combineBindingsMany = module.combineMany
+module.createBinding = module.new
+module.formatBinding = module.format
+module.mapBinding = module.map
+module.roundBinding = module.round
 
 return module

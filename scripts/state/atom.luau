@@ -18,39 +18,39 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type atomChange<T> = {
-	Current: T,
-	Previous: T,
+export type AtomChange<T> = {
+	current: T,
+	previous: T,
 }
 
-export type atom<T> = {
-	Delete: () -> boolean,
-	Get: () -> T,
-	IsDeleted: () -> boolean,
-	Set: (value: T) -> boolean,
-	Subscribe: (callback: (change: atomChange<T>) -> ()) -> signalModule.connection,
-	Update: (updater: (previous: T) -> T) -> boolean,
+export type Atom<T> = {
+	delete: () -> boolean,
+	get: () -> T,
+	isDeleted: () -> boolean,
+	set: (value: T) -> boolean,
+	subscribe: (callback: (change: AtomChange<T>) -> ()) -> signalModule.Connection,
+	update: (updater: (previous: T) -> T) -> boolean,
 }
 
-export type computed<T> = {
-	Delete: () -> boolean,
-	Get: () -> T,
-	IsDeleted: () -> boolean,
-	Subscribe: (callback: (change: atomChange<T>) -> ()) -> signalModule.connection,
+export type Computed<T> = {
+	delete: () -> boolean,
+	get: () -> T,
+	isDeleted: () -> boolean,
+	subscribe: (callback: (change: AtomChange<T>) -> ()) -> signalModule.Connection,
 }
 
-export type historyAtom<T> = atom<T> & {
-	CanRedo: () -> boolean,
-	CanUndo: () -> boolean,
-	ClearHistory: () -> (),
-	GetFutureCount: () -> number,
-	GetPastCount: () -> number,
-	Redo: () -> boolean,
-	Undo: () -> boolean,
+export type HistoryAtom<T> = Atom<T> & {
+	canRedo: () -> boolean,
+	canUndo: () -> boolean,
+	clearHistory: () -> (),
+	getFutureCount: () -> number,
+	getPastCount: () -> number,
+	redo: () -> boolean,
+	undo: () -> boolean,
 }
 
-type historyEntry<T> = {
-	Value: T,
+type HistoryEntry<T> = {
+	value: T,
 }
 
 --————————————————————————————————————————————————————————————————————--
@@ -59,26 +59,26 @@ type historyEntry<T> = {
 --- @param source atom<A> Source atom.
 --- @param selector (value: A) -> B Derivation callback.
 --- @return computed<B> Derived read-only atom.
-function module.Computed<A, B>(source: atom<A>, selector: (value: A) -> B): computed<B>
-	local output = module.New(selector(source.Get()))
+function module.computed<A, B>(source: Atom<A>, selector: (value: A) -> B): Computed<B>
+	local output = module.new(selector(source.get()))
 
-	local sourceConnection = source.Subscribe(function(change: atomChange<A>)
-		output.Set(selector(change.Current))
+	local sourceConnection = source.subscribe(function(change: AtomChange<A>)
+		output.set(selector(change.current))
 	end)
 
-	local outputDelete = output.Delete
+	local outputDelete = output.delete
 
-	output.Delete = function(): boolean
-		sourceConnection.Disconnect()
+	output.delete = function(): boolean
+		sourceConnection.disconnect()
 
 		return outputDelete()
 	end
 
 	return {
-		Delete = output.Delete,
-		Get = output.Get,
-		IsDeleted = output.IsDeleted,
-		Subscribe = output.Subscribe,
+		delete = output.delete,
+		get = output.get,
+		isDeleted = output.isDeleted,
+		subscribe = output.subscribe,
 	}
 end
 
@@ -89,7 +89,7 @@ end
 --- @param attributeName string Attribute name.
 --- @param defaultValue T Value used when the Attribute is missing.
 --- @return atom<T> Attribute-backed atom.
-function module.FromAttribute<T>(instance: Instance, attributeName: string, defaultValue: T): atom<T>
+function module.fromAttribute<T>(instance: Instance, attributeName: string, defaultValue: T): Atom<T>
 	local currentAttribute = instance:GetAttribute(attributeName)
 	local initialValue = defaultValue
 
@@ -97,7 +97,7 @@ function module.FromAttribute<T>(instance: Instance, attributeName: string, defa
 		initialValue = currentAttribute :: T
 	end
 
-	local output = module.New(initialValue)
+	local output = module.new(initialValue)
 
 	local isApplyingAttribute = false
 	local isApplyingState = false
@@ -111,31 +111,31 @@ function module.FromAttribute<T>(instance: Instance, attributeName: string, defa
 
 		isApplyingAttribute = true
 		if nextValue == nil then
-			output.Set(defaultValue)
+			output.set(defaultValue)
 		else
-			output.Set(nextValue :: T)
+			output.set(nextValue :: T)
 		end
 		isApplyingAttribute = false
 	end)
 
-	local stateConnection = output.Subscribe(function(change: atomChange<T>)
+	local stateConnection = output.subscribe(function(change: AtomChange<T>)
 		if isApplyingAttribute then
 			return
 		end
-		if instance:GetAttribute(attributeName) == change.Current then
+		if instance:GetAttribute(attributeName) == change.current then
 			return
 		end
 
 		isApplyingState = true
-		instance:SetAttribute(attributeName, change.Current :: any)
+		instance:SetAttribute(attributeName, change.current :: any)
 		isApplyingState = false
 	end)
 
-	local outputDelete = output.Delete
+	local outputDelete = output.delete
 
-	output.Delete = function(): boolean
+	output.delete = function(): boolean
 		attributeConnection:Disconnect()
-		stateConnection.Disconnect()
+		stateConnection.disconnect()
 
 		return outputDelete()
 	end
@@ -149,16 +149,16 @@ end
 --- @param initialValue T Initial atom value.
 --- @param limit number Maximum retained undo entries.
 --- @return historyAtom<T> Historical atom.
-function module.History<T>(initialValue: T, limit: number): historyAtom<T>
+function module.history<T>(initialValue: T, limit: number): HistoryAtom<T>
 	assert(limit > 0, "Reactily history limit must be greater than zero.")
 
-	local base = module.New(initialValue)
+	local base = module.new(initialValue)
 
-	local future: { historyEntry<T> } = {}
+	local future: { HistoryEntry<T> } = {}
 	local isRecording = true
-	local past: { historyEntry<T> } = {}
+	local past: { HistoryEntry<T> } = {}
 
-	local baseSet = base.Set
+	local baseSet = base.set
 
 	local function canRedo(): boolean
 		return #future > 0
@@ -187,7 +187,7 @@ function module.History<T>(initialValue: T, limit: number): historyAtom<T>
 
 	local function record(previous: T)
 		past[#past + 1] = {
-			Value = previous,
+			value = previous,
 		}
 
 		if #past <= limit then
@@ -198,7 +198,7 @@ function module.History<T>(initialValue: T, limit: number): historyAtom<T>
 	end
 
 	local function set(nextValue: T): boolean
-		local previous = base.Get()
+		local previous = base.get()
 		local didChange = baseSet(nextValue)
 
 		if not didChange then
@@ -226,11 +226,11 @@ function module.History<T>(initialValue: T, limit: number): historyAtom<T>
 		future[#future] = nil
 
 		past[#past + 1] = {
-			Value = base.Get(),
+			value = base.get(),
 		}
 
 		isRecording = false
-		baseSet(entry.Value)
+		baseSet(entry.value)
 		isRecording = true
 
 		return true
@@ -245,34 +245,34 @@ function module.History<T>(initialValue: T, limit: number): historyAtom<T>
 		past[#past] = nil
 
 		future[#future + 1] = {
-			Value = base.Get(),
+			value = base.get(),
 		}
 
 		isRecording = false
-		baseSet(entry.Value)
+		baseSet(entry.value)
 		isRecording = true
 
 		return true
 	end
 
 	local function update(updater: (previous: T) -> T): boolean
-		return set(updater(base.Get()))
+		return set(updater(base.get()))
 	end
 
 	return {
-		CanRedo = canRedo,
-		CanUndo = canUndo,
-		ClearHistory = clearHistory,
-		Delete = base.Delete,
-		Get = base.Get,
-		GetFutureCount = getFutureCount,
-		GetPastCount = getPastCount,
-		IsDeleted = base.IsDeleted,
-		Redo = redo,
-		Set = set,
-		Subscribe = base.Subscribe,
-		Undo = undo,
-		Update = update,
+		canRedo = canRedo,
+		canUndo = canUndo,
+		clearHistory = clearHistory,
+		delete = base.delete,
+		get = base.get,
+		getFutureCount = getFutureCount,
+		getPastCount = getPastCount,
+		isDeleted = base.isDeleted,
+		redo = redo,
+		set = set,
+		subscribe = base.subscribe,
+		undo = undo,
+		update = update,
 	}
 end
 
@@ -281,8 +281,8 @@ end
 --- Creates a standalone typed reactive atom.
 --- @param initialValue T Initial atom value.
 --- @return atom<T> New atom.
-function module.New<T>(initialValue: T): atom<T>
-	local changed: signalModule.signal<atomChange<T>> = signalModule.New()
+function module.new<T>(initialValue: T): Atom<T>
+	local changed: signalModule.Signal<AtomChange<T>> = signalModule.new()
 
 	local isDeleted = false
 	local value = initialValue
@@ -293,7 +293,7 @@ function module.New<T>(initialValue: T): atom<T>
 		end
 
 		isDeleted = true
-		changed.Delete()
+		changed.delete()
 
 		return true
 	end
@@ -317,18 +317,18 @@ function module.New<T>(initialValue: T): atom<T>
 		local previous = value
 		value = nextValue
 
-		changed.Fire({
-			Current = nextValue,
-			Previous = previous,
+		changed.fire({
+			current = nextValue,
+			previous = previous,
 		})
 
 		return true
 	end
 
-	local function subscribe(callback: (change: atomChange<T>) -> ()): signalModule.connection
+	local function subscribe(callback: (change: AtomChange<T>) -> ()): signalModule.Connection
 		assert(not isDeleted, "Reactily atom is deleted.")
 
-		return changed.Connect(callback)
+		return changed.connect(callback)
 	end
 
 	local function update(updater: (previous: T) -> T): boolean
@@ -338,15 +338,22 @@ function module.New<T>(initialValue: T): atom<T>
 	end
 
 	return {
-		Delete = delete,
-		Get = get,
-		IsDeleted = getIsDeleted,
-		Set = set,
-		Subscribe = subscribe,
-		Update = update,
+		delete = delete,
+		get = get,
+		isDeleted = getIsDeleted,
+		set = set,
+		subscribe = subscribe,
+		update = update,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.createAtom = module.new
+module.createAttributeAtom = module.fromAttribute
+module.createComputed = module.computed
+module.createHistoryAtom = module.history
 
 return module

@@ -19,13 +19,13 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-export type transitionId = number
+export type TransitionId = number
 
-local pendingChanged: signalModule.signal<number> = signalModule.New()
+local pendingChanged: signalModule.Signal<number> = signalModule.new()
 local pendingCount = 0
 local nextTransitionId = 0
-local currentIds: { [thread]: transitionId } = {}
-local completionCallbacks: { [transitionId]: { () -> () } } = {}
+local currentIds: { [thread]: TransitionId } = {}
+local completionCallbacks: { [TransitionId]: { () -> () } } = {}
 
 do
 	local weakCurrentIds: any = currentIds
@@ -40,7 +40,7 @@ local function currentThread(): thread
 	return running
 end
 
-local function finishTransition(id: transitionId)
+local function finishTransition(id: TransitionId)
 	local callbacks = completionCallbacks[id]
 	completionCallbacks[id] = nil
 
@@ -58,42 +58,42 @@ local function finishTransition(id: transitionId)
 	end
 
 	pendingCount = math.max(pendingCount - 1, 0)
-	pendingChanged.Fire(pendingCount)
+	pendingChanged.fire(pendingCount)
 end
 
 --- Returns the active transition id for the current coroutine.
 --- @return transitionId? Active transition id.
-function module.GetCurrentId(): transitionId?
+function module.getCurrentId(): TransitionId?
 	return currentIds[currentThread()]
 end
 
 --- Returns whether code is currently executing inside a transition Action.
 --- @return boolean Whether a transition is active.
-function module.IsActive(): boolean
-	return module.GetCurrentId() ~= nil
+function module.isActive(): boolean
+	return module.getCurrentId() ~= nil
 end
 
 --- Returns the number of pending transitions.
 --- @return number Pending transition count.
-function module.GetPendingCount(): number
+function module.getPendingCount(): number
 	return pendingCount
 end
 
 --- Subscribes to global pending transition count changes.
 --- @param callback (count: number) -> () Subscriber.
 --- @return () -> () Cleanup function.
-function module.Subscribe(callback: (count: number) -> ()): () -> ()
-	local connection = pendingChanged.Connect(callback)
+function module.subscribe(callback: (count: number) -> ()): () -> ()
+	local connection = pendingChanged.connect(callback)
 	return function()
-		connection.Disconnect()
+		connection.disconnect()
 	end
 end
 
 --- Registers work to run when the current transition completes.
 --- @param callback () -> () Completion callback.
 --- @return boolean Whether it was registered to an active transition.
-function module.OnCurrentFinished(callback: () -> ()): boolean
-	local id = module.GetCurrentId()
+function module.onCurrentFinished(callback: () -> ()): boolean
+	local id = module.getCurrentId()
 	if not id then
 		return false
 	end
@@ -113,21 +113,21 @@ end
 --- @param callback () -> () Transition Action.
 --- @param onFinished (() -> ())? Optional completion callback.
 --- @return thread Spawned transition thread.
-function module.Start(callback: () -> (), onFinished: (() -> ())?): thread
+function module.start(callback: () -> (), onFinished: (() -> ())?): thread
 	assert(type(callback) == "function", "Reactily transition callback must be a function.")
 
 	nextTransitionId += 1
 	local id = nextTransitionId
 
 	pendingCount += 1
-	pendingChanged.Fire(pendingCount)
+	pendingChanged.fire(pendingCount)
 
 	return task.spawn(function()
 		local running = currentThread()
 		currentIds[running] = id
 
 		local success, failure = pcall(function()
-			schedulerModule.RunWithPriority(schedulerModule.Priority.Transition, callback)
+			schedulerModule.runWithPriority(schedulerModule.Priority.transition, callback)
 		end)
 
 		currentIds[running] = nil
@@ -151,5 +151,9 @@ function module.Start(callback: () -> (), onFinished: (() -> ())?): thread
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.startTransition = module.start
 
 return module

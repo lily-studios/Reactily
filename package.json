@@ -1,30 +1,26 @@
-
 {
-  "name": "reactily-luau",
-  "version": "2.1.0",
-  "description": "A strict Luau, React-inspired UI runtime for Roblox.",
+  "name": "reactily-tools",
+  "version": "v2.2.0",
   "private": true,
-  "license": "MIT",
+  "type": "module",
+
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.16.0"
   },
   "scripts": {
-    "generate:init": "node tools/generate-init.cjs",
-    "generate:init:verbose": "node tools/generate-init.cjs --verbose",
-    "generate:init:debug": "node tools/generate-init.cjs --debug",
-    "preview:init": "node tools/generate-init.cjs --dry-run",
-    "check:init": "node tools/generate-init.cjs --check",
-    "verify:modules": "node tools/verify-reactily.cjs",
-    "format": "stylua scripts",
-    "format:check": "stylua --check scripts",
-    "lint": "selene scripts",
-    "sync": "npm run generate:init && npm run format",
-    "check": "npm run check:init && npm run verify:modules && npm run format:check && npm run lint",
-    "test": "npm run check",
-    "build:release": "node tools/build-release.cjs",
-    "build:release:clean": "node tools/build-release.cjs --clean",
-    "build:release:xml": "node tools/build-release.cjs --format rbxmx",
-    "release": "npm run check && npm run build:release:clean",
-    "deploy": "npm run sync && npm run release"
+    "generate": "node --experimental-strip-types tools/generate-init.ts",
+    "generate:check": "node --experimental-strip-types tools/generate-init.ts --check",
+    "check:naming": "node --experimental-strip-types tools/check-naming.ts",
+    "test:tools": "node --experimental-strip-types tools/test-generate-init.ts",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run verify:runtime && npm run test:tools",
+    "release": "node --experimental-strip-types tools/build-release.ts",
+    "release:xml": "node --experimental-strip-types tools/build-release.ts --format rbxmx",
+    "verify:runtime": "node --experimental-strip-types tools/verify-reactily.ts",
+    "production": "npx tsc --noEmit && node --experimental-strip-types tools/generate-init.ts && node --experimental-strip-types tools/generate-init.ts --check && node --experimental-strip-types tools/check-naming.ts && node --experimental-strip-types tools/verify-reactily.ts && node --experimental-strip-types tools/test-generate-init.ts && node --experimental-strip-types tools/build-release.ts --skip-generate --clean"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0"
   }
 }

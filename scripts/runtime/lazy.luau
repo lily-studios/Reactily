@@ -18,12 +18,12 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-type component = (props: any) -> any
-type resourceMap = { [component]: resourceModule.resource<component> }
+type Component = (props: any) -> any
+type ResourceMap = { [Component]: resourceModule.Resource<Component> }
 
 --————————————————————————————————————————————————————————————————————--
 
-local resources: resourceMap = {}
+local resources: ResourceMap = {}
 
 do
 	local weakResources: any = resources
@@ -38,8 +38,8 @@ end
 --- Creates a component whose implementation is loaded on first render.
 --- @param loader () -> T Loader returning a Reactily component. The loader may yield.
 --- @return T Lazy component wrapper.
-function module.New<T>(loader: () -> T): T
-	local resource: resourceModule.resource<component> = resourceModule.New(function(): component
+function module.new<T>(loader: () -> T): T
+	local resource: resourceModule.Resource<Component> = resourceModule.new(function(): Component
 		local loaded = loader()
 
 		assert(type(loaded) == "function", "Reactily.lazy loader must return a component function.")
@@ -47,8 +47,8 @@ function module.New<T>(loader: () -> T): T
 		return loaded :: any
 	end)
 
-	local lazyComponent: component = function(props: any)
-		local componentValue = resource.Read()
+	local lazyComponent: Component = function(props: any)
+		local componentValue = resource.read()
 
 		return componentValue(props)
 	end
@@ -63,17 +63,22 @@ end
 --- Starts loading a lazy component before it is rendered.
 --- @param componentValue component Component returned by Reactily.lazy.
 --- @return boolean True when a lazy resource was found and preloaded.
-function module.Preload(componentValue: component): boolean
+function module.preload(componentValue: Component): boolean
 	local resource = resources[componentValue]
 	if not resource then
 		return false
 	end
 
-	resource.Preload()
+	resource.preload()
 
 	return true
 end
 
 --————————————————————————————————————————————————————————————————————--
+
+
+-- Canonical public API names (discoverable directly from Luau).
+module.lazy = module.new
+module.preloadLazy = module.preload
 
 return module

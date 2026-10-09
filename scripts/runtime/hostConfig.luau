@@ -16,30 +16,28 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
---- @reactilyType EventKeys
-export type eventKeys = {
-	Activated: "OnActivated",
-	AncestryChanged: "OnAncestryChanged",
-	Changed: "OnChanged",
-	Focused: "OnFocused",
-	FocusLost: "OnFocusLost",
-	InputBegan: "OnInputBegan",
-	InputChanged: "OnInputChanged",
-	InputEnded: "OnInputEnded",
-	MouseButton1Click: "OnMouseButton1Click",
-	MouseButton1Down: "OnMouseButton1Down",
-	MouseButton1Up: "OnMouseButton1Up",
-	MouseButton2Click: "OnMouseButton2Click",
-	MouseButton2Down: "OnMouseButton2Down",
-	MouseButton2Up: "OnMouseButton2Up",
-	MouseEnter: "OnMouseEnter",
-	MouseLeave: "OnMouseLeave",
-	SelectionGained: "OnSelectionGained",
-	SelectionLost: "OnSelectionLost",
+export type EventKeys = {
+	Activated: "onActivated",
+	AncestryChanged: "onAncestryChanged",
+	Changed: "onChanged",
+	Focused: "onFocused",
+	FocusLost: "onFocusLost",
+	InputBegan: "onInputBegan",
+	InputChanged: "onInputChanged",
+	InputEnded: "onInputEnded",
+	MouseButton1Click: "onMouseButton1Click",
+	MouseButton1Down: "onMouseButton1Down",
+	MouseButton1Up: "onMouseButton1Up",
+	MouseButton2Click: "onMouseButton2Click",
+	MouseButton2Down: "onMouseButton2Down",
+	MouseButton2Up: "onMouseButton2Up",
+	MouseEnter: "onMouseEnter",
+	MouseLeave: "onMouseLeave",
+	SelectionGained: "onSelectionGained",
+	SelectionLost: "onSelectionLost",
 }
 
---- @reactilyType ChangeKeys
-export type changeKeys = {
+export type ChangeKeys = {
 	AbsoluteCanvasSize: "$Reactily.Change.AbsoluteCanvasSize",
 	AbsoluteCellCount: "$Reactily.Change.AbsoluteCellCount",
 	AbsoluteCellSize: "$Reactily.Change.AbsoluteCellSize",
@@ -209,24 +207,24 @@ export type changeKeys = {
 --————————————————————————————————————————————————————————————————————--
 
 local eventNames: { [string]: string } = {
-	OnActivated = "Activated",
-	OnAncestryChanged = "AncestryChanged",
-	OnChanged = "Changed",
-	OnFocused = "Focused",
-	OnFocusLost = "FocusLost",
-	OnInputBegan = "InputBegan",
-	OnInputChanged = "InputChanged",
-	OnInputEnded = "InputEnded",
-	OnMouseButton1Click = "MouseButton1Click",
-	OnMouseButton1Down = "MouseButton1Down",
-	OnMouseButton1Up = "MouseButton1Up",
-	OnMouseButton2Click = "MouseButton2Click",
-	OnMouseButton2Down = "MouseButton2Down",
-	OnMouseButton2Up = "MouseButton2Up",
-	OnMouseEnter = "MouseEnter",
-	OnMouseLeave = "MouseLeave",
-	OnSelectionGained = "SelectionGained",
-	OnSelectionLost = "SelectionLost",
+	onActivated = "Activated",
+	onAncestryChanged = "AncestryChanged",
+	onChanged = "Changed",
+	onFocused = "Focused",
+	onFocusLost = "FocusLost",
+	onInputBegan = "InputBegan",
+	onInputChanged = "InputChanged",
+	onInputEnded = "InputEnded",
+	onMouseButton1Click = "MouseButton1Click",
+	onMouseButton1Down = "MouseButton1Down",
+	onMouseButton1Up = "MouseButton1Up",
+	onMouseButton2Click = "MouseButton2Click",
+	onMouseButton2Down = "MouseButton2Down",
+	onMouseButton2Up = "MouseButton2Up",
+	onMouseEnter = "MouseEnter",
+	onMouseLeave = "MouseLeave",
+	onSelectionGained = "SelectionGained",
+	onSelectionLost = "SelectionLost",
 }
 
 local propertyNames: { [string]: string } = {
@@ -389,28 +387,28 @@ local changeNames: { [string]: string } = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-local event: eventKeys = {
-	Activated = "OnActivated",
-	AncestryChanged = "OnAncestryChanged",
-	Changed = "OnChanged",
-	Focused = "OnFocused",
-	FocusLost = "OnFocusLost",
-	InputBegan = "OnInputBegan",
-	InputChanged = "OnInputChanged",
-	InputEnded = "OnInputEnded",
-	MouseButton1Click = "OnMouseButton1Click",
-	MouseButton1Down = "OnMouseButton1Down",
-	MouseButton1Up = "OnMouseButton1Up",
-	MouseButton2Click = "OnMouseButton2Click",
-	MouseButton2Down = "OnMouseButton2Down",
-	MouseButton2Up = "OnMouseButton2Up",
-	MouseEnter = "OnMouseEnter",
-	MouseLeave = "OnMouseLeave",
-	SelectionGained = "OnSelectionGained",
-	SelectionLost = "OnSelectionLost",
+local event: EventKeys = {
+	Activated = "onActivated",
+	AncestryChanged = "onAncestryChanged",
+	Changed = "onChanged",
+	Focused = "onFocused",
+	FocusLost = "onFocusLost",
+	InputBegan = "onInputBegan",
+	InputChanged = "onInputChanged",
+	InputEnded = "onInputEnded",
+	MouseButton1Click = "onMouseButton1Click",
+	MouseButton1Down = "onMouseButton1Down",
+	MouseButton1Up = "onMouseButton1Up",
+	MouseButton2Click = "onMouseButton2Click",
+	MouseButton2Down = "onMouseButton2Down",
+	MouseButton2Up = "onMouseButton2Up",
+	MouseEnter = "onMouseEnter",
+	MouseLeave = "onMouseLeave",
+	SelectionGained = "onSelectionGained",
+	SelectionLost = "onSelectionLost",
 }
 
-local change: changeKeys = {
+local change: ChangeKeys = {
 	AbsoluteCanvasSize = "$Reactily.Change.AbsoluteCanvasSize",
 	AbsoluteCellCount = "$Reactily.Change.AbsoluteCellCount",
 	AbsoluteCellSize = "$Reactily.Change.AbsoluteCellSize",
@@ -606,7 +604,7 @@ module.Tag = tagKey
 --- Returns the Roblox property name observed by a Reactily.Change key.
 --- @param propName string Reactily change key.
 --- @return string? Roblox property name when the key is registered.
-function module.GetChangePropertyName(propName: string): string?
+function module.getChangePropertyName(propName: string): string?
 	return changeNames[propName]
 end
 
@@ -615,7 +613,7 @@ end
 --- Returns the Roblox signal name mapped to a Reactily event prop.
 --- @param propName string Reactily event prop name.
 --- @return string? Roblox signal name when the prop is a supported event.
-function module.GetEventName(propName: string): string?
+function module.getEventName(propName: string): string?
 	return eventNames[propName]
 end
 
@@ -624,7 +622,7 @@ end
 --- Returns the Roblox property name mapped to a Reactily host prop.
 --- @param propName string Reactily host prop name.
 --- @return string? Roblox property name when the prop is supported.
-function module.GetPropertyName(propName: string): string?
+function module.getPropertyName(propName: string): string?
 	return propertyNames[propName]
 end
 
@@ -633,7 +631,7 @@ end
 --- Returns whether a prop name represents a Reactily.Change key.
 --- @param propName string Reactily prop name.
 --- @return boolean True when the prop maps to a Roblox property-change signal.
-function module.IsChange(propName: string): boolean
+function module.isChange(propName: string): boolean
 	return changeNames[propName] ~= nil
 end
 
@@ -642,7 +640,7 @@ end
 --- Returns whether a prop name represents a supported Reactily event.
 --- @param propName string Reactily prop name.
 --- @return boolean True when the prop maps to a Roblox signal.
-function module.IsEvent(propName: string): boolean
+function module.isEvent(propName: string): boolean
 	return eventNames[propName] ~= nil
 end
 
@@ -651,7 +649,7 @@ end
 --- Returns whether a prop name represents a supported Roblox property.
 --- @param propName string Reactily prop name.
 --- @return boolean True when the prop maps to a Roblox property.
-function module.IsProperty(propName: string): boolean
+function module.isProperty(propName: string): boolean
 	return propertyNames[propName] ~= nil
 end
 

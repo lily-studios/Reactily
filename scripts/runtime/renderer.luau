@@ -24,65 +24,65 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-type initialProperty = {
-	Value: any,
+type InitialProperty = {
+	value: any,
 }
 
-export type hostHandle = {
-	Attributes: elementModule.attributeMap,
-	ChangeConnections: { [string]: RBXScriptConnection },
-	EventConnections: { [string]: RBXScriptConnection },
-	InitialProperties: { [string]: initialProperty },
-	Instance: Instance,
-	Owner: lifecycle.owner,
-	PropertyChangeConnections: { [string]: RBXScriptConnection },
-	Props: elementModule.genericProps,
-	RefTarget: elementModule.hostRefTarget<Instance>?,
-	Tags: { [string]: boolean },
+export type HostHandle = {
+	attributes: elementModule.AttributeMap,
+	changeConnections: { [string]: RBXScriptConnection },
+	eventConnections: { [string]: RBXScriptConnection },
+	initialProperties: { [string]: InitialProperty },
+	instance: Instance,
+	owner: lifecycle.Owner,
+	propertyChangeConnections: { [string]: RBXScriptConnection },
+	props: elementModule.GenericProps,
+	refTarget: elementModule.HostRefTarget<Instance>?,
+	tags: { [string]: boolean },
 }
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyAttributes(handle: hostHandle, attributes: elementModule.attributeMap?)
-	local nextAttributes: elementModule.attributeMap = {}
+local function applyAttributes(handle: HostHandle, attributes: elementModule.AttributeMap?)
+	local nextAttributes: elementModule.AttributeMap = {}
 
 	if attributes then
 		nextAttributes = attributes
 	end
 
-	for name in handle.Attributes do
+	for name in handle.attributes do
 		if nextAttributes[name] ~= nil then
 			continue
 		end
-		if handle.Instance:GetAttribute(name) == nil then
+		if handle.instance:GetAttribute(name) == nil then
 			continue
 		end
 
-		handle.Instance:SetAttribute(name, nil)
+		handle.instance:SetAttribute(name, nil)
 	end
 
 	for name, value in nextAttributes do
-		if handle.Instance:GetAttribute(name) == value then
+		if handle.instance:GetAttribute(name) == value then
 			continue
 		end
 
-		handle.Instance:SetAttribute(name, value)
+		handle.instance:SetAttribute(name, value)
 	end
 
-	handle.Attributes = table.clone(nextAttributes)
+	handle.attributes = table.clone(nextAttributes)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyChange(handle: hostHandle, propName: string, callback: any)
-	local propertyName = hostConfig.GetChangePropertyName(propName)
+local function applyChange(handle: HostHandle, propName: string, callback: any)
+	local propertyName = hostConfig.getChangePropertyName(propName)
 	assert(propertyName, `Reactily change prop "{propName}" is not registered.`)
 
-	local previous = handle.ChangeConnections[propName]
+	local previous = handle.changeConnections[propName]
 
 	if previous then
-		lifecycle.Disconnect(handle.Owner, previous)
-		handle.ChangeConnections[propName] = nil
+		lifecycle.disconnect(handle.owner, previous)
+		handle.changeConnections[propName] = nil
 	end
 
 	if callback == nil then
@@ -92,29 +92,29 @@ local function applyChange(handle: hostHandle, propName: string, callback: any)
 	assert(type(callback) == "function", `Reactily.Change.{propertyName} requires a callback.`)
 
 	local success, signalOrFailure = pcall(function(): RBXScriptSignal
-		return handle.Instance:GetPropertyChangedSignal(propertyName)
+		return handle.instance:GetPropertyChangedSignal(propertyName)
 	end)
 
-	assert(success, `Reactily.Change.{propertyName} is invalid for {handle.Instance.ClassName}: {signalOrFailure}`)
+	assert(success, `Reactily.Change.{propertyName} is invalid for {handle.instance.ClassName}: {signalOrFailure}`)
 
 	local propertySignal = signalOrFailure :: RBXScriptSignal
-	handle.ChangeConnections[propName] = lifecycle.Connect(handle.Owner, propertySignal, function()
-		local target = handle.Instance :: any
+	handle.changeConnections[propName] = lifecycle.connect(handle.owner, propertySignal, function()
+		local target = handle.instance :: any
 		callback(target[propertyName])
 	end)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyEvent(handle: hostHandle, propName: string, callback: any)
-	local eventName = hostConfig.GetEventName(propName)
+local function applyEvent(handle: HostHandle, propName: string, callback: any)
+	local eventName = hostConfig.getEventName(propName)
 	assert(eventName, `Reactily event prop "{propName}" is not registered.`)
 
-	local previous = handle.EventConnections[propName]
+	local previous = handle.eventConnections[propName]
 
 	if previous then
-		lifecycle.Disconnect(handle.Owner, previous)
-		handle.EventConnections[propName] = nil
+		lifecycle.disconnect(handle.owner, previous)
+		handle.eventConnections[propName] = nil
 	end
 
 	if callback == nil then
@@ -122,37 +122,37 @@ local function applyEvent(handle: hostHandle, propName: string, callback: any)
 	end
 
 	local success, signalOrFailure = pcall(function(): any
-		return (handle.Instance :: any)[eventName]
+		return (handle.instance :: any)[eventName]
 	end)
 
-	assert(success, `Reactily event "{eventName}" is invalid for {handle.Instance.ClassName}: {signalOrFailure}`)
+	assert(success, `Reactily event "{eventName}" is invalid for {handle.instance.ClassName}: {signalOrFailure}`)
 	assert(
 		typeof(signalOrFailure) == "RBXScriptSignal",
-		`Reactily event "{eventName}" is not a signal on {handle.Instance.ClassName}.`
+		`Reactily event "{eventName}" is not a signal on {handle.instance.ClassName}.`
 	)
 
-	handle.EventConnections[propName] = lifecycle.Connect(handle.Owner, signalOrFailure, callback)
+	handle.eventConnections[propName] = lifecycle.connect(handle.owner, signalOrFailure, callback)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyProperty(handle: hostHandle, propName: string, value: any)
-	local propertyName = hostConfig.GetPropertyName(propName)
+local function applyProperty(handle: HostHandle, propName: string, value: any)
+	local propertyName = hostConfig.getPropertyName(propName)
 	assert(propertyName, `Reactily prop "{propName}" is not supported by the host renderer.`)
 
-	local target = handle.Instance :: any
+	local target = handle.instance :: any
 	local readSuccess, currentOrFailure = pcall(function(): any
 		return target[propertyName]
 	end)
 
-	assert(readSuccess, `Reactily prop "{propName}" is invalid for {handle.Instance.ClassName}: {currentOrFailure}`)
+	assert(readSuccess, `Reactily prop "{propName}" is invalid for {handle.instance.ClassName}: {currentOrFailure}`)
 	if currentOrFailure == value then
 		return
 	end
 
-	if not handle.InitialProperties[propName] then
-		handle.InitialProperties[propName] = {
-			Value = currentOrFailure,
+	if not handle.initialProperties[propName] then
+		handle.initialProperties[propName] = {
+			value = currentOrFailure,
 		}
 	end
 
@@ -160,17 +160,17 @@ local function applyProperty(handle: hostHandle, propName: string, value: any)
 		target[propertyName] = value
 	end)
 
-	assert(writeSuccess, `Reactily could not set "{propName}" on {handle.Instance.ClassName}: {writeFailure}`)
+	assert(writeSuccess, `Reactily could not set "{propName}" on {handle.instance.ClassName}: {writeFailure}`)
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyPropertyChanges(handle: hostHandle, callbacks: { [string]: (value: any) -> () }?)
-	for _, connection in handle.PropertyChangeConnections do
-		lifecycle.Disconnect(handle.Owner, connection)
+local function applyPropertyChanges(handle: HostHandle, callbacks: { [string]: (value: any) -> () }?)
+	for _, connection in handle.propertyChangeConnections do
+		lifecycle.disconnect(handle.owner, connection)
 	end
 
-	table.clear(handle.PropertyChangeConnections)
+	table.clear(handle.propertyChangeConnections)
 	if not callbacks then
 		return
 	end
@@ -180,17 +180,17 @@ local function applyPropertyChanges(handle: hostHandle, callbacks: { [string]: (
 		assert(type(callback) == "function", "Reactily property-change callbacks must be functions.")
 
 		local success, signalOrFailure = pcall(function(): RBXScriptSignal
-			return handle.Instance:GetPropertyChangedSignal(propertyName)
+			return handle.instance:GetPropertyChangedSignal(propertyName)
 		end)
 
 		assert(
 			success,
-			`Reactily property "{propertyName}" is invalid for {handle.Instance.ClassName}: {signalOrFailure}`
+			`Reactily property "{propertyName}" is invalid for {handle.instance.ClassName}: {signalOrFailure}`
 		)
 
 		local propertySignal = signalOrFailure :: RBXScriptSignal
-		handle.PropertyChangeConnections[propertyName] = lifecycle.Connect(handle.Owner, propertySignal, function()
-			local target = handle.Instance :: any
+		handle.propertyChangeConnections[propertyName] = lifecycle.connect(handle.owner, propertySignal, function()
+			local target = handle.instance :: any
 			callback(target[propertyName])
 		end)
 	end
@@ -198,36 +198,36 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function assignRef(target: elementModule.hostRefTarget<Instance>, value: Instance?)
+local function assignRef(target: elementModule.HostRefTarget<Instance>, value: Instance?)
 	if type(target) == "function" then
 		target(value)
 		return
 	end
 
-	target.Current = value
+	target.current = value
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyRef(handle: hostHandle, target: elementModule.hostRefTarget<Instance>?)
-	if handle.RefTarget == target then
+local function applyRef(handle: HostHandle, target: elementModule.HostRefTarget<Instance>?)
+	if handle.refTarget == target then
 		return
 	end
 
-	if handle.RefTarget then
-		assignRef(handle.RefTarget, nil)
+	if handle.refTarget then
+		assignRef(handle.refTarget, nil)
 	end
 
-	handle.RefTarget = target
+	handle.refTarget = target
 
 	if target then
-		assignRef(target, handle.Instance)
+		assignRef(target, handle.instance)
 	end
 end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function applyTags(handle: hostHandle, tags: { string }?)
+local function applyTags(handle: HostHandle, tags: { string }?)
 	local nextTags: { [string]: boolean } = {}
 
 	if tags then
@@ -236,39 +236,39 @@ local function applyTags(handle: hostHandle, tags: { string }?)
 		end
 	end
 
-	for tag in handle.Tags do
+	for tag in handle.tags do
 		if nextTags[tag] then
 			continue
 		end
-		if not collectionService:HasTag(handle.Instance, tag) then
+		if not collectionService:HasTag(handle.instance, tag) then
 			continue
 		end
 
-		collectionService:RemoveTag(handle.Instance, tag)
+		collectionService:RemoveTag(handle.instance, tag)
 	end
 
 	for tag in nextTags do
-		if collectionService:HasTag(handle.Instance, tag) then
+		if collectionService:HasTag(handle.instance, tag) then
 			continue
 		end
 
-		collectionService:AddTag(handle.Instance, tag)
+		collectionService:AddTag(handle.instance, tag)
 	end
 
-	handle.Tags = nextTags
+	handle.tags = nextTags
 end
 
 --————————————————————————————————————————————————————————————————————--
 
 -- Host metadata is not a Roblox property and must never enter applyProperty.
--- Keep the keys in PascalCase to match virtual/element.luau.
+-- Custom host metadata keys use camelCase; Roblox property names use PascalCase.
 local internalProps: { [string]: boolean } = table.freeze({
-	Attributes = true,
-	Children = true,
-	Key = true,
-	OnPropertyChanged = true,
-	Ref = true,
-	Tags = true,
+	attributes = true,
+	children = true,
+	key = true,
+	onPropertyChanged = true,
+	ref = true,
+	tags = true,
 })
 
 local function isInternalProp(propName: string): boolean
@@ -277,38 +277,38 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function resetProperty(handle: hostHandle, propName: string)
-	local initial = handle.InitialProperties[propName]
+local function resetProperty(handle: HostHandle, propName: string)
+	local initial = handle.initialProperties[propName]
 	if not initial then
 		return
 	end
 
-	local propertyName = hostConfig.GetPropertyName(propName)
+	local propertyName = hostConfig.getPropertyName(propName)
 	if not propertyName then
 		return
 	end
 
-	local target = handle.Instance :: any
+	local target = handle.instance :: any
 	local readSuccess, currentValue = pcall(function(): any
 		return target[propertyName]
 	end)
 
 	if not readSuccess then
-		handle.InitialProperties[propName] = nil
+		handle.initialProperties[propName] = nil
 		return
 	end
 
-	if currentValue ~= initial.Value then
+	if currentValue ~= initial.value then
 		local writeSuccess, writeFailure = pcall(function()
-			target[propertyName] = initial.Value
+			target[propertyName] = initial.value
 		end)
 
 		if not writeSuccess then
-			warn(`Reactily could not reset "{propName}" on {handle.Instance.ClassName}: {writeFailure}`)
+			warn(`Reactily could not reset "{propName}" on {handle.instance.ClassName}: {writeFailure}`)
 		end
 	end
 
-	handle.InitialProperties[propName] = nil
+	handle.initialProperties[propName] = nil
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -317,32 +317,32 @@ end
 --- @param parent Instance Parent receiving the new host Instance.
 --- @param elementValue element Reactily host element.
 --- @return hostHandle Owned host handle.
-function module.CreateHost(parent: Instance, elementValue: elementModule.element): hostHandle
-	assert(elementValue.Kind == "host", "Reactily renderer can only create host elements.")
+function module.createHost(parent: Instance, elementValue: elementModule.Element): HostHandle
+	assert(elementValue.kind == "host", "Reactily renderer can only create host elements.")
 
-	local ownerValue = lifecycle.New()
-	local instance = lifecycle.TrackInstance(ownerValue, Instance.new(elementValue.ClassName))
-	local handle: hostHandle = {
-		Attributes = {},
-		ChangeConnections = {},
-		EventConnections = {},
-		InitialProperties = {},
-		Instance = instance,
-		Owner = ownerValue,
-		PropertyChangeConnections = {},
-		Props = {},
-		RefTarget = nil,
-		Tags = {},
+	local ownerValue = lifecycle.new()
+	local instance = lifecycle.trackInstance(ownerValue, Instance.new(elementValue.className))
+	local handle: HostHandle = {
+		attributes = {},
+		changeConnections = {},
+		eventConnections = {},
+		initialProperties = {},
+		instance = instance,
+		owner = ownerValue,
+		propertyChangeConnections = {},
+		props = {},
+		refTarget = nil,
+		tags = {},
 	}
 
 	instance.Parent = parent
 
 	local success, failure = pcall(function()
-		module.UpdateHost(handle, {}, elementValue.Props)
+		module.updateHost(handle, {}, elementValue.props)
 	end)
 
 	if not success then
-		lifecycle.Delete(ownerValue)
+		lifecycle.delete(ownerValue)
 		error(failure, 0)
 	end
 
@@ -354,25 +354,25 @@ end
 --- Deletes a host and all renderer-owned resources.
 --- @param handle hostHandle Host to delete.
 --- @return boolean True when deletion occurred.
-function module.DeleteHost(handle: hostHandle): boolean
-	if handle.Owner.IsDeleted then
+function module.deleteHost(handle: HostHandle): boolean
+	if handle.owner.isDeleted then
 		return false
 	end
 
-	if handle.RefTarget then
-		assignRef(handle.RefTarget, nil)
-		handle.RefTarget = nil
+	if handle.refTarget then
+		assignRef(handle.refTarget, nil)
+		handle.refTarget = nil
 	end
 
-	table.clear(handle.Attributes)
-	table.clear(handle.ChangeConnections)
-	table.clear(handle.EventConnections)
-	table.clear(handle.InitialProperties)
-	table.clear(handle.PropertyChangeConnections)
-	table.clear(handle.Props)
-	table.clear(handle.Tags)
+	table.clear(handle.attributes)
+	table.clear(handle.changeConnections)
+	table.clear(handle.eventConnections)
+	table.clear(handle.initialProperties)
+	table.clear(handle.propertyChangeConnections)
+	table.clear(handle.props)
+	table.clear(handle.tags)
 
-	return lifecycle.Delete(handle.Owner)
+	return lifecycle.delete(handle.owner)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -380,14 +380,14 @@ end
 --- Replays the active host ref for StrictMode development checks.
 --- Callback refs receive nil and then the current Instance again.
 --- @param handle hostHandle Host whose ref should be replayed.
-function module.ReplayRef(handle: hostHandle)
-	if handle.Owner.IsDeleted or not handle.RefTarget then
+function module.replayRef(handle: HostHandle)
+	if handle.owner.isDeleted or not handle.refTarget then
 		return
 	end
 
-	local target = handle.RefTarget
+	local target = handle.refTarget
 	assignRef(target, nil)
-	assignRef(target, handle.Instance)
+	assignRef(target, handle.instance)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -396,33 +396,33 @@ end
 --- @param handle hostHandle Host being updated.
 --- @param previousProps genericProps Previous props.
 --- @param nextProps genericProps Next props.
-function module.UpdateHost(
-	handle: hostHandle,
-	previousProps: elementModule.genericProps,
-	nextProps: elementModule.genericProps
+function module.updateHost(
+	handle: HostHandle,
+	previousProps: elementModule.GenericProps,
+	nextProps: elementModule.GenericProps
 )
-	if handle.Owner.IsDeleted then
+	if handle.owner.isDeleted then
 		return
 	end
 
-	if handle.Instance.Parent == nil then
+	if handle.instance.Parent == nil then
 		return
 	end
 
-	if previousProps.Attributes ~= nextProps.Attributes then
-		applyAttributes(handle, nextProps.Attributes)
+	if previousProps.attributes ~= nextProps.attributes then
+		applyAttributes(handle, nextProps.attributes)
 	end
 
-	if previousProps.Tags ~= nextProps.Tags then
-		applyTags(handle, nextProps.Tags)
+	if previousProps.tags ~= nextProps.tags then
+		applyTags(handle, nextProps.tags)
 	end
 
-	if previousProps.Ref ~= nextProps.Ref then
-		applyRef(handle, nextProps.Ref)
+	if previousProps.ref ~= nextProps.ref then
+		applyRef(handle, nextProps.ref)
 	end
 
-	if previousProps.OnPropertyChanged ~= nextProps.OnPropertyChanged then
-		applyPropertyChanges(handle, nextProps.OnPropertyChanged)
+	if previousProps.onPropertyChanged ~= nextProps.onPropertyChanged then
+		applyPropertyChanges(handle, nextProps.onPropertyChanged)
 	end
 
 	for propName in previousProps do
@@ -433,12 +433,12 @@ function module.UpdateHost(
 			continue
 		end
 
-		if hostConfig.IsChange(propName) then
+		if hostConfig.isChange(propName) then
 			applyChange(handle, propName, nil)
 			continue
 		end
 
-		if hostConfig.IsEvent(propName) then
+		if hostConfig.isEvent(propName) then
 			applyEvent(handle, propName, nil)
 			continue
 		end
@@ -454,12 +454,12 @@ function module.UpdateHost(
 			continue
 		end
 
-		if hostConfig.IsChange(propName) then
+		if hostConfig.isChange(propName) then
 			applyChange(handle, propName, value)
 			continue
 		end
 
-		if hostConfig.IsEvent(propName) then
+		if hostConfig.isEvent(propName) then
 			applyEvent(handle, propName, value)
 			continue
 		end
@@ -467,7 +467,7 @@ function module.UpdateHost(
 		applyProperty(handle, propName, value)
 	end
 
-	handle.Props = table.clone(nextProps)
+	handle.props = table.clone(nextProps)
 end
 
 --————————————————————————————————————————————————————————————————————--

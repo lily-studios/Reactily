@@ -23,53 +23,53 @@ local module = {}
 --- @field observeBounds (callback: () -> ()) -> (() -> ()) Subscribes to GUI bounds changes.
 --- @field refresh () -> () Reconnects active subscriptions to current instances.
 --- @field scrollIntoView (alignToTop: boolean?) -> boolean Scrolls a fragment GUI object into view.
-export type fragmentInstance = {
-	Blur: () -> (),
-	ConnectEvent: (eventName: string, callback: (...any) -> ()) -> () -> (),
-	Delete: () -> boolean,
-	Focus: () -> boolean,
-	FocusLast: () -> boolean,
-	GetBounds: () -> (Vector2?, Vector2?),
-	GetInstances: () -> { Instance },
-	IsDeleted: () -> boolean,
-	ObserveBounds: (callback: () -> ()) -> () -> (),
-	Refresh: () -> (),
-	ScrollIntoView: (alignToTop: boolean?) -> boolean,
+export type FragmentInstance = {
+	blur: () -> (),
+	connectEvent: (eventName: string, callback: (...any) -> ()) -> () -> (),
+	delete: () -> boolean,
+	focus: () -> boolean,
+	focusLast: () -> boolean,
+	getBounds: () -> (Vector2?, Vector2?),
+	getInstances: () -> { Instance },
+	isDeleted: () -> boolean,
+	observeBounds: (callback: () -> ()) -> () -> (),
+	refresh: () -> (),
+	scrollIntoView: (alignToTop: boolean?) -> boolean,
 }
 
 --- Represents a mutable ref object or callback accepting a Fragment handle.
-export type refTarget = { Current: fragmentInstance? } | ((value: fragmentInstance?) -> ())
+export type FragmentInstanceRefTarget = { current: FragmentInstance? } | ((value: FragmentInstance?) -> ())
 
 --- Stores an event subscription and its active connections.
 --- @field callback (...any) -> () Callback invoked when the event fires.
 --- @field connections {RBXScriptConnection} Active event connections.
 --- @field eventName string Name of the Roblox event being observed.
-type eventBinding = {
+type EventBinding = {
 	callback: (...any) -> (),
-	Connections: { RBXScriptConnection },
-	EventName: string,
+	connections: { RBXScriptConnection },
+	eventName: string,
 }
 
 --- Stores a bounds observer and its active connections.
 --- @field callback () -> () Callback invoked when observed bounds change.
 --- @field connections {RBXScriptConnection} Active property-change connections.
-type boundsBinding = {
+type BoundsBinding = {
 	callback: () -> (),
-	Connections: { RBXScriptConnection },
+	connections: { RBXScriptConnection },
 }
 
 --- Assigns a Fragment handle to a mutable ref or callback ref.
 --- @param target refTarget? Optional target receiving the handle.
 --- @param value fragmentInstance? Fragment handle to assign, or nil to clear it.
-function module.Assign(target: refTarget?, value: fragmentInstance?)
+function module.assign(target: FragmentInstanceRefTarget?, value: FragmentInstance?)
 	if not target then
 		return
 	end
 	if type(target) == "function" then
-		(target :: (fragmentInstance?) -> ())(value)
+		(target :: (FragmentInstance?) -> ())(value)
 		return
 	end
-	target.Current = value
+	target.current = value
 end
 
 --- Collects visible and active GUI objects from the provided instance trees.
@@ -110,10 +110,10 @@ end
 --- Creates an imperative Fragment handle for a dynamic collection of host instances.
 --- @param getInstances () -> {Instance} Callback resolving the current host instances.
 --- @return fragmentInstance Newly created Fragment handle.
-function module.New(getInstances: () -> { Instance }): fragmentInstance
+function module.new(getInstances: () -> { Instance }): FragmentInstance
 	local isDeleted = false
-	local eventBindings: { eventBinding } = {}
-	local boundsBindings: { boundsBinding } = {}
+	local eventBindings: { EventBinding } = {}
+	local boundsBindings: { BoundsBinding } = {}
 
 	--- Verifies that the Fragment handle has not been deleted.
 	local function assertAlive()
@@ -129,33 +129,33 @@ function module.New(getInstances: () -> { Instance }): fragmentInstance
 
 	--- Connects an event binding to matching events on current host instances.
 	--- @param binding eventBinding Event binding to attach.
-	local function attachEvent(binding: eventBinding)
-		disconnectAll(binding.Connections)
+	local function attachEvent(binding: EventBinding)
+		disconnectAll(binding.connections)
 
 		for _, instance in get() do
 			local target = instance :: any
 			local success, signalValue = pcall(function(): any
-				return target[binding.EventName]
+				return target[binding.eventName]
 			end)
 			if success and typeof(signalValue) == "RBXScriptSignal" then
-				binding.Connections[#binding.Connections + 1] = signalValue:Connect(binding.callback)
+				binding.connections[#binding.connections + 1] = signalValue:Connect(binding.callback)
 			end
 		end
 	end
 
 	--- Connects a bounds observer to current GUI instances.
 	--- @param binding boundsBinding Bounds observer to attach.
-	local function attachBounds(binding: boundsBinding)
-		disconnectAll(binding.Connections)
+	local function attachBounds(binding: BoundsBinding)
+		disconnectAll(binding.connections)
 
 		for _, instance in get() do
 			if not instance:IsA("GuiObject") then
 				continue
 			end
 			local object = instance :: GuiObject
-			binding.Connections[#binding.Connections + 1] =
+			binding.connections[#binding.connections + 1] =
 				object:GetPropertyChangedSignal("AbsolutePosition"):Connect(binding.callback)
-			binding.Connections[#binding.Connections + 1] =
+			binding.connections[#binding.connections + 1] =
 				object:GetPropertyChangedSignal("AbsoluteSize"):Connect(binding.callback)
 		end
 	end
@@ -193,10 +193,10 @@ function module.New(getInstances: () -> { Instance }): fragmentInstance
 		assert(eventName ~= "", "Reactily FragmentInstance event name must not be empty.")
 		assert(type(callback) == "function", "Reactily FragmentInstance callback must be a function.")
 
-		local binding: eventBinding = {
+		local binding: EventBinding = {
 			callback = callback,
-			Connections = {},
-			EventName = eventName,
+			connections = {},
+			eventName = eventName,
 		}
 		eventBindings[#eventBindings + 1] = binding
 		attachEvent(binding)
@@ -207,7 +207,7 @@ function module.New(getInstances: () -> { Instance }): fragmentInstance
 				return
 			end
 			disconnected = true
-			disconnectAll(binding.Connections)
+			disconnectAll(binding.connections)
 			local index = table.find(eventBindings, binding)
 			if index then
 				table.remove(eventBindings, index)
@@ -222,9 +222,9 @@ function module.New(getInstances: () -> { Instance }): fragmentInstance
 		assertAlive()
 		assert(type(callback) == "function", "Reactily FragmentInstance bounds observer must be a function.")
 
-		local binding: boundsBinding = {
+		local binding: BoundsBinding = {
 			callback = callback,
-			Connections = {},
+			connections = {},
 		}
 		boundsBindings[#boundsBindings + 1] = binding
 		attachBounds(binding)
@@ -235,7 +235,7 @@ function module.New(getInstances: () -> { Instance }): fragmentInstance
 				return
 			end
 			disconnected = true
-			disconnectAll(binding.Connections)
+			disconnectAll(binding.connections)
 			local index = table.find(boundsBindings, binding)
 			if index then
 				table.remove(boundsBindings, index)
@@ -315,10 +315,10 @@ function module.New(getInstances: () -> { Instance }): fragmentInstance
 		isDeleted = true
 
 		for _, binding in eventBindings do
-			disconnectAll(binding.Connections)
+			disconnectAll(binding.connections)
 		end
 		for _, binding in boundsBindings do
-			disconnectAll(binding.Connections)
+			disconnectAll(binding.connections)
 		end
 		table.clear(eventBindings)
 		table.clear(boundsBindings)
@@ -326,26 +326,26 @@ function module.New(getInstances: () -> { Instance }): fragmentInstance
 	end
 
 	return {
-		Blur = function()
+		blur = function()
 			assertAlive()
 			guiService.SelectedObject = nil
 		end,
-		ConnectEvent = connectEvent,
-		Delete = delete,
-		Focus = function(): boolean
+		connectEvent = connectEvent,
+		delete = delete,
+		focus = function(): boolean
 			return focusFirst(false)
 		end,
-		FocusLast = function(): boolean
+		focusLast = function(): boolean
 			return focusFirst(true)
 		end,
-		GetBounds = getBounds,
-		GetInstances = get,
-		IsDeleted = function(): boolean
+		getBounds = getBounds,
+		getInstances = get,
+		isDeleted = function(): boolean
 			return isDeleted
 		end,
-		ObserveBounds = observeBounds,
-		Refresh = refresh,
-		ScrollIntoView = scrollIntoView,
+		observeBounds = observeBounds,
+		refresh = refresh,
+		scrollIntoView = scrollIntoView,
 	}
 end
 
