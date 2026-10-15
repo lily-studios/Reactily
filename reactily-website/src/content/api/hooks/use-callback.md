@@ -30,3 +30,25 @@ local OnClick = Reactily.useCallback(function()
 	print(selection)
 end, {selection})
 ```
+
+## Understanding this API
+
+Use this when a callback should retain its identity between renders, for example when passing it into a memoized child component.
+
+### Practical guidance
+
+`useCallback` does not itself prevent every rerender. It only stabilizes the callback reference while dependencies remain unchanged.
+
+## Additional usage notes
+
+### When to use it
+
+Use this hook when the component needs memoizes a callback/value by dependency array.
+
+### Behavior and ownership
+
+This hook participates in component lifecycle and must be invoked in consistent order during rendering.
+
+### Pitfalls to avoid
+
+> **Note:** Calling this hook conditionally or from ordinary utility code can break hook ordering. Use it only in supported render contexts.

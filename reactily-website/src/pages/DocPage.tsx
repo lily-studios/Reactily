@@ -42,7 +42,7 @@ export function DocPage() {
       <main className="container versionDocsMessage" role="alert">
         <h1>Version documentation unavailable</h1>
         <p>{error}</p>
-        <Link to={path("/api")}>Back to the version's API reference</Link>
+        <Link to="/api">View the available API reference</Link>
       </main>
     );
   }

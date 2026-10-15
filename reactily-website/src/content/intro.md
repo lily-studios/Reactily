@@ -46,7 +46,7 @@ Reactily public functions use camelCase dot calls; owned resource methods use th
 local Root = Reactily.createRoot(playerGui)
 
 Root.render(Element)
-Root.Delete()
+Root.delete()
 ```
 Roblox-owned APIs keep Roblox syntax:
 ```luau

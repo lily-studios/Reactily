@@ -1,12 +1,26 @@
 ---
 title: Reactily.UseDevice
-description: PascalCase compatibility export corresponding to Reactily.useDevice.
+description: Legacy PascalCase spelling; use Reactily.useDevice.
 ---
 
 # `Reactily.UseDevice`
 
-This PascalCase compatibility export is included in Reactily v2.1.0 (API v1). It has the same behavior as [`Reactily.useDevice`](./use-device.md).
+This older PascalCase spelling is **not exported** by the current Reactily build. Use [`Reactily.useDevice`](./use-device.md).
 
 ```luau
-Reactily.UseDevice
+-- Use Reactily.useDevice instead
 ```
+
+## Additional usage notes
+
+### When to use it
+
+Use this helper when this older PascalCase spelling is **not exported** by the current Reactily build. Use [Reactily.useDevice](./use-device.md).
+
+### Behavior and ownership
+
+This hook participates in component lifecycle and must be invoked in consistent order during rendering.
+
+### Pitfalls to avoid
+
+> **Note:** Calling this hook conditionally or from ordinary utility code can break hook ordering. Use it only in supported render contexts.

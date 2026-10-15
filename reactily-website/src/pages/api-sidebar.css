@@ -1,0 +1,16 @@
+/* Scoped to the API index only; shared navbar, theme and all other pages are untouched. */
+.apiReferenceLayout{display:grid;grid-template-columns:minmax(220px,260px) minmax(0,1fr);gap:28px;align-items:start;padding-block:30px 60px}
+.apiReferenceSidebar{position:sticky;top:90px;max-height:calc(100vh - 108px);overflow:auto;border:1px solid var(--border,#ddd);border-radius:12px;padding:14px;background:var(--surface,#fff)}
+.apiReferenceSidebarHeading{font-size:.88rem;font-weight:700;margin:0 0 12px;display:flex;justify-content:space-between}
+.apiReferenceSidebarHeading span{opacity:.65}
+.apiSidebarGroupToggle{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:inherit;padding:10px 8px;border-radius:7px;text-align:left;cursor:pointer;font:inherit;font-weight:600;font-size:.84rem}
+.apiSidebarGroupToggle:hover,.apiSidebarGroupToggle.selected{background:var(--surface-hover,rgba(128,128,128,.09))}
+.apiSidebarGroupToggle small{font-size:.7rem;opacity:.6;font-weight:400}
+.apiSidebarGroupToggle[aria-expanded=true] svg{transform:rotate(180deg)}
+.apiSidebarEntries{padding:0 0 8px 12px;display:grid;gap:2px}
+.apiSidebarEntries a{display:block;font-size:.8rem;padding:6px 8px;color:inherit;text-decoration:none;border-radius:6px;overflow-wrap:anywhere}
+.apiSidebarEntries a:hover{background:var(--surface-hover,rgba(128,128,128,.09))}
+.apiReferenceContent{min-width:0;display:grid;gap:18px;align-content:start}
+.apiReferenceIntro{margin:0 0 8px}.apiReferenceIntro h2{font-size:1.3rem;margin:0 0 8px}.apiReferenceIntro p{margin:0;opacity:.75;line-height:1.6}
+.apiSidebarMobileToggle{display:none}
+@media(max-width:800px){.apiReferenceLayout{display:block;padding-top:18px}.apiSidebarMobileToggle{display:flex;align-items:center;gap:8px;width:100%;padding:12px;margin-bottom:12px;border:1px solid var(--border,#ddd);background:transparent;color:inherit;border-radius:9px;cursor:pointer}.apiReferenceSidebar{display:none;position:static;max-height:360px;margin-bottom:18px}.apiReferenceSidebar.open{display:block}.apiReferenceContent{display:grid}}

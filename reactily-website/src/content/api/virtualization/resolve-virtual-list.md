@@ -43,3 +43,25 @@ local range = Reactily.resolveVirtualList(
 	3
 )
 ```
+
+## Understanding this API
+
+Given scrolling measurements, this calculates the index range that intersects the viewport.
+
+### Practical guidance
+
+Use the resulting indices to mount visible rows and position them at the correct offsets inside the full scroll area.
+
+## Additional usage notes
+
+### When to use it
+
+Use this helper when calculates the visible fixed-size list range plus overscan.
+
+### Behavior and ownership
+
+Virtualization limits the rendered content to the portion needed for the visible region.
+
+### Pitfalls to avoid
+
+> **Note:** Use stable item identity when mapping virtual entries to elements to avoid unnecessary remounts.

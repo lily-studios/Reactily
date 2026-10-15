@@ -44,7 +44,15 @@ const snapshots = new Map<string, Promise<readonly DocRecord[]>>();
 async function json(url: string, signal: AbortSignal): Promise<unknown> {
   const response = await fetch(url, { signal, cache: "no-cache" });
   if (!response.ok) throw new Error("Archived documentation unavailable (HTTP " + response.status + ").");
-  return response.json() as Promise<unknown>;
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!/\bjson\b/i.test(contentType) && !/\+json\b/i.test(contentType)) {
+    throw new Error("Release documentation JSON is missing at " + url + ". Run npm run snapshots:local and restart the development server.");
+  }
+  try {
+    return await response.json() as unknown;
+  } catch {
+    throw new Error("Release documentation contains invalid JSON at " + url + ". Regenerate with npm run snapshots:local.");
+  }
 }
 
 function validIndex(value: unknown): value is DocsIndex {
@@ -119,7 +127,7 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     }
     const release = index?.releases.find((item) => item.tag === tag);
     if (!release) {
-      setData({ tag, docs: [], status: "error", error: "No archived documentation exists for release " + tag + "." });
+      setData({ tag, docs: [], status: "error", error: "Documentation for " + tag + " is not bundled with this website. Select an available version from the API reference." });
       return;
     }
     const controller = new AbortController();

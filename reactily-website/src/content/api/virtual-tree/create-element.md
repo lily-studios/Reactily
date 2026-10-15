@@ -35,3 +35,25 @@ local Element = Reactily.createElement("Frame", {
 	Size = UDim2.fromOffset(300, 180),
 })
 ```
+
+## Understanding this API
+
+This is the generic host-element factory for classes or shapes not covered by a specialized typed creator.
+
+### Practical guidance
+
+Prefer `createFrame`, `createTextLabel`, and other typed helpers for clearer autocomplete and prop checking; use this lower-level helper when generic construction is intentional.
+
+## Additional usage notes
+
+### When to use it
+
+Use `createElement` to instantiate a function component or generic Reactily element. For native Roblox GUI objects, dedicated creators such as `createFrame` provide clearer types.
+
+### Behavior and ownership
+
+The returned value describes UI; it is not a Roblox `Instance` until a root reconciles it.
+
+### Pitfalls to avoid
+
+> **Note:** Do not call `:Destroy()` on an element descriptor. Unmount it through the owning root instead.

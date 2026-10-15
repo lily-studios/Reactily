@@ -9,36 +9,48 @@ description: Public Reactily virtualList module.
 
 `Reactily.VirtualList` is a public namespace exported by the runtime. Its methods are listed below.
 
+## Understanding this namespace
+
+Use this module to calculate which rows of a long list should be displayed. It does not create rows automatically; use its range results with your own renderer.
+
+Use the lowercase/camelCase methods shown in the signatures below. Roblox engine properties such as `Size`, `Position`, `BackgroundColor3`, and `ViewportSize` retain their official PascalCase names.
+
 ## Methods
 
-### `VirtualList.Resolve`
+### `VirtualList.resolve`
 
 Resolves a visible range for a fixed-size virtual list.
 
 ```luau
-Reactily.VirtualList.Resolve( itemCount: number, itemSize: number, scrollOffset: number, viewportSize: number, overscan: number? ): VirtualRange
+Reactily.VirtualList.resolve( itemCount: number, itemSize: number, scrollOffset: number, viewportSize: number, overscan: number? ): VirtualRange
 ```
 
-### `VirtualList.New`
+### `VirtualList.new`
 
 Creates a small stateful virtual-list range controller.
 
 ```luau
-Reactily.VirtualList.New(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): VirtualList
+Reactily.VirtualList.new(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): VirtualList
 ```
 
-### `VirtualList.Slice`
+### `VirtualList.slice`
 
 Returns the items contained inside a resolved virtual range.
 
 ```luau
-Reactily.VirtualList.Slice<T>(items: { T }, rangeValue: VirtualRange): { T }
+Reactily.VirtualList.slice<T>(items: { T }, rangeValue: VirtualRange): { T }
 ```
 
-### `VirtualList.Render`
+### `VirtualList.render`
 
 Creates a virtualized vertical ScrollingFrame element for a fixed-size item list.
 
 ```luau
-Reactily.VirtualList.Render<T>(options: VirtualListRenderOptions<T>): Reactily.Element
+Reactily.VirtualList.render<T>(options: VirtualListRenderOptions<T>): Reactily.Element
 ```
+
+## Notes and common mistakes
+
+- **Input:** Give virtualization helpers stable item data and the correct visible region dimensions.
+- **Common mistake:** Rendering the entire data set separately and defeating the purpose of virtualization.
+
