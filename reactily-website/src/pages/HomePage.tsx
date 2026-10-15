@@ -48,7 +48,7 @@ export function HomePage() {
       })
       .then((release) => {
         if (!controller.signal.aborted && typeof release.tag_name === "string" &&
-            /^v\\d+(?:\\.\\d+)*$/.test(release.tag_name)) {
+            /^v\d+(?:\.\d+)*$/.test(release.tag_name)) {
           setPublishedTag(release.tag_name);
         }
       })
