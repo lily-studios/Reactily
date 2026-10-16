@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { createDoc, isDocAvailable } from "./docs";
@@ -170,7 +170,7 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     }, { replace: true });
   }, [explicitTag, location.pathname, location.search, location.hash, navigate]);
 
-  const path = (target: string): string => {
+  const path = useCallback((target: string): string => {
     if (/^(?:https?:)?\/\//i.test(target) || target.startsWith("#")) return target;
     const [beforeHash, hash] = target.split("#", 2);
     const [pathname, query] = (beforeHash ?? "").split("?", 2);
@@ -179,13 +179,13 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     else params.delete("version");
     const queryString = params.toString();
     return pathname + (queryString ? "?" + queryString : "") + (hash ? "#" + hash : "");
-  };
+  }, [tag]);
 
-  const selectTag = (nextTag: string): void => {
+  const selectTag = useCallback((nextTag: string): void => {
     const params = new URLSearchParams(location.search);
     params.set("version", nextTag);
     navigate({ pathname: "/api", search: "?" + params.toString() });
-  };
+  }, [location.search, navigate]);
 
   const value = useMemo<VersionDocsContext>(() => ({
     tag, releases: index?.releases ?? [],
@@ -194,7 +194,7 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     error: ready && data.tag === tag ? data.error : null,
     sourceType: tag ? "tagged-release" : null,
     selectTag, path,
-  }), [tag, index, data, ready, location.pathname, location.search, navigate]);
+  }), [tag, index, data, ready, selectTag, path]);
 
   return <context.Provider value={value}>{children}</context.Provider>;
 }
