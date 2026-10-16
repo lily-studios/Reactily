@@ -78,7 +78,15 @@ async function loadSnapshot(release: ArchivedRelease, signal: AbortSignal): Prom
         /^\/src\/content\/.+\.md$/.test(item.path))) {
     throw new Error("This release's documentation snapshot failed integrity checks.");
   }
-  const docs = archive.docs.map((entry) => createDoc(entry.path, entry.source))
+  // Obsolete PascalCase alias pages remain in immutable release archives,
+  // but should not reappear in the current API navigation or resolve as docs.
+  const docs = archive.docs
+    .filter((entry) => {
+      if (!entry.path.startsWith("/src/content/api/")) return true;
+      if (entry.source.includes("This older PascalCase spelling is **not exported** by the current Reactily build.")) return false;
+      return !(/## v2\.2\.0 migration note/.test(entry.source) && /not the older PascalCase/.test(entry.source));
+    })
+    .map((entry) => createDoc(entry.path, entry.source))
     .filter((doc) => isDocAvailable(doc, release.tag))
     .sort((left, right) => left.sidebarPosition - right.sidebarPosition || left.title.localeCompare(right.title));
   if (!docs.length) throw new Error("This release has no documentation.");
