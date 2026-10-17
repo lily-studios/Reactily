@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight, Menu, TriangleAlert } from "lucide-react";
 import { DeprecatedVersionNotice } from "../components/DeprecatedVersionNotice";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { DocsSidebar } from "../components/DocsSidebar";
 import { MarkdownArticle } from "../components/MarkdownArticle";
@@ -21,7 +21,12 @@ export function DocPage() {
 
   useEffect(() => {
     setSidebarOpen(false);
-    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [slug, tag]);
+
+  // Scroll synchronously only when the document actually changes.
+  // Do not animate the entire page after a navigation click.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
   }, [slug, tag]);
 
   const navigation = useMemo(() => {
@@ -42,7 +47,7 @@ export function DocPage() {
       <main className="container versionDocsMessage" role="alert">
         <h1>Version documentation unavailable</h1>
         <p>{error}</p>
-        <Link to={path("/api")}>Back to the version's API reference</Link>
+        <Link to="/api">View the available API reference</Link>
       </main>
     );
   }

@@ -35,3 +35,25 @@ local Element = Reactily.createScreenGui({
 	}),
 })
 ```
+
+## Understanding this API
+
+A `ScreenGui` forms a top-level 2D interface displayed through the player GUI hierarchy.
+
+### Practical guidance
+
+When using one as the root of a Reactily tree, parent the render root to a suitable GUI container and supply children under the `ScreenGui` element. `ResetOnSpawn` is a native Roblox property.
+
+## Additional usage notes
+
+### When to use it
+
+Use this creator when you need the ScreenGui capability described above, and keep its result under a clear owner.
+
+### Behavior and ownership
+
+A typed creator returns a Reactily element description. It does not directly parent a new Roblox Instance.
+
+### Pitfalls to avoid
+
+> **Note:** Use the official Roblox property names inside props, and render the result through a root.

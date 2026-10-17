@@ -30,3 +30,25 @@ local pool = Reactily.createInstancePool("Frame", 64)
 local frame = pool.acquire()
 pool.release(frame)
 ```
+
+## Understanding this API
+
+Instance pooling can reduce repeated Roblox Instance creation when you frequently show and hide similar objects.
+
+### Practical guidance
+
+Make sure a recycled Instance is reset before reuse, including properties and connections owned by its previous user.
+
+## Additional usage notes
+
+### When to use it
+
+Use this creator when you need the InstancePool capability described above, and keep its result under a clear owner.
+
+### Behavior and ownership
+
+Runtime helpers manage reusable objects, cleanup, and ownership details.
+
+### Pitfalls to avoid
+
+> **Note:** Make sure resources are returned to their owner or released when no longer needed.

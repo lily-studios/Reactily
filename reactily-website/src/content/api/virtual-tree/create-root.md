@@ -40,7 +40,7 @@ Run the example in a client `LocalScript`. Rendering again on the same root upda
 ## Cleanup
 
 ```luau
-Root.Delete()
+Root.delete()
 ```
 
 Call `delete()` when the interface is permanently dismissed. Do not call `render()` on a deleted root.
@@ -52,3 +52,25 @@ The root render method is lowercase **`Root.render()`**, not `Root.Render()`; cl
 ## Related
 
 [Getting Started](/docs/getting-started) · [Rendering](/docs/concepts/rendering) · [createFrame](/docs/api/typed-creators/create-frame)
+
+## Understanding this API
+
+A root manages the reconciliation lifecycle under a specific Roblox parent. `render` sets the virtual tree that the root should display.
+
+### Practical guidance
+
+Keep the root handle while the UI exists, and call its deletion method when the owner is destroyed. Updating the same root lets Reactily reconcile changes instead of creating a new root for every update.
+
+## Additional usage notes
+
+### When to use it
+
+Create one root for each Roblox parent that Reactily should manage. Render elements through that root instead of creating duplicate UI parents on each state change.
+
+### Behavior and ownership
+
+A root is an owner of rendered instances and associated component state. Hold on to it until the interface is no longer needed.
+
+### Pitfalls to avoid
+
+> **Note:** Creating a new root on every render can create duplicate UI and leave old roots active. Keep the root stable and dispose of it when its host is removed.

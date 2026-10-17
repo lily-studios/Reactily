@@ -1,10 +1,10 @@
 ---
 sidebar_position: 2
 title: Examples
-description: Practical, copyable Luau patterns for Reactily v2.1.0.
+description: Practical, copyable Luau patterns for Reactily v2.2.0.
 ---
 
-The examples below follow the [v2.1.0 release](https://github.com/lily-studios/Reactily/releases/tag/v2.1.0). Public function names stay camelCase, exported types and Roblox host properties use PascalCase, and render roots expose `render()` and `Delete()`.
+The examples below use the Reactily v2.2.0 API. Public function names stay camelCase, exported types and Roblox host properties use PascalCase, and render roots expose `render()` and `delete()`.
 
 ## Before you begin
 
@@ -16,9 +16,9 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Reactily = require(ReplicatedStorage:WaitForChild("Reactily"))
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
-local Root = Reactily.createRoot(PlayerGui)
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local root = Reactily.createRoot(playerGui)
 ```
 
 Each rendering example can reuse this setup. Replace the previously rendered tree when trying a different example.
@@ -46,7 +46,7 @@ local function Counter(props: CounterProps): Reactily.Element
     })
 end
 
-Root.render(Reactily.createComponent(Counter, {
+root.render(Reactily.createComponent(Counter, {
     InitialValue = 0,
 }))
 ```
@@ -72,7 +72,7 @@ local Panel = Reactily.createFrame({
     }),
 })
 
-Root.render(Panel)
+root.render(Panel)
 ```
 
 [Frame creator reference](/docs/api/typed-creators/create-frame) explains the arguments and return value.
@@ -83,12 +83,12 @@ Root.render(Panel)
 
 ```luau
 local CounterAtom = Reactily.createAtom(0)
-local Connection = CounterAtom.Subscribe(function(change: Reactily.AtomChange<number>)
-    print("Count:", change.Current)
+local Connection = CounterAtom.subscribe(function(change: Reactily.AtomChange<number>)
+    print("Count:", change.current)
 end)
 
-CounterAtom.Set(1)
-Connection.Disconnect()
+CounterAtom.set(1)
+Connection.disconnect()
 ```
 
 Subscriptions must be cleaned up when no longer needed. Check the [atom reference](/docs/api/state/create-atom) for its precise subscription contract.
@@ -125,7 +125,7 @@ Use the returned range to choose which items to create. [Virtual list reference]
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.fromOffset(240, 120)
 Frame.BackgroundTransparency = 1
-Frame.Parent = PlayerGui
+Frame.Parent = playerGui
 
 local Animation = Reactily.playTween(Frame, {
     BackgroundTransparency = 0,
@@ -136,7 +136,7 @@ local Animation = Reactily.playTween(Frame, {
 })
 
 -- When this animation is no longer needed:
--- Animation.Delete()
+-- Animation.delete()
 ```
 
 [Animation reference](/docs/api/animation/play-tween) covers the owned animation handle.
@@ -146,7 +146,7 @@ local Animation = Reactily.playTween(Frame, {
 **Use this for:** Closing an interface or disposing of a local UI controller.
 
 ```luau
-Root.Delete()
+root.delete()
 ```
 
 Do not continue rendering into a root after deleting it. Use Roblox's own `:Destroy()` and `:Disconnect()` methods for Roblox-owned resources.

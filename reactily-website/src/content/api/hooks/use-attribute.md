@@ -37,3 +37,25 @@ local enabled, setEnabled = Reactily.useAttribute(
 	true
 )
 ```
+
+## Understanding this API
+
+This hook reads an Attribute from a Roblox Instance and keeps the component aligned with attribute changes.
+
+### Practical guidance
+
+An Attribute is not a native property; use the attribute key passed to `GetAttribute` or `SetAttribute` rather than a Roblox property name.
+
+## Additional usage notes
+
+### When to use it
+
+Use this hook when the component needs uses component state synchronized with a Roblox Attribute.
+
+### Behavior and ownership
+
+This hook participates in component lifecycle and must be invoked in consistent order during rendering.
+
+### Pitfalls to avoid
+
+> **Note:** Calling this hook conditionally or from ordinary utility code can break hook ordering. Use it only in supported render contexts.

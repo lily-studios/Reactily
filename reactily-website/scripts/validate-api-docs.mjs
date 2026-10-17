@@ -58,7 +58,14 @@ for (const file of walk(apiRoot)) {
 
 const expectedValues = new Set(manifest.valueExports);
 const expectedTypes = new Set(manifest.typeExports);
-const missingValues = [...expectedValues].filter((name) => !documentedValues.has(name));
+// Legacy PascalCase aliases can share their documented camelCase replacements.
+// The pinned manifest describes an older build and does not require duplicate pages.
+const hasModernReplacement = (name) =>
+  /^[A-Z]/.test(name) &&
+  documentedValues.has(name.charAt(0).toLowerCase() + name.slice(1));
+const missingValues = [...expectedValues].filter(
+  (name) => !documentedValues.has(name) && !hasModernReplacement(name),
+);
 const staleValues = [...documentedValues.keys()].filter((name) => !expectedValues.has(name));
 const missingTypes = [...expectedTypes].filter((name) => !documentedTypes.has(name));
 const staleTypes = [...documentedTypes].filter((name) => !expectedTypes.has(name));

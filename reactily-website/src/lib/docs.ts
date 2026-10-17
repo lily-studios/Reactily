@@ -217,7 +217,7 @@ export const referenceDocs: readonly DocRecord[] = docs.filter((doc) => doc.cate
 export const apiDocs: readonly DocRecord[] = docs.filter((doc) => doc.sourcePath.startsWith("api/"));
 
 export function makeApiGroups(records: readonly DocRecord[]): readonly DocGroup[] {
-  const apiDocsByCategory = records.filter((doc) => doc.sourcePath.startsWith("api/")).reduce<Record<string, DocRecord[]>>((groups, doc) => {
+  const apiDocsByCategory = records.filter((doc) => doc.sourcePath.startsWith("api/") && doc.category !== "types").reduce<Record<string, DocRecord[]>>((groups, doc) => {
   const group = groups[doc.category] ?? [];
   group.push(doc);
   groups[doc.category] = group;

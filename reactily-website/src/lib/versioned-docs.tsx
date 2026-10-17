@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { createDoc, isDocAvailable } from "./docs";
@@ -44,7 +44,15 @@ const snapshots = new Map<string, Promise<readonly DocRecord[]>>();
 async function json(url: string, signal: AbortSignal): Promise<unknown> {
   const response = await fetch(url, { signal, cache: "no-cache" });
   if (!response.ok) throw new Error("Archived documentation unavailable (HTTP " + response.status + ").");
-  return response.json() as Promise<unknown>;
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!/\bjson\b/i.test(contentType) && !/\+json\b/i.test(contentType)) {
+    throw new Error("Release documentation JSON is missing at " + url + ". Run npm run snapshots:local and restart the development server.");
+  }
+  try {
+    return await response.json() as unknown;
+  } catch {
+    throw new Error("Release documentation contains invalid JSON at " + url + ". Regenerate with npm run snapshots:local.");
+  }
 }
 
 function validIndex(value: unknown): value is DocsIndex {
@@ -70,7 +78,15 @@ async function loadSnapshot(release: ArchivedRelease, signal: AbortSignal): Prom
         /^\/src\/content\/.+\.md$/.test(item.path))) {
     throw new Error("This release's documentation snapshot failed integrity checks.");
   }
-  const docs = archive.docs.map((entry) => createDoc(entry.path, entry.source))
+  // Obsolete PascalCase alias pages remain in immutable release archives,
+  // but should not reappear in the current API navigation or resolve as docs.
+  const docs = archive.docs
+    .filter((entry) => {
+      if (!entry.path.startsWith("/src/content/api/")) return true;
+      if (entry.source.includes("This older PascalCase spelling is **not exported** by the current Reactily build.")) return false;
+      return !(/## v2\.2\.0 migration note/.test(entry.source) && /not the older PascalCase/.test(entry.source));
+    })
+    .map((entry) => createDoc(entry.path, entry.source))
     .filter((doc) => isDocAvailable(doc, release.tag))
     .sort((left, right) => left.sidebarPosition - right.sidebarPosition || left.title.localeCompare(right.title));
   if (!docs.length) throw new Error("This release has no documentation.");
@@ -119,7 +135,7 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     }
     const release = index?.releases.find((item) => item.tag === tag);
     if (!release) {
-      setData({ tag, docs: [], status: "error", error: "No archived documentation exists for release " + tag + "." });
+      setData({ tag, docs: [], status: "error", error: "Documentation for " + tag + " is not bundled with this website. Select an available version from the API reference." });
       return;
     }
     const controller = new AbortController();
@@ -154,7 +170,7 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     }, { replace: true });
   }, [explicitTag, location.pathname, location.search, location.hash, navigate]);
 
-  const path = (target: string): string => {
+  const path = useCallback((target: string): string => {
     if (/^(?:https?:)?\/\//i.test(target) || target.startsWith("#")) return target;
     const [beforeHash, hash] = target.split("#", 2);
     const [pathname, query] = (beforeHash ?? "").split("?", 2);
@@ -163,13 +179,13 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     else params.delete("version");
     const queryString = params.toString();
     return pathname + (queryString ? "?" + queryString : "") + (hash ? "#" + hash : "");
-  };
+  }, [tag]);
 
-  const selectTag = (nextTag: string): void => {
+  const selectTag = useCallback((nextTag: string): void => {
     const params = new URLSearchParams(location.search);
     params.set("version", nextTag);
     navigate({ pathname: "/api", search: "?" + params.toString() });
-  };
+  }, [location.search, navigate]);
 
   const value = useMemo<VersionDocsContext>(() => ({
     tag, releases: index?.releases ?? [],
@@ -178,7 +194,7 @@ export function VersionedDocsProvider({ children }: { readonly children: ReactNo
     error: ready && data.tag === tag ? data.error : null,
     sourceType: tag ? "tagged-release" : null,
     selectTag, path,
-  }), [tag, index, data, ready, location.pathname, location.search, navigate]);
+  }), [tag, index, data, ready, selectTag, path]);
 
   return <context.Provider value={value}>{children}</context.Provider>;
 }

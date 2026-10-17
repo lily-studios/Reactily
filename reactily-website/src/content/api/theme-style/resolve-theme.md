@@ -30,3 +30,17 @@ local accent = Reactily.resolveTheme(Theme, function(tokens)
 	return tokens.accent
 end)
 ```
+
+## Additional usage notes
+
+### When to use it
+
+Use this helper when immediately derives a value from the theme's current tokens.
+
+### Behavior and ownership
+
+Theme and style helpers organize reusable property sets for consistent UI rendering.
+
+### Pitfalls to avoid
+
+> **Note:** Do not mix camelCase framework metadata and native PascalCase Roblox properties.
