@@ -172,14 +172,7 @@
               transform var(--ui-motion) var(--ui-ease);
 }
 .docPagination a:hover { transform: translateY(-2px); }
-.docHeader, .apiHeroGrid, .heroCopy, .heroVisualColumn {
-  animation: docs-fade-up 340ms var(--ui-ease) both;
-}
-.heroVisualColumn { animation-delay: 65ms; }
-@keyframes docs-fade-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* Documentation and navigation content update without page-wide entrance fades. */
 :where(a, button, input):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -259,7 +252,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .docHeader, .apiHeroGrid, .heroCopy, .heroVisualColumn { animation: none; }
   .desktopNav a, .versionSelectorShell, .searchButton,
   .iconButton, .searchResult, .searchResultEnter, .apiGroupCard,
   .apiFunctionList a svg, .sidebarLinks a, .sidebarNestedGroup button,
