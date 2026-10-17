@@ -23,3 +23,25 @@ local Spring = Reactily.useSpring(target, {
 ## Works with
 
 Pairs naturally with `createSpring`, component state, animation.
+
+## Understanding this API
+
+A spring produces motion toward a target using an interpolated value rather than an instantaneous jump.
+
+### Practical guidance
+
+For simple one-shot Roblox property changes, a Tween may be simpler. Springs are useful when the target may be updated repeatedly.
+
+## Additional usage notes
+
+### When to use it
+
+Use this hook when a component needs a spring value that belongs to its own lifecycle.
+
+### Behavior and ownership
+
+Hook-managed values are retained by Reactily across ordinary component rerenders.
+
+### Pitfalls to avoid
+
+> **Note:** Use the hook only inside a Reactily function component or valid hook context.

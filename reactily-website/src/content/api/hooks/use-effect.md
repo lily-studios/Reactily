@@ -34,3 +34,25 @@ Reactily.useEffect(function()
 	end
 end, {Signal})
 ```
+
+## Understanding this API
+
+An effect is for work performed outside rendering, such as connecting a Roblox event, subscribing to a signal, or coordinating an external Instance.
+
+### Practical guidance
+
+Return a cleanup function to disconnect or undo previous work. The dependencies array controls when the effect must be reconsidered; omitting or changing dependencies affects how often it runs.
+
+## Additional usage notes
+
+### When to use it
+
+Use an effect to synchronize a mounted component with subscriptions, time-based work, or external Roblox objects.
+
+### Behavior and ownership
+
+The effect runs as part of Reactily’s managed lifecycle. Return a cleanup callback when creating a subscription or connection.
+
+### Pitfalls to avoid
+
+> **Note:** Avoid starting a new event connection on every render without disconnecting the previous one.

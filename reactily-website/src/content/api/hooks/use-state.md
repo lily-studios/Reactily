@@ -56,3 +56,25 @@ Render it with `Reactily.createComponent(Counter, {})` inside a root.
 ## Related
 
 [Getting Started](/docs/getting-started) · [State and Reactivity](/docs/concepts/state) · [Examples](/docs/guides/examples)
+
+## Understanding this API
+
+Use this for information a component must remember between renders, such as a selected tab or an input value. The setter schedules another render rather than immediately changing a Roblox Instance.
+
+### Practical guidance
+
+When the next value depends on the previous one, pass an updater function to the setter; this avoids depending on a stale value captured by an earlier callback.
+
+## Additional usage notes
+
+### When to use it
+
+Use component-local state for interaction values that should trigger a rerender, such as a selected tab or open menu.
+
+### Behavior and ownership
+
+Reactily retains the state value across ordinary renders and schedules an update after its setter is called.
+
+### Pitfalls to avoid
+
+> **Note:** Do not change the number or order of hooks between renders. For updates based on the old value, use a functional setter.

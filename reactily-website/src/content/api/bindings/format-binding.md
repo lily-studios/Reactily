@@ -30,3 +30,25 @@ local Text = Reactily.formatBinding(progress, function(value)
 	return `{math.round(value * 100)}%`
 end)
 ```
+
+## Understanding this API
+
+Bindings connect a changing value to dependent values or Roblox properties. They are useful when values update repeatedly and you want to avoid rebuilding unrelated parts of a component tree.
+
+### Practical guidance
+
+When a binding is attached to a Roblox Instance or subscribed to another source, keep and invoke any returned cleanup function when its owner is destroyed. Use a mapped binding to transform values and a direct property binding when the target is a native Roblox property.
+
+## Additional usage notes
+
+### When to use it
+
+Use this helper when creates a derived string binding using a formatter.
+
+### Behavior and ownership
+
+A binding represents changing data that can be observed or transformed.
+
+### Pitfalls to avoid
+
+> **Note:** Avoid keeping subscriptions alive after the target Instance or owning UI is removed.

@@ -35,3 +35,25 @@ A virtual `Reactily.Element`.
 ```luau
 local Element = Reactily.createComponent(counter, {})
 ```
+
+## Understanding this API
+
+This turns a Luau function into a renderable virtual component. Reactily calls the function with props when building or updating that part of the tree.
+
+### Practical guidance
+
+A component can call hooks, compose typed elements, and return an element. Avoid changing Instances during render; use effects for setup and cleanup.
+
+## Additional usage notes
+
+### When to use it
+
+Choose this when a function must own hooks, compute child elements, or be reused with different typed props.
+
+### Behavior and ownership
+
+Reactily runs the component function as part of reconciliation; hooks are associated with its stable position and key.
+
+### Pitfalls to avoid
+
+> **Note:** Do not call a hook-using component as a plain Lua function from outside Reactily’s render flow.

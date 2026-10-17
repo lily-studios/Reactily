@@ -29,4 +29,12 @@ Public APIs should be deprecated before removal. A replacement should ship first
 
 ## Runtime source of truth
 
-The API inventory on this site is pinned to the Reactily v2.1.0 release source and checked against the bundled export manifest during verification. The check reports missing and stale value exports and public types.
+The API inventory on this site is pinned to the supplied Reactily source used for this v2.2.0 documentation and checked against the bundled export manifest during verification. The check reports missing and stale value exports and public types.
+
+## Understanding this API
+
+Package metadata describes the installed Reactily build and its supported feature surface. Use it to understand compatibility rather than to render UI.
+
+### Practical guidance
+
+The published package version and API compatibility version answer different questions: a package can receive new features without changing the API compatibility identifier.
