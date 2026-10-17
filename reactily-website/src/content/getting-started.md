@@ -63,7 +63,7 @@ Reactily reconciles the next tree with the current tree rather than rebuilding e
 
 ## Clean up
 ```luau
-Root.Delete()
+Root.delete()
 ```
 `Delete()` releases Reactily-owned work and rendered resources owned by the root.
 

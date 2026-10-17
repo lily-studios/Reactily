@@ -25,3 +25,25 @@ local Selector = Reactily.createSelector(
 ## Works with
 
 Pairs naturally with `createStore`, `combineStores`, `useStore`, `memo`.
+
+## Understanding this API
+
+A selector lets consumers observe a useful projection of larger state instead of coupling to every property in a store.
+
+### Practical guidance
+
+Pick a result that corresponds to the component’s actual needs; overly broad selection can cause unnecessary updates.
+
+## Additional usage notes
+
+### When to use it
+
+Use this creator when you need the Selector capability described above, and keep its result under a clear owner.
+
+### Behavior and ownership
+
+This API works with reactive or shared values outside the scope of a single UI update.
+
+### Pitfalls to avoid
+
+> **Note:** Do not mutate shared tables without going through the owning state API when subscriptions depend on updates.

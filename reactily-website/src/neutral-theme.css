@@ -835,3 +835,49 @@ body { font-size: 15px; line-height: 1.65; font-weight: 500; }
     white-space: normal;
   }
 }
+
+
+/* Update notifications never interrupt SPA navigation. */
+.deploymentUpdateNotice {
+  position: fixed;
+  z-index: 1200;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100vw - 40px);
+  padding: 11px 13px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.deploymentUpdateNotice button {
+  flex-shrink: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.deploymentUpdateAction {
+  padding: 6px 10px;
+  background: var(--accent-strong);
+  color: var(--bg);
+}
+.deploymentUpdateDismiss {
+  padding: 4px 8px;
+  background: transparent;
+  color: var(--text);
+}
+@media (max-width: 520px) {
+  .deploymentUpdateNotice {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    flex-wrap: wrap;
+  }
+}

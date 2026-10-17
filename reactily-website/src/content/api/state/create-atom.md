@@ -21,15 +21,37 @@ Reactily.createAtom<T>(initialValue: T): Atom<T>
 
 ## Returns
 
-An `Atom<T>` with PascalCase `Get()`, `Set()`, `Update()`, `Subscribe()`, `Delete()`, and `IsDeleted()` methods.
+An `Atom<T>` with camelCase `get()`, `set()`, `update()`, `subscribe()`, `delete()`, and `isDeleted()` methods.
 
 ## Usage
 ```luau
 local Level = Reactily.createAtom(0.7)
-local Connection = Level.Subscribe(function(change: Reactily.AtomChange<number>)
-    print(change.Previous, change.Current)
+local Connection = Level.subscribe(function(change: Reactily.AtomChange<number>)
+    print(change.previous, change.current)
 end)
-Level.Set(0.9)
-Connection.Disconnect()
-Level.Delete()
+Level.set(0.9)
+Connection.disconnect()
+Level.delete()
 ```
+
+## Understanding this API
+
+An atom represents one writable value outside the component-local hook state. Other code can subscribe to changes.
+
+### Practical guidance
+
+Use it for small pieces of shared data. Keep a single atom instance for each logical value; recreating an atom loses its earlier subscriptions and state.
+
+## Additional usage notes
+
+### When to use it
+
+Use an atom when a small value needs to be shared outside any one component.
+
+### Behavior and ownership
+
+Subscribers observe changes through the atom’s own API, independently of component-local `useState`.
+
+### Pitfalls to avoid
+
+> **Note:** Store the returned atom in a stable module or owner; recreating it discards subscriptions and the existing value.

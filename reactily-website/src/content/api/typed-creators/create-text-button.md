@@ -34,3 +34,25 @@ local Element = Reactily.createTextButton({
 	end,
 })
 ```
+
+## Understanding this API
+
+A `TextButton` element is intended for clickable actions. The `OnActivated` handler runs when Roblox activates the button through a supported input method.
+
+### Practical guidance
+
+Use `OnActivated` with its exact casing. Keep expensive or asynchronous work outside rendering; the callback should initiate the action, not be called while constructing the element.
+
+## Additional usage notes
+
+### When to use it
+
+Use a text button for clickable actions, menu items, and interactive controls.
+
+### Behavior and ownership
+
+Pass Roblox GUI properties as the element props; attach events using the supported Reactily host event keys.
+
+### Pitfalls to avoid
+
+> **Note:** Use `OnActivated` for a typical button action, not a manually connected `.Activated` signal inside the rendering function.

@@ -31,7 +31,7 @@ description: Mounts a Reactily tree under a Roblox Instance.
 ```luau
 local Root = Reactily.createRoot(PlayerGui)
 Root.render(Element)
-Root.Delete()
+Root.delete()
 ```
 ````
 

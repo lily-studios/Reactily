@@ -32,3 +32,17 @@ local props = Reactily.applyStyle({
 	BackgroundTransparency = .2,
 })
 ```
+
+## Additional usage notes
+
+### When to use it
+
+Use this helper when applies a style table onto a cloned typed props table.
+
+### Behavior and ownership
+
+Theme and style helpers organize reusable property sets for consistent UI rendering.
+
+### Pitfalls to avoid
+
+> **Note:** Do not mix camelCase framework metadata and native PascalCase Roblox properties.

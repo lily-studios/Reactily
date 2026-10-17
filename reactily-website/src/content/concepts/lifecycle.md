@@ -10,7 +10,7 @@ Reactily-owned resources use `delete()` and `isDeleted()`.
 local Root = Reactily.createRoot(playerGui)
 
 -- Later:
-Root.Delete()
+Root.delete()
 ```
 Calling `Delete()` on an owned resource should:
 
