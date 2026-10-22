@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
@@ -357,7 +356,13 @@ end
 --- @param children {any} Child elements.
 --- @return element Stack element.
 function module.stack(options: CommonOptions?, children: { any }): elementModule.Element
-	return elementModule.createFrame(createFrameProps(options), children)
+	local padding = createPadding(if options then options.Padding else nil)
+	if not padding then
+		return elementModule.createFrame(createFrameProps(options), children)
+	end
+	local outputChildren: { any } = { padding }
+	appendChildren(outputChildren, children)
+	return elementModule.createFrame(createFrameProps(options), outputChildren)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -395,7 +400,6 @@ function module.center(options: CommonOptions?, children: { any }): elementModul
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 export type GridLayoutOptions = GridOptions

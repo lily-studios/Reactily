@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local animationModule = require(script.Parent.animation)
@@ -30,7 +29,12 @@ export type MotionOptions = {
 
 --————————————————————————————————————————————————————————————————————--
 
+local defaultOptions: animationModule.TweenOptions = table.freeze({ Time = 0.2 })
+
 local function resolve(options: MotionOptions?): animationModule.TweenOptions
+	if options == nil then
+		return defaultOptions
+	end
 	local delayTime: number? = nil
 	local easingDirection: Enum.EasingDirection? = nil
 	local easingStyle: Enum.EasingStyle? = nil

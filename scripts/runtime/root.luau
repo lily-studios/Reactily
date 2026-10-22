@@ -133,10 +133,15 @@ function module.new(parent: Instance): Root
 		local reason = context.lastRenderReason
 
 		local success, failure = pcall(function(): boolean
-			context.currentNode = reconciler.reconcile(context.parent, context.currentNode, context.currentElement, {
+			local nextNode = reconciler.reconcile(context.parent, context.currentNode, context.currentElement, {
 				renderReason = reason,
 				requestRender = requestRender,
 			})
+			if context.isDeleted then
+				reconciler.delete(nextNode)
+			else
+				context.currentNode = nextNode
+			end
 
 			return true
 		end)
@@ -167,7 +172,7 @@ function module.new(parent: Instance): Root
 
 		context.batchDepth -= 1
 
-		if context.batchDepth == 0 and context.needsRender and not context.isSuspended then
+		if not context.isDeleted and context.batchDepth == 0 and context.needsRender and not context.isSuspended then
 			context.scheduler.cancelKey(renderTaskKey)
 			context.renderQueued = false
 
@@ -196,10 +201,10 @@ function module.new(parent: Instance): Root
 		context.renderQueued = false
 
 		context.scheduler.delete()
-		reconciler.delete(context.currentNode)
-
+		local currentNode = context.currentNode
 		context.currentElement = nil
 		context.currentNode = nil
+		reconciler.delete(currentNode)
 
 		return true
 	end
@@ -323,9 +328,8 @@ end
 
 --- Returns a snapshot of a mounted rendering root.
 function module.inspectRoot(rootValue: Root): reconciler.NodeSnapshot?
-    return rootValue.inspect()
+	return rootValue.inspect()
 end
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createRoot = module.new

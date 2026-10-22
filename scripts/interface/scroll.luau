@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -16,6 +15,7 @@ local module = {}
 --————————————————————————————————————————————————————————————————————--
 
 local function clampCanvasPosition(frame: ScrollingFrame, position: Vector2): Vector2
+	assert(position.X == position.X and position.Y == position.Y, "Reactily scroll position must not contain NaN.")
 	local maximum = Vector2.new(
 		math.max(0, frame.AbsoluteCanvasSize.X - frame.AbsoluteWindowSize.X),
 		math.max(0, frame.AbsoluteCanvasSize.Y - frame.AbsoluteWindowSize.Y)

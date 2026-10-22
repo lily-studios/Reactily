@@ -72,6 +72,7 @@ end
 --- @return T Stable memoized component wrapper.
 function module.wrap<T>(componentValue: T, comparatorValue: Comparator?): T
 	assert(type(componentValue) == "function", "Reactily.memo expects a component function.")
+	assert(comparatorValue == nil or type(comparatorValue) == "function", "Reactily.memo comparator must be a function.")
 
 	local source: any = componentValue
 	local wrapped: any = function(props: any)
@@ -84,7 +85,6 @@ function module.wrap<T>(componentValue: T, comparatorValue: Comparator?): T
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.memo = module.wrap

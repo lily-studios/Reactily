@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local signalModule = require(script.Parent.Parent.core.signal)
@@ -66,6 +65,7 @@ function module.create(object: GuiObject): Measure
 
 	local positionConnection = object:GetPropertyChangedSignal("AbsolutePosition"):Connect(update)
 	local sizeConnection = object:GetPropertyChangedSignal("AbsoluteSize"):Connect(update)
+	local destroyingConnection: RBXScriptConnection? = nil
 
 	local function delete(): boolean
 		if isDeleted then
@@ -75,10 +75,14 @@ function module.create(object: GuiObject): Measure
 		isDeleted = true
 		positionConnection:Disconnect()
 		sizeConnection:Disconnect()
+		if destroyingConnection then
+			destroyingConnection:Disconnect()
+		end
 		changed.delete()
 		return true
 	end
 
+	destroyingConnection = object.Destroying:Connect(delete)
 	return {
 		delete = delete,
 		get = function(): Bounds
@@ -96,7 +100,6 @@ function module.create(object: GuiObject): Measure
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 export type MeasureBounds = Bounds

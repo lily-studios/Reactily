@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local inputModule = require(script.Parent.input)
@@ -31,6 +30,7 @@ export type ShortcutOptions = {
 --- @param callback () -> () Action invoked when the shortcut matches.
 --- @return inputBinding Owned shortcut binding.
 function module.create(options: ShortcutOptions, callback: () -> ()): inputModule.InputBinding
+	assert(type(callback) == "function", "Reactily shortcut callback must be a function.")
 	return inputModule.bindKey(options.key, function()
 		callback()
 	end, {

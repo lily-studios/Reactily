@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -73,6 +72,7 @@ end
 --- @param styleValue style Style values to apply to the copied table.
 --- @return T Copied property table with the style applied.
 function module.apply<T>(properties: T, styleValue: Style): T
+	assert(type(properties) == "table", "Reactily style properties must be a table.")
 	local output: any = table.clone(properties :: any)
 
 	for property, value in styleValue do
@@ -143,7 +143,6 @@ function module.withProperty(styleValue: Style, property: string, value: any): S
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.applyStyle = module.apply

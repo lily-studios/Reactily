@@ -594,6 +594,11 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
+-- All reverse lookups are complete; keep the renderer's shared registry stable.
+table.freeze(changeNames)
+table.freeze(eventNames)
+table.freeze(propertyNames)
+
 module.Attributes = attributesKey
 module.Change = table.freeze(change)
 module.Event = table.freeze(event)

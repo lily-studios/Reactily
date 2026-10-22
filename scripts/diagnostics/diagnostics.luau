@@ -63,7 +63,7 @@ function module.new(): Diagnostics
 			incrementAmount = amount
 		end
 
-		local nextValue = get(name) + incrementAmount
+		local nextValue = (counters[name] or 0) + incrementAmount
 		counters[name] = nextValue
 
 		return nextValue
@@ -107,7 +107,6 @@ function module.new(): Diagnostics
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createDiagnostics = module.new

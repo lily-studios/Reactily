@@ -1759,7 +1759,7 @@ test("Profiler: component callback + diagnostics snapshot", function()
 		return Reactily.createTextLabel({ Name = "Profiled", Text = "profile" })
 	end
 	local root = createTestRoot(host)
-	root.render(Reactily.Profiler({
+	root.render(ReactilyAny.Profiler({
 		id = "full-test",
 		onRender = function(id, phase, duration, reason)
 			expectEqual(id, "full-test")

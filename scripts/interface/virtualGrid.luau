@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
@@ -92,9 +91,9 @@ function module.resolve(
 		}
 	end
 
-	local firstRow = math.floor(math.max(scrollOffsetY, 0) / strideY) + 1 - overscan
-	local visibleRows = math.ceil(viewportHeight / strideY) + overscan * 2
-	local lastRow = firstRow + visibleRows - 1
+	local start = math.max(scrollOffsetY, 0)
+	local firstRow = math.floor(start / strideY) + 1 - overscan
+	local lastRow = math.ceil((start + math.max(viewportHeight, 0)) / strideY) + overscan
 
 	firstRow = math.clamp(firstRow, 1, rows)
 	lastRow = math.clamp(lastRow, firstRow, rows)
@@ -134,8 +133,8 @@ function module.render<T>(options: RenderOptions<T>): elementModule.Element
 		options.overscanRows
 	)
 	local children: { any } = {}
-	local strideX = options.CellSize.X + gap.X
-	local strideY = options.CellSize.Y + gap.Y
+	local strideX = options.CellSize.X + math.max(gap.X, 0)
+	local strideY = options.CellSize.Y + math.max(gap.Y, 0)
 
 	if rangeValue.firstIndex ~= 0 then
 		for index = rangeValue.firstIndex, rangeValue.lastIndex do
@@ -165,7 +164,6 @@ function module.render<T>(options: RenderOptions<T>): elementModule.Element
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.resolveVirtualGrid = module.resolve

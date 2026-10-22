@@ -37,6 +37,7 @@ function module.new<T>(initialValue: T): Theme<T>
 
 	local isDeleted = false
 	local value = initialValue
+	local revision = 0
 
 	local function delete(): boolean
 		if isDeleted then
@@ -66,6 +67,7 @@ function module.new<T>(initialValue: T): Theme<T>
 		end
 
 		value = nextValue
+		revision += 1
 		changed.fire(nextValue)
 
 		return true
@@ -80,7 +82,11 @@ function module.new<T>(initialValue: T): Theme<T>
 	local function update(updater: (value: T) -> T): boolean
 		assert(not isDeleted, "Reactily theme is deleted.")
 
+		local currentRevision = revision
 		local nextValue = updater(value)
+		if isDeleted or revision ~= currentRevision then
+			return false
+		end
 
 		return set(nextValue)
 	end
@@ -106,7 +112,6 @@ function module.resolve<T, R>(themeValue: Theme<T>, selector: (tokens: T) -> R):
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createTheme = module.new

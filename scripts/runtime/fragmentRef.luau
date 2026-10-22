@@ -77,10 +77,15 @@ end
 --- @return {GuiObject} Eligible GUI objects in traversal order.
 local function collectFocusable(instances: { Instance }): { GuiObject }
 	local output: { GuiObject } = {}
+	local visited: { [Instance]: boolean } = {}
 
 	--- Recursively visits an instance and its descendants.
 	--- @param instance Instance Current instance to inspect.
 	local function visit(instance: Instance)
+		if visited[instance] then
+			return
+		end
+		visited[instance] = true
 		if instance:IsA("GuiObject") then
 			local object = instance :: GuiObject
 			if object.Visible and object.Active then
@@ -302,7 +307,8 @@ function module.new(getInstances: () -> { Instance }): FragmentInstance
 		if alignToTop == false then
 			y = y - scrolling.AbsoluteWindowSize.Y + object.AbsoluteSize.Y
 		end
-		scrolling.CanvasPosition = Vector2.new(scrolling.CanvasPosition.X, math.max(y, 0))
+		local maximumY = math.max(scrolling.AbsoluteCanvasSize.Y - scrolling.AbsoluteWindowSize.Y, 0)
+		scrolling.CanvasPosition = Vector2.new(scrolling.CanvasPosition.X, math.clamp(y, 0, maximumY))
 		return true
 	end
 

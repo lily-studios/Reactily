@@ -137,6 +137,12 @@ function module.tween(instance: Instance, goals: { [string]: any }, options: Twe
 
 	local function onCompleted(callback: (playbackState: Enum.PlaybackState) -> ()): RBXScriptConnection
 		assert(not isDeleted, "Reactily animation is deleted.")
+		-- Retained handles should not grow indefinitely when clients disconnect.
+		for index = #completionConnections, 1, -1 do
+			if not completionConnections[index].Connected then
+				table.remove(completionConnections, index)
+			end
+		end
 
 		local connection = tween.Completed:Connect(callback)
 
@@ -162,7 +168,6 @@ function module.tween(instance: Instance, goals: { [string]: any }, options: Twe
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createTween = module.tween

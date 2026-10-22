@@ -39,17 +39,43 @@ export type Resource<T> = {
 
 --————————————————————————————————————————————————————————————————————--
 
-local function createSuspension(ready: signalModule.Signal<boolean>): Suspension
+local function createSuspension(ready: signalModule.Signal<boolean>, isReady: () -> boolean): Suspension
 	return {
 		__reactilySuspension = true,
 
 		subscribe = function(callback: () -> ()): () -> ()
-			local connection = ready.connect(function(_value: boolean)
+			local connection: signalModule.Connection? = nil
+			local notifications = 0
+
+			local function notify()
+				local activeConnection = connection
+				if not activeConnection or not activeConnection.connected then
+					return
+				end
+
+				notifications += 1
 				callback()
+			end
+
+			connection = ready.connect(function(_value: boolean)
+				notify()
 			end)
 
+			-- A loader can finish between read() and subscription. Replay that
+			-- completion after the caller has installed its cleanup callback.
+			if isReady() then
+				task.defer(function()
+					if notifications == 0 then
+						notify()
+					end
+				end)
+			end
+
 			return function()
-				connection.disconnect()
+				local activeConnection = connection
+				if activeConnection then
+					activeConnection.disconnect()
+				end
 			end
 		end,
 	}
@@ -88,7 +114,9 @@ function module.new<T>(loader: () -> T): Resource<T>
 	local status: ResourceStatus = "Idle"
 	local value: T? = nil
 
-	local suspensionValue = createSuspension(changed)
+	local suspensionValue = createSuspension(changed, function(): boolean
+		return status == "Resolved" or status == "Rejected"
+	end)
 
 	local startLoad: () -> ()
 
@@ -177,16 +205,18 @@ function module.new<T>(loader: () -> T): Resource<T>
 	local function read(): T
 		assert(not isDeleted, "Reactily resource is deleted.")
 
+		if status == "Idle" then
+			startLoad()
+		end
+
+		-- task.spawn runs immediately until the loader yields, so the initial
+		-- read may already have a value or failure to return.
 		if status == "Resolved" then
 			return value :: T
 		end
 
 		if status == "Rejected" then
 			error(errorValue, 0)
-		end
-
-		if status == "Idle" then
-			startLoad()
 		end
 
 		error(suspensionValue, 0)
@@ -223,7 +253,6 @@ function module.new<T>(loader: () -> T): Resource<T>
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createResource = module.new

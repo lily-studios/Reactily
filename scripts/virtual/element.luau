@@ -608,7 +608,9 @@ module.Fragment = fragmentMarker
 
 --————————————————————————————————————————————————————————————————————--
 
-local function appendChildren(output: { Element }, children: { any })
+local function appendChildren(output: { Element }, children: { any }, visiting: { [any]: boolean })
+	assert(not visiting[children], "Reactily child arrays must not contain cycles.")
+	visiting[children] = true
 	for _, child in children do
 		if child == nil or child == false then
 			continue
@@ -620,12 +622,13 @@ local function appendChildren(output: { Element }, children: { any })
 		end
 
 		if type(child) == "table" then
-			appendChildren(output, child)
+			appendChildren(output, child, visiting)
 			continue
 		end
 
 		error(`Reactily child must be an element, nested child array, false, or nil; received {typeof(child)}.`, 3)
 	end
+	visiting[children] = nil
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -635,9 +638,9 @@ local function copyChildren(children: { any }?): { Element }
 		return {}
 	end
 
-	local output: { Element } = {}
+	local output: { Element } = table.create(#children)
 
-	appendChildren(output, children)
+	appendChildren(output, children, {})
 
 	return output
 end

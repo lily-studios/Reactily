@@ -8,10 +8,10 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local motionModule = require(script.Parent.motion)
+local animationModule = require(script.Parent.animation)
 
 --————————————————————————————————————————————————————————————————————--
 
@@ -58,7 +58,7 @@ function module.create(object: GuiObject, options: PresenceOptions?): Presence
 		end
 	end
 
-	local currentAnimation: any = nil
+	local currentAnimation: animationModule.Animation? = nil
 	local generation = 0
 	local isDeleted = false
 	local visible = object.Visible
@@ -111,7 +111,7 @@ function module.create(object: GuiObject, options: PresenceOptions?): Presence
 
 		local localGeneration = generation
 
-		local animationValue = motionModule.play(object, enterGoals, motionOptions)
+		local animationValue = motionModule.create(object, enterGoals, motionOptions)
 
 		currentAnimation = animationValue
 
@@ -136,6 +136,7 @@ function module.create(object: GuiObject, options: PresenceOptions?): Presence
 
 			animationValue.delete()
 		end)
+		animationValue.play()
 
 		return true
 	end
@@ -165,7 +166,7 @@ function module.create(object: GuiObject, options: PresenceOptions?): Presence
 			return true
 		end
 
-		local animationValue = motionModule.play(object, exitGoals, motionOptions)
+		local animationValue = motionModule.create(object, exitGoals, motionOptions)
 
 		currentAnimation = animationValue
 
@@ -192,6 +193,7 @@ function module.create(object: GuiObject, options: PresenceOptions?): Presence
 
 			animationValue.delete()
 		end)
+		animationValue.play()
 
 		return true
 	end

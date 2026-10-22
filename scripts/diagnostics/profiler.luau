@@ -1,4 +1,3 @@
-
 --[[
   Reactily · Lily Studios
 
@@ -100,6 +99,9 @@ end
 --- @return {SlowComponent} Ordered slow-component entries.
 function module.getSlowComponents(limit: number?): { SlowComponent }
 	local output: { SlowComponent } = {}
+	if limit ~= nil and limit <= 0 then
+		return output
+	end
 
 	for componentValue, profile in profiles do
 		output[#output + 1] = {
@@ -177,7 +179,7 @@ end
 --- @param componentValue Component Component function to inspect.
 --- @return string? Most recent render reason, when available.
 function module.getRenderReason(componentValue: Component): string?
-	local profile = module.get(componentValue)
+	local profile = profiles[componentValue]
 
 	return if profile then profile.lastReason else nil
 end

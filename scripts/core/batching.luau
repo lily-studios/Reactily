@@ -16,25 +16,39 @@ local module = {}
 
 local batchDepth = 0
 local pendingCallbacks: { [() -> ()]: boolean } = {}
+local pendingOrder: { () -> () } = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-local function flushPending()
+local function flushPending(): (boolean, unknown)
 	if batchDepth > 0 then
-		return
-	end
-	if next(pendingCallbacks) == nil then
-		return
+		return true, nil
 	end
 
-	local callbacks = table.clone(pendingCallbacks)
-	table.clear(pendingCallbacks)
+	local success = true
+	local firstFailure: unknown = nil
 
-	for callback in callbacks do
-		callback()
+	while batchDepth == 0 and #pendingOrder > 0 do
+		local callbacks = pendingOrder
+		pendingOrder = {}
+		table.clear(pendingCallbacks)
+
+		for _, callback in callbacks do
+			local callbackSuccess, failure = pcall(function(): boolean
+				callback()
+				return true
+			end)
+
+			if not callbackSuccess and success then
+				success = false
+				firstFailure = failure
+			end
+		end
+
+		table.clear(callbacks)
 	end
 
-	table.clear(callbacks)
+	return success, firstFailure
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -55,7 +69,10 @@ function module.queue(callback: () -> ()): boolean
 		return false
 	end
 
-	pendingCallbacks[callback] = true
+	if not pendingCallbacks[callback] then
+		pendingCallbacks[callback] = true
+		pendingOrder[#pendingOrder + 1] = callback
+	end
 	return true
 end
 
@@ -72,16 +89,19 @@ function module.run(callback: () -> ())
 	end)
 
 	batchDepth -= 1
-	flushPending()
+	local flushSuccess, flushFailure = flushPending()
 
-	if success then
-		return
+	-- Preserve the originating error while still delivering every pending
+	-- notification. A failed observer must not leave other consumers stale.
+	if not success then
+		error(failure, 0)
 	end
-	error(failure, 0)
+	if not flushSuccess then
+		error(flushFailure, 0)
+	end
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.batch = module.run

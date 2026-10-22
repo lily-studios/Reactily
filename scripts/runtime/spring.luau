@@ -159,18 +159,17 @@ function module.new<T>(initialValue: T, options: SpringOptions?): Spring<T>
 			changed.fire(value)
 		end
 
-		if not settled() then
+		if isDeleted or not settled() then
 			return
 		end
 
+		-- A completion listener may immediately start a different target.
+		velocity = zeroLike(value)
+		disconnectHeartbeat()
 		if value ~= target then
 			value = target
 			changed.fire(value)
 		end
-
-		velocity = zeroLike(value)
-
-		disconnectHeartbeat()
 	end
 
 	local function ensureHeartbeat()
@@ -267,7 +266,6 @@ function module.new<T>(initialValue: T, options: SpringOptions?): Spring<T>
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createSpring = module.new

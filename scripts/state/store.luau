@@ -61,11 +61,13 @@ function module.combine<R>(stores: { Store<any> }, selectorFunction: (values: { 
 	local changed: signalModule.Signal<Change<R>> = signalModule.new()
 	local connections: { signalModule.Connection } = {}
 	local isDeleted = false
+	local sources = table.clone(stores)
+	local generation = 0
 
 	local function getValues(): { any }
-		local values = table.create(#stores)
+		local values = table.create(#sources)
 
-		for index, storeValue in stores do
+		for index, storeValue in sources do
 			values[index] = storeValue.get()
 		end
 
@@ -79,8 +81,10 @@ function module.combine<R>(stores: { Store<any> }, selectorFunction: (values: { 
 			return
 		end
 
+		generation += 1
+		local currentGeneration = generation
 		local nextValue = selectorFunction(getValues())
-		if nextValue == selected then
+		if isDeleted or generation ~= currentGeneration or nextValue == selected then
 			return
 		end
 
@@ -93,7 +97,7 @@ function module.combine<R>(stores: { Store<any> }, selectorFunction: (values: { 
 		})
 	end
 
-	for _, storeValue in stores do
+	for _, storeValue in sources do
 		connections[#connections + 1] = storeValue.subscribe(function()
 			update()
 		end)
@@ -111,6 +115,7 @@ function module.combine<R>(stores: { Store<any> }, selectorFunction: (values: { 
 		end
 
 		table.clear(connections)
+		table.clear(sources)
 		changed.delete()
 
 		return true
@@ -225,8 +230,12 @@ function module.new<T>(initialState: T): Store<T>
 
 		local resolved = nextState
 
-		for _, middlewareValue in middlewares do
+		local activeMiddlewares: { Middleware<T> } = if #middlewares > 0 then table.clone(middlewares) else middlewares
+		for _, middlewareValue in activeMiddlewares do
 			resolved = middlewareValue(state, resolved)
+			if isDeleted then
+				return false
+			end
 		end
 
 		if state == resolved then
@@ -310,14 +319,17 @@ function module.new<T>(initialState: T): Store<T>
 		local selectorChanged: signalModule.Signal<Change<R>> = signalModule.new()
 		local selectorIsDeleted = false
 		local selected = selectorFunction(state)
+		local generation = 0
 
 		local storeConnection = changed.connect(function(storeChange: Change<T>)
 			if selectorIsDeleted then
 				return
 			end
 
+			generation += 1
+			local currentGeneration = generation
 			local nextValue = selectorFunction(storeChange.current)
-			if nextValue == selected then
+			if selectorIsDeleted or generation ~= currentGeneration or nextValue == selected then
 				return
 			end
 
@@ -434,7 +446,6 @@ function module.select<T, R>(source: Store<T>, selectorFunction: (state: T) -> R
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.combineStores = module.combine

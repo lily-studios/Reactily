@@ -45,7 +45,9 @@ local function finishTransition(id: TransitionId)
 	completionCallbacks[id] = nil
 
 	if callbacks then
-		for _, callback in callbacks do
+		for index = 1, #callbacks do
+			local callback = callbacks[index]
+			callbacks[index] = nil
 			local success, failure = pcall(function(): boolean
 				callback()
 				return true
@@ -151,7 +153,6 @@ function module.start(callback: () -> (), onFinished: (() -> ())?): thread
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.startTransition = module.start

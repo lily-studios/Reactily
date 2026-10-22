@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local interactionModule = require(script.Parent.interaction)
@@ -35,7 +34,7 @@ function module.bind(
 	end
 
 	return interactionModule.bind(object, {
-		Hover = style,
+		hover = style,
 		normal = normal,
 	})
 end

@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
@@ -77,9 +76,9 @@ function module.resolve(
 	end
 
 	local extra = math.max(math.floor(overscan or 2), 0)
-	local first = math.floor(math.max(scrollOffset, 0) / itemSize) + 1 - extra
-	local visibleCount = math.ceil(viewportSize / itemSize) + extra * 2
-	local last = first + visibleCount - 1
+	local start = math.max(scrollOffset, 0)
+	local first = math.floor(start / itemSize) + 1 - extra
+	local last = math.ceil((start + viewportSize) / itemSize) + extra
 
 	first = math.clamp(first, 1, itemCount)
 	last = math.clamp(last, first, itemCount)
@@ -101,6 +100,7 @@ end
 --- @param overscan number? Extra item count outside the viewport.
 --- @return virtualList New virtual-list controller.
 function module.new(itemCount: number, itemSize: number, viewportSize: number, overscan: number?): VirtualList
+	module.resolve(itemCount, itemSize, 0, viewportSize, overscan)
 	local count = itemCount
 	local isDeleted = false
 	local offset = 0
@@ -219,7 +219,6 @@ function module.render<T>(options: RenderOptions<T>): elementModule.Element
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createVirtualList = module.new

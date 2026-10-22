@@ -15,9 +15,9 @@ local elementModule = require(script.Parent.Parent.virtual.element)
 local module = {}
 
 module.Profiler = setmetatable(profilerModule, {
-    __call = function(_self: any, props: reactCompatModule.ProfilerProps): elementModule.Element
-        return reactCompatModule.Profiler(props)
-    end,
+	__call = function(_self: typeof(profilerModule), props: reactCompatModule.ProfilerProps): elementModule.Element
+		return reactCompatModule.Profiler(props)
+	end,
 })
 
 return module

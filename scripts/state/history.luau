@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local signalModule = require(script.Parent.Parent.core.signal)
@@ -16,6 +15,8 @@ local signalModule = require(script.Parent.Parent.core.signal)
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
+
+type Entry<T> = { value: T }
 
 --————————————————————————————————————————————————————————————————————--
 
@@ -45,24 +46,24 @@ function module.create<T>(initialValue: T, capacity: number?): History<T>
 	local changed = signalModule.new()
 	local index = 1
 	local isDeleted = false
-	local values: { T } = { initialValue }
+	local values: { Entry<T> } = { { value = initialValue } }
 
 	local function get(): T
 		assert(not isDeleted, "Reactily history is deleted.")
-		return values[index]
+		return values[index].value
 	end
 
 	local function push(value: T): boolean
 		assert(not isDeleted, "Reactily history is deleted.")
-		if values[index] == value then
+		if values[index].value == value then
 			return false
 		end
 
 		for removeIndex = #values, index + 1, -1 do
-			table.remove(values, removeIndex)
+			values[removeIndex] = nil
 		end
 
-		values[#values + 1] = value
+		values[#values + 1] = { value = value }
 		if #values > maximum then
 			table.remove(values, 1)
 		else
@@ -81,7 +82,7 @@ function module.create<T>(initialValue: T, capacity: number?): History<T>
 		end
 
 		index -= 1
-		local value = values[index]
+		local value = values[index].value
 		changed.fire(value)
 		return value
 	end
@@ -93,7 +94,7 @@ function module.create<T>(initialValue: T, capacity: number?): History<T>
 		end
 
 		index += 1
-		local value = values[index]
+		local value = values[index].value
 		changed.fire(value)
 		return value
 	end
@@ -102,11 +103,11 @@ function module.create<T>(initialValue: T, capacity: number?): History<T>
 		assert(not isDeleted, "Reactily history is deleted.")
 		local current = value
 		if current == nil then
-			current = values[index]
+			current = values[index].value
 		end
 
 		table.clear(values)
-		values[1] = current :: T
+		values[1] = { value = current :: T }
 		index = 1
 		changed.fire(current :: T)
 	end

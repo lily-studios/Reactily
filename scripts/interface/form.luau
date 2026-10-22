@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local bindingModule = require(script.Parent.Parent.runtime.binding)
@@ -54,7 +53,7 @@ end
 function module.create<T>(initial: T): Form<T>
 	assert(type(initial) == "table", "Reactily form initial value must be a table.")
 
-	local changed = signalModule.new()
+	local changed: signalModule.Signal<T> = signalModule.new()
 	local errors: { [string]: string } = {}
 	local fields: { [string]: bindingModule.Binding<any> } = {}
 	local fieldConnections: { [string]: signalModule.Connection } = {}
@@ -63,6 +62,8 @@ function module.create<T>(initial: T): Form<T>
 	local values: FormRecord = cloneRecord(initial)
 
 	local isDeleted = false
+	local revision = 0
+	local validationVersion = 0
 
 	--——————————————————————————————————————————————————————————————————--
 
@@ -73,7 +74,10 @@ function module.create<T>(initial: T): Form<T>
 	--——————————————————————————————————————————————————————————————————--
 
 	local function emitChanged()
-		changed.fire(cloneValue())
+		revision += 1
+		if changed.getListenerCount() > 0 then
+			changed.fire(cloneValue())
+		end
 	end
 
 	--——————————————————————————————————————————————————————————————————--
@@ -83,8 +87,12 @@ function module.create<T>(initial: T): Form<T>
 
 		local existing = fields[name]
 
-		if existing then
+		if existing and not existing.isDeleted() then
 			return existing
+		end
+		local previousConnection = fieldConnections[name]
+		if previousConnection then
+			previousConnection.disconnect()
 		end
 
 		local source = bindingModule.new(values[name])
@@ -123,7 +131,7 @@ function module.create<T>(initial: T): Form<T>
 
 		local source = fields[name]
 
-		if source then
+		if source and not source.isDeleted() then
 			if source.get() ~= value then
 				source.set(value)
 			end
@@ -149,7 +157,13 @@ function module.create<T>(initial: T): Form<T>
 
 		table.clear(errors)
 
-		for name, source in fields do
+		for name, source in table.clone(fields) do
+			if isDeleted then
+				return
+			end
+			if source.isDeleted() then
+				continue
+			end
 			local nextValue = values[name]
 
 			if source.get() == nextValue then
@@ -167,18 +181,23 @@ function module.create<T>(initial: T): Form<T>
 	local function validate(validators: ValidationMap): boolean
 		assert(not isDeleted, "Reactily form is deleted.")
 
-		table.clear(errors)
-
+		validationVersion += 1
+		local currentValidation = validationVersion
+		local currentRevision = revision
+		local nextErrors: { [string]: string } = {}
 		for name, validator in validators do
 			local failure = validator(values[name])
+			if isDeleted or validationVersion ~= currentValidation or revision ~= currentRevision then
+				return false
+			end
 
 			if failure == nil then
 				continue
 			end
 
-			errors[name] = failure
+			nextErrors[name] = failure
 		end
-
+		errors = nextErrors
 		return next(errors) == nil
 	end
 
@@ -204,6 +223,8 @@ function module.create<T>(initial: T): Form<T>
 		table.clear(errors)
 
 		changed.delete()
+		table.clear(values)
+		table.clear(initialValues)
 
 		return true
 	end

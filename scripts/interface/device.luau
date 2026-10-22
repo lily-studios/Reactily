@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local userInputService = game:GetService("UserInputService")
@@ -123,6 +122,9 @@ function module.create(): DeviceMonitor
 	end
 
 	local function connectCamera()
+		if isDeleted then
+			return
+		end
 		if cameraConnection then
 			cameraConnection:Disconnect()
 			cameraConnection = nil

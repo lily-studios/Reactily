@@ -24,9 +24,8 @@ type ContextStackValue = {
 	value: any,
 }
 
-type ContextRecord = {
-	stack: { ContextStackValue },
-}
+type ContextStacks = typeof(setmetatable({} :: { [thread]: { ContextStackValue } }, { __mode = "k" }))
+type ContextRecord = { stacks: ContextStacks }
 
 type ContextRecords = {
 	[any]: ContextRecord,
@@ -57,7 +56,11 @@ function module.get<T>(contextValue: Context<T>): T
 		return contextValue.defaultValue
 	end
 
-	local entry = record.stack[#record.stack]
+	local stack = record.stacks[coroutine.running()]
+	if not stack then
+		return contextValue.defaultValue
+	end
+	local entry = stack[#stack]
 
 	if not entry then
 		return contextValue.defaultValue
@@ -80,9 +83,8 @@ function module.new<T>(defaultValue: T): Context<T>
 		id = nextContextId,
 	}
 
-	records[contextValue] = {
-		stack = {},
-	}
+	local stacks: ContextStacks = setmetatable({} :: { [thread]: { ContextStackValue } }, { __mode = "k" })
+	records[contextValue] = { stacks = stacks }
 
 	return contextValue
 end
@@ -95,9 +97,13 @@ function module.pop<T>(contextValue: Context<T>)
 	local record = records[contextValue]
 
 	assert(record, "Reactily context is not registered.")
-	assert(#record.stack > 0, "Reactily context provider stack is empty.")
-
-	record.stack[#record.stack] = nil
+	local running = coroutine.running()
+	local stack = record.stacks[running]
+	assert(stack and #stack > 0, "Reactily context provider stack is empty.")
+	stack[#stack] = nil
+	if #stack == 0 then
+		record.stacks[running] = nil
+	end
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -110,13 +116,18 @@ function module.push<T>(contextValue: Context<T>, value: T)
 
 	assert(record, "Reactily context is not registered.")
 
-	record.stack[#record.stack + 1] = {
+	local running = coroutine.running()
+	local stack = record.stacks[running]
+	if not stack then
+		stack = {}
+		record.stacks[running] = stack
+	end
+	stack[#stack + 1] = {
 		value = value,
 	}
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createContext = module.new

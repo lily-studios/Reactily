@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local inputModule = require(script.Parent.input)
@@ -50,6 +49,9 @@ function module.create(): CommandRegistry
 			return false
 		end
 		if commandValue.canExecute and not commandValue.canExecute() then
+			return false
+		end
+		if isDeleted or commands[name] ~= commandValue then
 			return false
 		end
 

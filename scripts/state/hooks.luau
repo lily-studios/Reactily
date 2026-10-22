@@ -144,11 +144,18 @@ export type TransitionStarter = (callback: () -> ()) -> ()
 local currentContext: ComponentContext? = nil
 local nextHookId = 0
 local renderSnapshots: { [ComponentContext]: { HookSnapshot } } = {}
+local effectVersions: { [ComponentContext]: number } = {}
 
 do
 	local weakRenderSnapshots: any = renderSnapshots
 
 	setmetatable(weakRenderSnapshots, {
+		__mode = "k",
+	})
+
+	local weakEffectVersions: any = effectVersions
+
+	setmetatable(weakEffectVersions, {
 		__mode = "k",
 	})
 end
@@ -248,6 +255,17 @@ local function runCleanup(callback: Cleanup)
 	warn(`Reactily effect cleanup failed: {failure}`)
 end
 
+local function cleanSlot(slot: HookSlot)
+	local cleanup = slot.cleanup
+	if not cleanup then
+		return
+	end
+
+	-- Detach before calling user code, which may pause or delete the context.
+	slot.cleanup = nil
+	runCleanup(cleanup)
+end
+
 --————————————————————————————————————————————————————————————————————--
 
 --- Resolves a direct state value or updater function against previous state.
@@ -316,10 +334,18 @@ local function flushEffectQueue(
 	if #queue == 0 then
 		return
 	end
+	local version = effectVersions[context] or 0
+	local function isCurrent(): boolean
+		return not context.isDeleted and not context.isEffectsPaused and (effectVersions[context] or 0) == version
+	end
+
 	for _, effect in queue do
-		if effect.slot.cleanup then
-			runCleanup(effect.slot.cleanup)
-			effect.slot.cleanup = nil
+		if not isCurrent() then
+			break
+		end
+		cleanSlot(effect.slot)
+		if not isCurrent() then
+			break
 		end
 		local cleanupValue: any = nil
 		local success, failure = pcall(function(): boolean
@@ -331,7 +357,12 @@ local function flushEffectQueue(
 				warn("Reactily effect callback must return a cleanup function or nil.")
 				continue
 			end
-			effect.slot.cleanup = cleanupValue :: Cleanup?
+			if isCurrent() then
+				effect.slot.cleanup = cleanupValue :: Cleanup?
+			elseif cleanupValue ~= nil then
+				-- An effect can dispose or pause itself before returning its cleanup.
+				runCleanup(cleanupValue :: Cleanup)
+			end
 			continue
 		end
 		warn(`Reactily effect failed: {failure}`)
@@ -396,10 +427,7 @@ function module.deleteContext(context: ComponentContext): boolean
 	end
 	context.isDeleted = true
 	for _, slot in context.hooks do
-		if slot.cleanup then
-			runCleanup(slot.cleanup)
-			slot.cleanup = nil
-		end
+		cleanSlot(slot)
 		slot.callback = nil
 		slot.dependencies = nil
 		slot.value = nil
@@ -409,6 +437,7 @@ function module.deleteContext(context: ComponentContext): boolean
 	table.clear(context.pendingInsertionEffects)
 	table.clear(context.pendingLayoutEffects)
 	renderSnapshots[context] = nil
+	effectVersions[context] = nil
 	return true
 end
 
@@ -526,18 +555,20 @@ function module.pauseEffects(context: ComponentContext)
 	end
 
 	context.isEffectsPaused = true
+	local version = (effectVersions[context] or 0) + 1
+	effectVersions[context] = version
 	table.clear(context.pendingEffects)
 	table.clear(context.pendingInsertionEffects)
 	table.clear(context.pendingLayoutEffects)
 
 	for _, slot in context.hooks do
+		if context.isDeleted or not context.isEffectsPaused or effectVersions[context] ~= version then
+			break
+		end
 		if slot.kind ~= "effect" and slot.kind ~= "layoutEffect" and slot.kind ~= "insertionEffect" then
 			continue
 		end
-		if slot.cleanup then
-			runCleanup(slot.cleanup)
-			slot.cleanup = nil
-		end
+		cleanSlot(slot)
 	end
 end
 

@@ -132,6 +132,10 @@ function module.playUpdate(before: Snapshot, instances: { Instance }, config: Op
 			local tween = tweenValue :: Tween
 			tweens[#tweens + 1] = tween
 			tween:Play()
+		else
+			for propertyName, value in goals do
+				writeProperty(instance, propertyName, value)
+			end
 		end
 	end
 
@@ -171,6 +175,10 @@ function module.playEnter(instances: { Instance }, config: Options?): { Tween }
 			local tween = tweenValue :: Tween
 			tweens[#tweens + 1] = tween
 			tween:Play()
+		else
+			for propertyName, value in goals do
+				writeProperty(instance, propertyName, value)
+			end
 		end
 	end
 
@@ -182,12 +190,13 @@ end
 --- Cancels all active tweens and clears their collection.
 --- @param tweens {Tween} Tween animations to cancel and remove from the collection.
 function module.cancel(tweens: { Tween })
-	for _, tween in tweens do
+	local pending = table.clone(tweens)
+	table.clear(tweens)
+	for _, tween in pending do
 		pcall(function()
 			tween:Cancel()
 		end)
 	end
-	table.clear(tweens)
 end
 
 --————————————————————————————————————————————————————————————————————--

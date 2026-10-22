@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -136,6 +135,7 @@ function module.bind(object: GuiObject, options: InteractionOptions): Interactio
 		table.clear(connections)
 		return true
 	end
+	connections[#connections + 1] = object.Destroying:Connect(delete)
 
 	local function getIsDeleted(): boolean
 		return isDeleted

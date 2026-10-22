@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -47,7 +46,8 @@ function module.maxLength(maximum: number, message: string?): Validator<string>
 	assert(maximum >= 0, "Reactily validator maximum length must be non-negative.")
 
 	return function(value: string): string?
-		if utf8.len(value) and (utf8.len(value) :: number) <= maximum then
+		local length = utf8.len(value)
+		if length ~= nil and length <= maximum then
 			return nil
 		end
 

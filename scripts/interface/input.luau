@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local userInputService = game:GetService("UserInputService")
@@ -91,7 +90,7 @@ function module.bind(
 			return
 		end
 
-		if not predicate(input) then
+		if not predicate(input) or isDeleted or not enabled then
 			return
 		end
 
@@ -226,7 +225,6 @@ function module.bindType(
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 export type KeyInputOptions = KeyOptions

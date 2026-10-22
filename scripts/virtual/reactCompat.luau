@@ -17,6 +17,8 @@ local elementModule = require(script.Parent.element)
 
 local module = {}
 
+local emptyChildren: { any } = table.freeze({})
+
 --————————————————————————————————————————————————————————————————————--
 
 --- Properties for the StrictMode component.
@@ -93,7 +95,7 @@ export type ViewTransitionProps = {
 --- @param props strictModeProps StrictMode component properties.
 --- @return element Created StrictMode element.
 function module.StrictMode(props: StrictModeProps): elementModule.Element
-	return elementModule.createStrictMode(props.children or {}, props.key)
+	return elementModule.createStrictMode(props.children or emptyChildren, props.key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -102,7 +104,7 @@ end
 --- @param props suspenseProps Suspense component properties.
 --- @return element Created Suspense element.
 function module.Suspense(props: SuspenseProps): elementModule.Element
-	local child = childrenModule.only(props.children or {})
+	local child = childrenModule.only(props.children or emptyChildren)
 	return elementModule.createSuspense(props.fallback, child, props.key)
 end
 
@@ -112,7 +114,7 @@ end
 --- @param props errorBoundaryProps ErrorBoundary component properties.
 --- @return element Created error-boundary element.
 function module.ErrorBoundary(props: ErrorBoundaryProps): elementModule.Element
-	local child = childrenModule.only(props.children or {})
+	local child = childrenModule.only(props.children or emptyChildren)
 	return elementModule.createErrorBoundary(props.fallback, child, props.onError, props.key)
 end
 
@@ -122,7 +124,7 @@ end
 --- @param props activityProps Activity component properties.
 --- @return element Created Activity element.
 function module.Activity(props: ActivityProps): elementModule.Element
-	return elementModule.createActivity(props.mode or "visible", props.children or {}, props.key)
+	return elementModule.createActivity(props.mode or "visible", props.children or emptyChildren, props.key)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -131,7 +133,7 @@ end
 --- @param props profilerProps Profiler component properties.
 --- @return element Created Profiler element.
 function module.Profiler(props: ProfilerProps): elementModule.Element
-	local child = childrenModule.only(props.children or {})
+	local child = childrenModule.only(props.children or emptyChildren)
 	return elementModule.createProfiler(props.id, child, props.onRender, props.key)
 end
 
@@ -141,7 +143,7 @@ end
 --- @param props viewTransitionProps ViewTransition component properties.
 --- @return element Created ViewTransition element.
 function module.ViewTransition(props: ViewTransitionProps): elementModule.Element
-	local child = childrenModule.only(props.children or {})
+	local child = childrenModule.only(props.children or emptyChildren)
 	return elementModule.createViewTransition(
 		child,
 		props.config,

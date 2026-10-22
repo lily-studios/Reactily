@@ -8,11 +8,9 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
-local hostConfigModule = require(script.Parent.Parent.runtime.hostConfig)
 
 --————————————————————————————————————————————————————————————————————--
 
@@ -82,7 +80,7 @@ function module.create(options: ModalOptions?, children: { any }): elementModule
 
 	if closeOnBackground then
 		if onClose then
-			(props :: any)[hostConfigModule.Event.Activated] = onClose
+			props.onActivated = onClose
 		end
 	end
 

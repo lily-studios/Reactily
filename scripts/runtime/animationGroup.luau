@@ -33,37 +33,36 @@ export type AnimationGroup = {
 
 local function createGroup(animations: { Playable }, sequential: boolean): AnimationGroup
 	local completionConnections: { RBXScriptConnection } = {}
-
 	local isDeleted = false
 	local isPlaying = false
+	local generation = 0
 
 	local function disconnectCompletions()
-		for _, connection in completionConnections do
-			if not connection.Connected then
-				continue
-			end
-
+		local connections = table.clone(completionConnections)
+		table.clear(completionConnections)
+		for _, connection in connections do
 			connection:Disconnect()
 		end
+	end
 
-		table.clear(completionConnections)
+	local function isCurrent(version: number): boolean
+		return not isDeleted and isPlaying and generation == version
 	end
 
 	local function cancel(): boolean
-		if isDeleted then
+		if isDeleted or not isPlaying then
 			return false
 		end
-		if not isPlaying then
-			return false
-		end
-
 		isPlaying = false
+		generation += 1
+		local version = generation
 		disconnectCompletions()
-
 		for _, animation in animations do
+			if generation ~= version then
+				break
+			end
 			animation.cancel()
 		end
-
 		return true
 	end
 
@@ -71,16 +70,29 @@ local function createGroup(animations: { Playable }, sequential: boolean): Anima
 		if isDeleted then
 			return false
 		end
-
-		cancel()
+		local wasPlaying = isPlaying
+		-- Mark first: cancellation/completion callbacks can reenter deletion.
 		isDeleted = true
-
-		for _, animation in animations do
-			animation.delete()
-		end
-
+		isPlaying = false
+		generation += 1
+		disconnectCompletions()
+		local retiring = table.clone(animations)
 		table.clear(animations)
-
+		for _, animation in retiring do
+			if wasPlaying then
+				local cancelled, cancelFailure = pcall(animation.cancel)
+				if not cancelled then
+					warn(`Reactily animation group cancellation failed: {cancelFailure}`)
+				end
+			end
+			local success, failure = pcall(function(): boolean
+				animation.delete()
+				return true
+			end)
+			if not success then
+				warn(`Reactily animation group cleanup failed: {failure}`)
+			end
+		end
 		return true
 	end
 
@@ -89,108 +101,123 @@ local function createGroup(animations: { Playable }, sequential: boolean): Anima
 	end
 
 	local function playParallel()
-		isPlaying = true
-
+		local version = generation
 		local remaining = #animations
-
 		local function completeOne()
-			remaining -= 1
-			if remaining > 0 then
+			if not isCurrent(version) then
 				return
 			end
-
-			isPlaying = false
-			disconnectCompletions()
+			remaining -= 1
+			if remaining == 0 then
+				isPlaying = false
+				disconnectCompletions()
+			end
 		end
-
 		for _, animation in animations do
+			if not isCurrent(version) then
+				break
+			end
 			local onCompleted = animation.onCompleted
-
 			if not onCompleted then
 				animation.play()
 				completeOne()
 				continue
 			end
-
+			local completed = false
 			local connection = onCompleted(function()
+				if completed then
+					return
+				end
+				completed = true
 				completeOne()
 			end)
-
-			completionConnections[#completionConnections + 1] = connection
-			animation.play()
+			if completed or not isCurrent(version) then
+				connection:Disconnect()
+			else
+				completionConnections[#completionConnections + 1] = connection
+				animation.play()
+			end
 		end
 	end
 
 	local function playSequential()
-		isPlaying = true
-
+		local version = generation
 		local index = 0
-
+		local advancing = false
+		local advanceRequested = false
 		local function playNext()
-			if not isPlaying then
+			if not isCurrent(version) then
 				return
 			end
-			if isDeleted then
+			if advancing then
+				advanceRequested = true
 				return
 			end
-
-			index += 1
-
-			local animation = animations[index]
-
-			if not animation then
-				isPlaying = false
-				disconnectCompletions()
-				return
-			end
-
-			local onCompleted = animation.onCompleted
-
-			if not onCompleted then
-				animation.play()
-				playNext()
-				return
-			end
-
-			local connectionReference: RBXScriptConnection? = nil
-
-			local connection = onCompleted(function()
-				local activeConnection = connectionReference
-
-				if activeConnection and activeConnection.Connected then
-					activeConnection:Disconnect()
+			advancing = true
+			repeat
+				advanceRequested = false
+				index += 1
+				local animation = animations[index]
+				if not animation then
+					isPlaying = false
+					disconnectCompletions()
+					break
 				end
-
-				playNext()
-			end)
-
-			connectionReference = connection
-			completionConnections[#completionConnections + 1] = connection
-
-			animation.play()
+				local onCompleted = animation.onCompleted
+				if not onCompleted then
+					animation.play()
+					advanceRequested = true
+					continue
+				end
+				local completed = false
+				local connectionReference: RBXScriptConnection? = nil
+				local connection = onCompleted(function()
+					if completed or not isCurrent(version) then
+						return
+					end
+					completed = true
+					if connectionReference then
+						connectionReference:Disconnect()
+					end
+					playNext()
+				end)
+				connectionReference = connection
+				if completed or not isCurrent(version) then
+					connection:Disconnect()
+				else
+					completionConnections[#completionConnections + 1] = connection
+					animation.play()
+				end
+			until not advanceRequested or not isCurrent(version)
+			advancing = false
 		end
-
 		playNext()
 	end
 
 	local function play()
 		assert(not isDeleted, "Reactily animation group is deleted.")
-
-		if isPlaying then
+		if isPlaying or #animations == 0 then
 			return
 		end
-		if #animations == 0 then
-			return
-		end
-
 		disconnectCompletions()
-
-		if sequential then
-			playSequential()
-			return
+		generation += 1
+		local version = generation
+		isPlaying = true
+		local success, failure = pcall(function(): boolean
+			if sequential then
+				playSequential()
+			else
+				playParallel()
+			end
+			return true
+		end)
+		if not success then
+			if generation == version then
+				isPlaying = false
+				disconnectCompletions()
+			end
+			error(failure, 0)
 		end
-
-		playParallel()
 	end
 
 	return {
@@ -305,7 +332,6 @@ function module.sequence(animations: { Playable }): AnimationGroup
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createAnimationDelay = module.delay

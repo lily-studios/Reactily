@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local textService = game:GetService("TextService")
@@ -212,6 +211,12 @@ function module.attach(parent: Instance, target: GuiObject, text: string, option
 
 	local enteredConnection = target.MouseEnter:Connect(show)
 	local leftConnection = target.MouseLeave:Connect(hide)
+	local destroyingConnection: RBXScriptConnection? = nil
+	local positionConnection = target:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+		if not isDeleted and label.Visible then
+			positionTooltip()
+		end
+	end)
 
 	--——————————————————————————————————————————————————————————————————--
 
@@ -227,6 +232,10 @@ function module.attach(parent: Instance, target: GuiObject, text: string, option
 
 		enteredConnection:Disconnect()
 		leftConnection:Disconnect()
+		positionConnection:Disconnect()
+		if destroyingConnection then
+			destroyingConnection:Disconnect()
+		end
 
 		screenGui:Destroy()
 
@@ -238,6 +247,7 @@ function module.attach(parent: Instance, target: GuiObject, text: string, option
 	local function getIsDeleted(): boolean
 		return isDeleted
 	end
+	destroyingConnection = target.Destroying:Connect(delete)
 
 	--——————————————————————————————————————————————————————————————————--
 

@@ -174,9 +174,17 @@ end
 --- @return binding<R> Derived binding.
 function module.combine<A, B, R>(first: Binding<A>, second: Binding<B>, mapper: (firstValue: A, secondValue: B) -> R): Binding<R>
 	local output = module.new(mapper(first.get(), second.get()))
+	local generation = 0
 
 	local function update()
-		output.set(mapper(first.get(), second.get()))
+		generation += 1
+		local currentGeneration = generation
+		local nextValue = mapper(first.get(), second.get())
+		if output.isDeleted() or generation ~= currentGeneration then
+			return
+		end
+
+		output.set(nextValue)
 	end
 
 	local firstConnection = first.subscribe(function()
@@ -206,10 +214,14 @@ end
 --- @param mapper (values: {any}) -> R Derivation callback.
 --- @return binding<R> Derived binding.
 function module.combineMany<R>(sources: { Binding<any> }, mapper: (values: { any }) -> R): Binding<R>
-	local function collect(): { any }
-		local values: { any } = table.create(#sources)
+	-- Keep the values being read aligned with the sources actually subscribed
+	-- to, even when the caller reuses or mutates its input array.
+	local sourceValues = table.clone(sources)
 
-		for index, source in sources do
+	local function collect(): { any }
+		local values: { any } = table.create(#sourceValues)
+
+		for index, source in sourceValues do
 			values[index] = source.get()
 		end
 
@@ -218,10 +230,18 @@ function module.combineMany<R>(sources: { Binding<any> }, mapper: (values: { any
 
 	local output = module.new(mapper(collect()))
 	local connections: { signalModule.Connection } = {}
+	local generation = 0
 
-	for _, source in sources do
+	for _, source in sourceValues do
 		connections[#connections + 1] = source.subscribe(function()
-			output.set(mapper(collect()))
+			generation += 1
+			local currentGeneration = generation
+			local nextValue = mapper(collect())
+			if output.isDeleted() or generation ~= currentGeneration then
+				return
+			end
+
+			output.set(nextValue)
 		end)
 	end
 
@@ -258,9 +278,19 @@ end
 --- @return binding<B> Derived binding.
 function module.map<A, B>(source: Binding<A>, mapper: (value: A) -> B): Binding<B>
 	local output = module.new(mapper(source.get()))
+	local generation = 0
 
 	local sourceConnection = source.subscribe(function(change: BindingChange<A>)
-		output.set(mapper(change.current))
+		generation += 1
+		local currentGeneration = generation
+		local nextValue = mapper(change.current)
+		-- A mapper may yield or synchronously update its own source. Never let
+		-- an older invocation overwrite a newer result or a deleted binding.
+		if output.isDeleted() or generation ~= currentGeneration then
+			return
+		end
+
+		output.set(nextValue)
 	end)
 
 	local outputDelete = output.delete
@@ -353,7 +383,6 @@ function module.round(source: Binding<number>, precision: number): Binding<numbe
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.bindAttribute = module.attachAttribute

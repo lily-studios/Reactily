@@ -215,7 +215,12 @@ local function applyRef(handle: HostHandle, target: elementModule.HostRefTarget<
 	end
 
 	if handle.refTarget then
-		assignRef(handle.refTarget, nil)
+		local previousTarget = handle.refTarget
+		handle.refTarget = nil
+		assignRef(previousTarget, nil)
+	end
+	if handle.owner.isDeleted then
+		return
 	end
 
 	handle.refTarget = target
@@ -335,9 +340,8 @@ function module.createHost(parent: Instance, elementValue: elementModule.Element
 		tags = {},
 	}
 
-	instance.Parent = parent
-
 	local success, failure = pcall(function()
+		instance.Parent = parent
 		module.updateHost(handle, {}, elementValue.props)
 	end)
 
@@ -359,10 +363,14 @@ function module.deleteHost(handle: HostHandle): boolean
 		return false
 	end
 
-	if handle.refTarget then
-		assignRef(handle.refTarget, nil)
-		handle.refTarget = nil
-	end
+	local target = handle.refTarget
+	handle.refTarget = nil
+	local success, failure = pcall(function(): boolean
+		if target then
+			assignRef(target, nil)
+		end
+		return true
+	end)
 
 	table.clear(handle.attributes)
 	table.clear(handle.changeConnections)
@@ -372,7 +380,11 @@ function module.deleteHost(handle: HostHandle): boolean
 	table.clear(handle.props)
 	table.clear(handle.tags)
 
-	return lifecycle.delete(handle.owner)
+	lifecycle.delete(handle.owner)
+	if not success then
+		error(failure, 0)
+	end
+	return true
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -387,7 +399,9 @@ function module.replayRef(handle: HostHandle)
 
 	local target = handle.refTarget
 	assignRef(target, nil)
-	assignRef(target, handle.instance)
+	if not handle.owner.isDeleted and handle.refTarget == target then
+		assignRef(target, handle.instance)
+	end
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -419,6 +433,9 @@ function module.updateHost(
 
 	if previousProps.ref ~= nextProps.ref then
 		applyRef(handle, nextProps.ref)
+	end
+	if handle.owner.isDeleted then
+		return
 	end
 
 	if previousProps.onPropertyChanged ~= nextProps.onPropertyChanged then

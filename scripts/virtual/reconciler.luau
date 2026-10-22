@@ -128,8 +128,9 @@ local function disconnectSuspense(node: RuntimeNode)
 	if not node.suspenseCleanup then
 		return
 	end
-	node.suspenseCleanup()
+	local cleanup = node.suspenseCleanup
 	node.suspenseCleanup = nil
+	cleanup()
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -153,6 +154,12 @@ local function subscribeSuspense(node: RuntimeNode, suspension: resourceModule.S
 		node.suspenseCleanup = nil
 		options.requestRender("suspense resolved")
 	end)
+	if not connected then
+		if cleanup then
+			cleanup()
+		end
+		return
+	end
 	node.suspenseCleanup = function()
 		if not connected then
 			return

@@ -5,7 +5,7 @@
 	Licensed under the MIT License.
 	See LICENSE in the repository root for full terms.
 ]]
-   
+
 --!strict
 
 local module = {}
@@ -17,6 +17,7 @@ function module.isEnabled(): boolean
 end
 
 function module.setEnabled(value: boolean)
+	assert(type(value) == "boolean", "Reactily strict-mode diagnostics must be a boolean.")
 	enabled = value
 end
 

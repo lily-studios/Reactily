@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local profilerModule = require(script.Parent.profiler)
@@ -19,14 +18,18 @@ local module = {}
 
 --————————————————————————————————————————————————————————————————————--
 
-local function appendTree(lines: { string }, node: any, depth: number)
-	if node == nil then
+local function appendTree(lines: { string }, node: any, depth: number, visiting: { [any]: boolean })
+	if type(node) ~= "table" then
 		return
 	end
 
 	local prefix = string.rep("  ", depth)
+	if visiting[node] then
+		lines[#lines + 1] = `{prefix}[cycle]`
+		return
+	end
 	local kind = tostring(node.kind or "unknown")
-	local name = tostring(node.ClassName or node.key or kind)
+	local name = tostring(node.className or node.ClassName or node.key or kind)
 	lines[#lines + 1] = `{prefix}{name} [{kind}]`
 
 	local children = node.children
@@ -34,9 +37,11 @@ local function appendTree(lines: { string }, node: any, depth: number)
 		return
 	end
 
+	visiting[node] = true
 	for _, child in children do
-		appendTree(lines, child, depth + 1)
+		appendTree(lines, child, depth + 1, visiting)
 	end
+	visiting[node] = nil
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -46,7 +51,7 @@ end
 --- @return string Formatted tree.
 function module.formatTree(snapshot: any): string
 	local lines: { string } = {}
-	appendTree(lines, snapshot, 0)
+	appendTree(lines, snapshot, 0, {})
 	return table.concat(lines, "\n")
 end
 

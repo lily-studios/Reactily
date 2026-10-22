@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local signalModule = require(script.Parent.Parent.core.signal)
@@ -48,6 +47,9 @@ function module.create<T>(initialValues: { T }?): Selection<T>
 	end
 
 	local function emit()
+		if changed.getListenerCount() == 0 then
+			return
+		end
 		changed.fire(snapshot())
 	end
 

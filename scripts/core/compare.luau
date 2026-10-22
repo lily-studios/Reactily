@@ -35,13 +35,14 @@ function module.shallowEqual(first: { [any]: any }?, second: { [any]: any }?): b
 		end
 	end
 
-	local secondCount = 0
-
 	for _ in second do
-		secondCount += 1
+		firstCount -= 1
+		if firstCount < 0 then
+			return false
+		end
 	end
 
-	return firstCount == secondCount
+	return firstCount == 0
 end
 
 --————————————————————————————————————————————————————————————————————--

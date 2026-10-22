@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
@@ -34,11 +33,12 @@ function module.create<P>(
 	render: (props: P) -> elementModule.Element?,
 	options: ComponentOptions<P>?
 ): elementModule.Component<P>
+	assert(type(render) == "function", "Reactily component render must be a function.")
 	if not options or options.defaults == nil then
 		return render
 	end
 
-	local defaults = options.defaults :: any
+	local defaults: propsModule.PropMap = options.defaults :: any
 
 	return function(props: P): elementModule.Element?
 		local merged = propsModule.defaults(props, defaults)

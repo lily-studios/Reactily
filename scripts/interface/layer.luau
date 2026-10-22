@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.Parent.virtual.element)
@@ -175,11 +174,16 @@ function module.create(parent: Instance, definitions: { [string]: LayerDefinitio
 
 		local screenGui = Instance.new("ScreenGui")
 
-		screenGui.Name = `ReactilyLayer_{name}`
-
-		configure(screenGui, settings)
-
-		screenGui.Parent = parent
+		local success, failure = pcall(function(): boolean
+			screenGui.Name = `ReactilyLayer_{name}`
+			configure(screenGui, settings)
+			screenGui.Parent = parent
+			return true
+		end)
+		if not success or isDeleted then
+			screenGui:Destroy()
+			error(if success then "Reactily layer manager was deleted during creation." else failure, 0)
+		end
 		layers[name] = screenGui
 
 		return screenGui
@@ -222,8 +226,15 @@ function module.create(parent: Instance, definitions: { [string]: LayerDefinitio
 
 	--——————————————————————————————————————————————————————————————————--
 
-	for name, definition in configuredDefinitions do
-		getOrCreate(name, definition)
+	local success, failure = pcall(function(): boolean
+		for name, definition in configuredDefinitions do
+			getOrCreate(name, definition)
+		end
+		return true
+	end)
+	if not success then
+		delete()
+		error(failure, 0)
 	end
 
 	--——————————————————————————————————————————————————————————————————--

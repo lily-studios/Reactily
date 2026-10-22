@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local guiService = game:GetService("GuiService")
@@ -20,6 +19,12 @@ local elementModule = require(script.Parent.Parent.virtual.element)
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
+
+local zeroInset = UDim.new(0, 0)
+
+local function insetSize(value: number): UDim
+	return if value == 0 then zeroInset else UDim.new(0, value)
+end
 
 --————————————————————————————————————————————————————————————————————--
 
@@ -53,15 +58,14 @@ function module.padding(): elementModule.Element
 	local value = module.getInsets()
 
 	return elementModule.createUIPadding({
-		PaddingBottom = UDim.new(0, value.bottom),
-		PaddingLeft = UDim.new(0, value.left),
-		PaddingRight = UDim.new(0, value.right),
-		PaddingTop = UDim.new(0, value.top),
+		PaddingBottom = insetSize(value.bottom),
+		PaddingLeft = insetSize(value.left),
+		PaddingRight = insetSize(value.right),
+		PaddingTop = insetSize(value.top),
 	})
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 export type SafeAreaInsets = Insets

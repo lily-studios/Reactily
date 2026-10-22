@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local compareModule = require(script.Parent.Parent.core.compare)
@@ -71,6 +70,9 @@ end
 function module.changed(previous: PropMap, current: PropMap): (PropMap, { any })
 	local output: PropMap = {}
 	local removed: { any } = {}
+	if previous == current then
+		return output, removed
+	end
 	local seen: { [any]: boolean } = {}
 
 	for key, value in previous do

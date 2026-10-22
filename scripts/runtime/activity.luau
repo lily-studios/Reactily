@@ -56,9 +56,12 @@ function module.hide(instance: Instance)
 		value = current,
 	}
 
-	pcall(function()
+	local didHide = pcall(function()
 		target[propertyName] = false
 	end)
+	if not didHide then
+		snapshots[instance] = nil
+	end
 end
 
 function module.show(instance: Instance)

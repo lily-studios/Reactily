@@ -23,6 +23,9 @@ end
 --- @param readable any Context or resource.
 --- @return T Current value.
 function module.use<T>(readable: any): T
+	if type(readable) ~= "table" then
+		error("Reactily.use() expects a Reactily context or resource.", 2)
+	end
 	if isResource(readable) then
 		return readable.read() :: T
 	end

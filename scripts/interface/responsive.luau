@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -51,6 +50,7 @@ function module.resolve<T>(viewportSize: Vector2, values: BreakpointValues<T>, o
 	assert(mobileMax <= tabletMax, "Reactily responsive mobileMax cannot exceed tabletMax.")
 
 	local width = viewportSize.X
+	assert(width == width, "Reactily responsive viewport width must not be NaN.")
 
 	if width <= mobileMax then
 		local mobile = values.mobile
@@ -78,7 +78,6 @@ function module.resolve<T>(viewportSize: Vector2, values: BreakpointValues<T>, o
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 export type ResponsiveBreakpoints = Breakpoints

@@ -182,11 +182,13 @@ end
 --- Destroys every Instance tracked by an owner.
 --- @param ownerValue owner Lifecycle owner.
 function module.deleteInstances(ownerValue: Owner)
-	for _, instance in ownerValue.instances do
-		instance:Destroy()
-	end
-
+	local instances = table.clone(ownerValue.instances)
 	table.clear(ownerValue.instances)
+	for _, instance in instances do
+		runCleanup(function()
+			instance:Destroy()
+		end)
+	end
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -211,14 +213,14 @@ end
 --- Disconnects every signal connection tracked by an owner.
 --- @param ownerValue owner Lifecycle owner.
 function module.disconnectAll(ownerValue: Owner)
-	for _, connection in ownerValue.connections do
+	local connections = table.clone(ownerValue.connections)
+	table.clear(ownerValue.connections)
+	for _, connection in connections do
 		if not connection.Connected then
 			continue
 		end
 		connection:Disconnect()
 	end
-
-	table.clear(ownerValue.connections)
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -278,6 +280,10 @@ end
 --- @param nextValue T Replacement Instance.
 --- @return T The newly tracked Instance.
 function module.replaceInstance<T>(ownerValue: Owner, current: T?, nextValue: T): T
+	assert(not ownerValue.isDeleted, "Reactily owner is deleted.")
+	if current == nextValue then
+		return nextValue
+	end
 	if current and typeof(current) == "Instance" then
 		module.deleteInstance(ownerValue, current :: any)
 	end
@@ -290,11 +296,11 @@ end
 --- Runs and clears every cleanup callback owned by an owner.
 --- @param ownerValue owner Lifecycle owner.
 function module.runCleanups(ownerValue: Owner)
-	for index = #ownerValue.cleanups, 1, -1 do
-		runCleanup(ownerValue.cleanups[index])
-	end
-
+	local cleanups = table.clone(ownerValue.cleanups)
 	table.clear(ownerValue.cleanups)
+	for index = #cleanups, 1, -1 do
+		runCleanup(cleanups[index])
+	end
 end
 
 --————————————————————————————————————————————————————————————————————--
@@ -313,7 +319,6 @@ function module.trackInstance<T>(ownerValue: Owner, instance: T): T
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createLifecycleOwner = module.new

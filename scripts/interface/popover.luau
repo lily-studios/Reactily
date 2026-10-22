@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local workspaceService = game:GetService("Workspace")
@@ -129,7 +128,12 @@ function module.place(anchor: GuiObject, object: GuiObject, options: PopoverOpti
 		absolutePosition = clampPositionToViewport(object, absolutePosition)
 	end
 
-	local localPosition = absolutePosition - parentOrigin(object)
+	-- Position describes the anchor point, whereas placement resolves the top-left.
+	local anchorPoint = object.AnchorPoint
+	local size = object.AbsoluteSize
+	local localPosition = absolutePosition
+		- parentOrigin(object)
+		+ Vector2.new(size.X * anchorPoint.X, size.Y * anchorPoint.Y)
 
 	local nextPosition = UDim2.fromOffset(localPosition.X, localPosition.Y)
 
@@ -143,7 +147,6 @@ function module.place(anchor: GuiObject, object: GuiObject, options: PopoverOpti
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 export type PopoverPlacement = Placement

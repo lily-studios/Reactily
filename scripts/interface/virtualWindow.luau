@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local module = {}
@@ -126,10 +125,6 @@ function module.new(sizes: { number }, viewportSize: number, overscan: number?):
 	local scrollOffset = 0
 	local viewport = viewportSize
 
-	local function rebuild()
-		offsets, totalSize = buildOffsets(itemSizes)
-	end
-
 	local function getRange(): VariableRange
 		assert(not isDeleted, "Reactily variable virtual list is deleted.")
 		return resolveFromOffsets(itemSizes, offsets, totalSize, scrollOffset, viewport, overscan)
@@ -147,14 +142,23 @@ function module.new(sizes: { number }, viewportSize: number, overscan: number?):
 
 	local function setSize(index: number, size: number): boolean
 		assert(not isDeleted, "Reactily variable virtual list is deleted.")
-		assert(index >= 1 and index <= #itemSizes, "Reactily virtual item index is out of range.")
+		assert(index % 1 == 0 and index >= 1 and index <= #itemSizes, "Reactily virtual item index is out of range.")
 		assert(size >= 0, "Reactily virtual item size must be non-negative.")
 		if itemSizes[index] == size then
 			return false
 		end
+		if totalSize == math.huge or size == math.huge then
+			itemSizes[index] = size
+			offsets, totalSize = buildOffsets(itemSizes)
+			return true
+		end
 
+		local delta = size - itemSizes[index]
 		itemSizes[index] = size
-		rebuild()
+		for offsetIndex = index + 1, #offsets do
+			offsets[offsetIndex] += delta
+		end
+		totalSize += delta
 		return true
 	end
 
@@ -177,8 +181,10 @@ function module.new(sizes: { number }, viewportSize: number, overscan: number?):
 			end
 		end
 
+		local nextOffsets, nextTotalSize = buildOffsets(nextSizes)
 		itemSizes = table.clone(nextSizes)
-		rebuild()
+		offsets = nextOffsets
+		totalSize = nextTotalSize
 		return true
 	end
 
@@ -231,7 +237,6 @@ function module.resolve(sizes: { number }, scrollOffset: number, viewportSize: n
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createVariableVirtualList = module.new

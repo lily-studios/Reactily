@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local elementModule = require(script.Parent.element)
@@ -32,6 +31,7 @@ end
 --- @param children {any} Child elements or nested child arrays.
 --- @param callback (child: element, index: number) -> () Callback for each child.
 function module.forEach(children: { any }, callback: (child: elementModule.Element, index: number) -> ())
+	assert(type(callback) == "function", "Reactily.Children.forEach expects a callback.")
 	local normalized = elementModule.flattenChildren(children)
 
 	for index, child in normalized do
@@ -49,6 +49,7 @@ function module.map(
 	children: { any },
 	callback: (child: elementModule.Element, index: number) -> any
 ): { elementModule.Element }
+	assert(type(callback) == "function", "Reactily.Children.map expects a callback.")
 	local normalized = elementModule.flattenChildren(children)
 	local mapped: { any } = table.create(#normalized)
 

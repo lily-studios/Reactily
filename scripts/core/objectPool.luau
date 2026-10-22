@@ -58,6 +58,7 @@ function module.new<T>(
 
 	local available: { T } = {}
 	local availableSet: { [any]: boolean } = {}
+	local busyObjects: { [any]: boolean } = {}
 	local createdCount = 0
 	local isDeleted = false
 
@@ -86,18 +87,31 @@ function module.new<T>(
 			return object
 		end
 
-		createdCount += 1
+		local createdObject = createObject()
 
-		return createObject()
+		createdCount += 1
+		return createdObject
 	end
 
 	local function clear()
-		for _, object in available do
+		-- Detach retained objects before invoking user code. Disposal may call
+		-- back into this pool, and must never acquire or retain a retiring object.
+		local retiring = available
+		available = {}
+		availableSet = {}
+
+		for _, object in retiring do
+			busyObjects[object] = true
+		end
+
+		for _, object in retiring do
 			deleteSafely(object)
 		end
 
-		table.clear(available)
-		table.clear(availableSet)
+		for _, object in retiring do
+			busyObjects[object] = nil
+		end
+		table.clear(retiring)
 	end
 
 	local function delete(): boolean
@@ -124,25 +138,39 @@ function module.new<T>(
 	end
 
 	local function release(object: T): boolean
+		if busyObjects[object] or availableSet[object] then
+			return false
+		end
+		busyObjects[object] = true
+
 		if isDeleted then
 			deleteSafely(object)
+			busyObjects[object] = nil
 
 			return false
 		end
-		if availableSet[object] then
-			return false
+
+		local success, failure = pcall(function(): boolean
+			resetObject(object)
+			return true
+		end)
+
+		if not success then
+			busyObjects[object] = nil
+			error(failure, 0)
 		end
 
-		resetObject(object)
-
-		if #available >= maximumSize then
+		-- Reset callbacks may yield or delete the pool before they return.
+		if isDeleted or #available >= maximumSize then
 			deleteSafely(object)
+			busyObjects[object] = nil
 
 			return false
 		end
 
 		available[#available + 1] = object
 		availableSet[object] = true
+		busyObjects[object] = nil
 
 		return true
 	end
@@ -159,7 +187,6 @@ function module.new<T>(
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createInstancePool = module.instance

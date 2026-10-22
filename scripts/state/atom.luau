@@ -155,7 +155,6 @@ function module.history<T>(initialValue: T, limit: number): HistoryAtom<T>
 	local base = module.new(initialValue)
 
 	local future: { HistoryEntry<T> } = {}
-	local isRecording = true
 	local past: { HistoryEntry<T> } = {}
 
 	local baseSet = base.set
@@ -199,22 +198,19 @@ function module.history<T>(initialValue: T, limit: number): HistoryAtom<T>
 
 	local function set(nextValue: T): boolean
 		local previous = base.get()
-		local didChange = baseSet(nextValue)
-
-		if not didChange then
+		if previous == nextValue then
 			return false
 		end
-		if not isRecording then
-			return true
-		end
 
+		-- Subscribers can inspect or update history synchronously during baseSet.
+		-- Commit history first so nested edits see the same state as the atom.
 		record(previous)
 
 		if #future > 0 then
 			table.clear(future)
 		end
 
-		return true
+		return baseSet(nextValue)
 	end
 
 	local function redo(): boolean
@@ -225,13 +221,9 @@ function module.history<T>(initialValue: T, limit: number): HistoryAtom<T>
 
 		future[#future] = nil
 
-		past[#past + 1] = {
-			value = base.get(),
-		}
+		record(base.get())
 
-		isRecording = false
 		baseSet(entry.value)
-		isRecording = true
 
 		return true
 	end
@@ -248,9 +240,7 @@ function module.history<T>(initialValue: T, limit: number): HistoryAtom<T>
 			value = base.get(),
 		}
 
-		isRecording = false
 		baseSet(entry.value)
-		isRecording = true
 
 		return true
 	end
@@ -259,11 +249,20 @@ function module.history<T>(initialValue: T, limit: number): HistoryAtom<T>
 		return set(updater(base.get()))
 	end
 
+	local function delete(): boolean
+		if not base.delete() then
+			return false
+		end
+
+		clearHistory()
+		return true
+	end
+
 	return {
 		canRedo = canRedo,
 		canUndo = canUndo,
 		clearHistory = clearHistory,
-		delete = base.delete,
+		delete = delete,
 		get = base.get,
 		getFutureCount = getFutureCount,
 		getPastCount = getPastCount,
@@ -348,7 +347,6 @@ function module.new<T>(initialValue: T): Atom<T>
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createAtom = module.new

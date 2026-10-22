@@ -39,6 +39,7 @@ end
 --- @param loader () -> T Loader returning a Reactily component. The loader may yield.
 --- @return T Lazy component wrapper.
 function module.new<T>(loader: () -> T): T
+	assert(type(loader) == "function", "Reactily.lazy expects a loader function.")
 	local resource: resourceModule.Resource<Component> = resourceModule.new(function(): Component
 		local loaded = loader()
 
@@ -75,7 +76,6 @@ function module.preload(componentValue: Component): boolean
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.lazy = module.new

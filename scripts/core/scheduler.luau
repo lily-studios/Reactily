@@ -50,6 +50,12 @@ type ScheduledTask = {
 	priority: Priority,
 }
 
+type TaskQueue = {
+	items: { [number]: number },
+	first: number,
+	last: number,
+}
+
 type PriorityTable = {
 	immediate: Priority,
 	userBlocking: Priority,
@@ -149,13 +155,17 @@ end
 
 --————————————————————————————————————————————————————————————————————--
 
-local function createQueues(): { [Priority]: { number } }
+local function createQueue(): TaskQueue
+	return { items = {}, first = 1, last = 0 }
+end
+
+local function createQueues(): { [Priority]: TaskQueue }
 	return {
-		[priorityValues.immediate] = {},
-		[priorityValues.userBlocking] = {},
-		[priorityValues.normal] = {},
-		[priorityValues.transition] = {},
-		[priorityValues.idle] = {},
+		[priorityValues.immediate] = createQueue(),
+		[priorityValues.userBlocking] = createQueue(),
+		[priorityValues.normal] = createQueue(),
+		[priorityValues.transition] = createQueue(),
+		[priorityValues.idle] = createQueue(),
 	}
 end
 
@@ -225,15 +235,43 @@ function module.new(options: SchedulerOptions?): Scheduler
 		table.clear(keyedTasks)
 		table.clear(tasks)
 
-		for _, queue in queues do
-			table.clear(queue)
-		end
+		queues = createQueues()
 
 		for priorityValue in pendingByPriority do
 			pendingByPriority[priorityValue] = 0
 		end
 
 		pendingCount = 0
+	end
+
+	local function compactQueue(priorityValue: Priority)
+		local queue = queues[priorityValue]
+		local liveCount = pendingByPriority[priorityValue] or 0
+
+		if liveCount == 0 then
+			queues[priorityValue] = createQueue()
+			return
+		end
+
+		-- Bound cancelled ids and consumed prefixes without copying the entire
+		-- queue on every frame or cancellation. Each rebuild discards at least
+		-- half of a sufficiently large queue.
+		if queue.last < 64 or queue.last < liveCount * 2 then
+			return
+		end
+
+		local compacted = createQueue()
+
+		for index = queue.first, queue.last do
+			local taskId = queue.items[index]
+
+			if taskId ~= nil and tasks[taskId] ~= nil then
+				compacted.last += 1
+				compacted.items[compacted.last] = taskId
+			end
+		end
+
+		queues[priorityValue] = compacted
 	end
 
 	local function enqueueTask(callback: () -> (), key: string?, priorityValue: Priority): number
@@ -253,7 +291,8 @@ function module.new(options: SchedulerOptions?): Scheduler
 
 		assert(queue ~= nil, "Reactily scheduler queue does not exist for this priority.")
 
-		queue[#queue + 1] = taskId
+		queue.last += 1
+		queue.items[queue.last] = taskId
 
 		pendingCount += 1
 		pendingByPriority[priorityValue] = (pendingByPriority[priorityValue] or 0) + 1
@@ -268,7 +307,7 @@ function module.new(options: SchedulerOptions?): Scheduler
 	end
 
 	ensureHeartbeat = function()
-		if isDeleted or pendingCount == 0 or heartbeatConnection ~= nil then
+		if isDeleted or isFlushing or pendingCount == 0 or heartbeatConnection ~= nil then
 			return
 		end
 
@@ -288,6 +327,10 @@ function module.new(options: SchedulerOptions?): Scheduler
 		end
 
 		removeTaskRecord(taskId, taskValue)
+
+		if not isFlushing or pendingByPriority[taskValue.priority] == 0 then
+			compactQueue(taskValue.priority)
+		end
 
 		if pendingCount == 0 then
 			disconnectHeartbeat()
@@ -397,43 +440,32 @@ function module.new(options: SchedulerOptions?): Scheduler
 
 		assert(queue ~= nil, "Reactily scheduler queue does not exist for this priority.")
 
-		if #queue == 0 then
+		if queue.first > queue.last then
 			return false
 		end
 
-		local pendingQueue = table.clone(queue)
+		-- Work added by a callback stays behind this slice's existing work and
+		-- is deferred to the next flush of the same priority.
+		local last = queue.last
+		local yielded = false
 
-		table.clear(queue)
+		while queue.first <= last and queues[priorityValue] == queue do
+			local taskId = queue.items[queue.first]
+			queue.items[queue.first] = nil
+			queue.first += 1
 
-		for index, taskId in pendingQueue do
-			if tasks[taskId] ~= nil then
+			if taskId ~= nil and tasks[taskId] ~= nil then
 				runTask(taskId)
-			end
 
-			if respectBudget and timeSliceSeconds > 0 and os.clock() - startedAt >= timeSliceSeconds then
-				-- Requeue untouched task ids ahead of newer work at this same
-				-- priority.
-				local newerQueue = table.clone(queue)
-
-				table.clear(queue)
-
-				for remainingIndex = index + 1, #pendingQueue do
-					local remainingTaskId = pendingQueue[remainingIndex]
-
-					if tasks[remainingTaskId] ~= nil then
-						queue[#queue + 1] = remainingTaskId
-					end
+				if respectBudget and timeSliceSeconds > 0 and os.clock() - startedAt >= timeSliceSeconds then
+					yielded = true
+					break
 				end
-
-				for _, newerTaskId in newerQueue do
-					queue[#queue + 1] = newerTaskId
-				end
-
-				return true
 			end
 		end
 
-		return false
+		compactQueue(priorityValue)
+		return yielded
 	end
 
 	local function flushPriority(priorityValue: Priority)
@@ -548,7 +580,6 @@ function module.new(options: SchedulerOptions?): Scheduler
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createScheduler = module.new

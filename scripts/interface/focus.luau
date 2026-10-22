@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local guiService = game:GetService("GuiService")
@@ -45,6 +44,16 @@ local function canFocus(object: GuiObject): boolean
 	end
 	if not object.Selectable then
 		return false
+	end
+	local ancestor: Instance? = object.Parent
+	while ancestor do
+		if ancestor:IsA("GuiObject") and not ancestor.Visible then
+			return false
+		end
+		if ancestor:IsA("LayerCollector") and not ancestor.Enabled then
+			return false
+		end
+		ancestor = ancestor.Parent
 	end
 
 	return true
@@ -232,7 +241,6 @@ function module.new(): FocusGroup
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.clearFocus = module.clearSelection

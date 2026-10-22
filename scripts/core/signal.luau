@@ -29,7 +29,7 @@ export type Signal<T> = {
 }
 
 type Listener<T> = {
-	callback: (value: T) -> (),
+	callback: ((value: T) -> ())?,
 	connection: Connection?,
 	isConnected: boolean,
 	isOnce: boolean,
@@ -193,6 +193,8 @@ function module.new<T>(): Signal<T>
 
 				connectionValue.connected = false
 				target.isConnected = false
+				target.callback = nil
+				target.connection = nil
 				removeListener(target)
 
 				return true
@@ -227,8 +229,10 @@ function module.new<T>(): Signal<T>
 
 		for _, target in listeners do
 			target.isConnected = false
+			target.callback = nil
 
 			local connectionValue = target.connection
+			target.connection = nil
 			if not connectionValue then
 				continue
 			end
@@ -252,7 +256,8 @@ function module.new<T>(): Signal<T>
 		local snapshot = table.clone(listeners)
 
 		for _, target in snapshot do
-			if not target.isConnected then
+			local callback = target.callback
+			if not target.isConnected or not callback then
 				continue
 			end
 
@@ -264,7 +269,7 @@ function module.new<T>(): Signal<T>
 				end
 			end
 
-			runListener(target.callback, value)
+			runListener(callback, value)
 		end
 
 		table.clear(snapshot)
@@ -388,7 +393,6 @@ function module.take<T>(source: Signal<T>, maximum: number): Signal<T>
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.createSignal = module.new

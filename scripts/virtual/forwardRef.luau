@@ -22,13 +22,13 @@ export type ForwardRefTarget<T> = { current: T? } | ((value: T?) -> ())
 --- @param render (props: P, ref: refTarget<R>?) -> any Render function receiving props and the forwarded ref.
 --- @return any Forward-ref component function.
 function module.new<P, R>(render: (props: P, ref: ForwardRefTarget<R>?) -> any): any
+	assert(type(render) == "function", "Reactily.forwardRef expects a render function.")
 	return function(props: any)
 		return render(props :: P, props.ref)
 	end
 end
 
 --————————————————————————————————————————————————————————————————————--
-
 
 -- Canonical public API names (discoverable directly from Luau).
 module.forwardRef = module.new

@@ -8,7 +8,6 @@
 
 --!strict
 
-
 --————————————————————————————————————————————————————————————————————--
 
 local userInputService = game:GetService("UserInputService")
@@ -299,6 +298,8 @@ function module.bind(target: GuiObject, options: DragOptions?): DragController
 
 	local beganConnection = handle.InputBegan:Connect(onInputBegan)
 	local endedConnection = userInputService.InputEnded:Connect(onInputEnded)
+	local focusLostConnection = userInputService.WindowFocusReleased:Connect(stopDrag)
+	local destroyingConnection: RBXScriptConnection? = nil
 
 	--——————————————————————————————————————————————————————————————————--
 
@@ -313,6 +314,10 @@ function module.bind(target: GuiObject, options: DragOptions?): DragController
 
 		beganConnection:Disconnect()
 		endedConnection:Disconnect()
+		focusLostConnection:Disconnect()
+		if destroyingConnection then
+			destroyingConnection:Disconnect()
+		end
 
 		return true
 	end
@@ -334,6 +339,7 @@ function module.bind(target: GuiObject, options: DragOptions?): DragController
 
 		return true
 	end
+	destroyingConnection = target.Destroying:Connect(delete)
 
 	--——————————————————————————————————————————————————————————————————--
 

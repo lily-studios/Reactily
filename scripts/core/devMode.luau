@@ -29,6 +29,7 @@ end
 --- Enables or disables additional development-time Reactily warnings.
 --- @param enabled boolean New strict-mode state.
 function module.setStrictMode(enabled: boolean)
+	assert(type(enabled) == "boolean", "Reactily strict mode must be a boolean.")
 	strictModeEnabled = enabled
 end
 
