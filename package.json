@@ -20,7 +20,7 @@
     "production": "npx tsc --noEmit && node --experimental-strip-types tools/generate-init.ts && node --experimental-strip-types tools/generate-init.ts --check && node --experimental-strip-types tools/check-naming.ts && node --experimental-strip-types tools/verify-reactily.ts && node --experimental-strip-types tools/test-generate-init.ts && node --experimental-strip-types tools/build-release.ts --skip-generate --clean"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.6.5",
     "typescript": "^5.9.0"
   }
 }
